@@ -1,0 +1,61 @@
+# Очищення вибраних ключів у /kvn.kiev.ua/private/config.php
+# (напр. щоб прибрати чужі ключі WayForPay). Значення в лог не виводяться.
+# Запуск: Actions → Clear keys → Run workflow
+name: Clear keys
+
+on:
+  workflow_dispatch:
+    inputs:
+      keys:
+        description: "Які ключі очистити (через пробіл)"
+        default: "WFP_MERCHANT WFP_SECRET"
+
+jobs:
+  clear:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clear
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          CLEAR: ${{ inputs.keys }}
+        shell: python
+        run: |
+          import os, io, re, base64, ftplib
+          KEYS = ["WFP_MERCHANT", "WFP_SECRET", "TG_BOT_TOKEN", "TG_CHAT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET", "SP_BOOK_ID"]
+          DST = "/kvn.kiev.ua/private/config.php"
+          clear = set(os.environ["CLEAR"].split())
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p()
+
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+          with ftp.transfercmd(f"RETR {DST}") as c:
+              while ch := c.recv(65536):
+                  buf.write(ch)
+              close_tls(c)
+          ftp.voidresp()
+          vals = {k: base64.b64decode(v).decode()
+                  for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", buf.getvalue().decode())}
+          for k in clear:
+              vals[k] = ""
+
+          b64 = lambda v: base64.b64encode(v.encode()).decode()
+          php = "<?php\n// Згенеровано автоматично. Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => base64_decode('{b64(vals.get(k, ''))}'),\n" for k in KEYS) + "];\n"
+          ftp.voidcmd("TYPE I")
+          with ftp.transfercmd(f"STOR {DST}") as c:
+              c.sendall(php.encode()); close_tls(c)
+          ftp.voidresp()
+          ftp.quit()
+          print("== Очищено:", ", ".join(sorted(clear)))
+          print("== Заповнено:", ", ".join(k for k in KEYS if vals.get(k)) or "нічого")
+          print("== Порожні:", ", ".join(k for k in KEYS if not vals.get(k)) or "—")
