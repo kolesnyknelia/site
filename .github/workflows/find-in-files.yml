@@ -1,0 +1,54 @@
+# Тільки ПЕРЕГЛЯД: шукає текст у файлах папки (рекурсивно) і показує рядки,
+# де він трапляється. Довгі ключі/токени в лозі замінюються на ***.
+name: Find text in files
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Папка, напр. /noosal.shop/lak2"
+        required: true
+      patterns:
+        description: "Що шукати (регулярний вираз)"
+        required: true
+      exts:
+        description: "Розширення файлів"
+        default: ".php .html .js .htaccess"
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Search
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          ROOT: ${{ inputs.path }}
+          PAT: ${{ inputs.patterns }}
+          EXTS: ${{ inputs.exts }}
+        shell: python
+        run: |
+          import os, io, re, ftplib
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p(); ftp.encoding = "latin-1"
+          pat = re.compile(os.environ["PAT"], re.I)
+          exts = tuple(os.environ["EXTS"].split())
+          secret = re.compile(r"[A-Za-z0-9:_\-]{20,}")
+          SKIP = {"images", "img", "fonts", "phone_guard", "spam_guard", "assets"}
+          def get(path):
+              buf = io.BytesIO(); ftp.retrbinary(f"RETR {path}", buf.write)
+              return buf.getvalue().decode("utf-8", "replace")
+          def walk(p):
+              for n, f in ftp.mlsd(p, facts=["type", "size"]):
+                  if n in (".", ".."): continue
+                  full = f"{p}/{n}"
+                  if f.get("type") == "dir":
+                      if n not in SKIP: walk(full)
+                  elif n.endswith(exts) and int(f.get("size", 0)) < 400000:
+                      for i, line in enumerate(get(full).splitlines(), 1):
+                          if pat.search(line):
+                              print(f"{full}:{i}: {secret.sub('***', line.strip())[:220]}")
+          walk(os.environ["ROOT"].rstrip("/"))
+          ftp.quit()
