@@ -1,0 +1,4 @@
+# Службові файли не відкриваються напряму з браузера
+<FilesMatch "^(lib|settings)\.php$">
+  Require all denied
+</FilesMatch>

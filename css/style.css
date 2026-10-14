@@ -385,7 +385,8 @@ footer a { color: var(--ink-2); }
 }
 .sticky-cta.show { transform: none; }
 .sticky-cta .btn { flex: 1; padding: 14px 10px; font-size: 15px; box-shadow: none; }
-.sticky-cta .btn-insta { flex: 0 0 50px; padding: 0; }
+.sticky-cta .btn-insta, .sticky-cta .btn-help { flex: 0 0 50px; padding: 0; }
+.btn-help { --c: #2aabee; }
 @media (min-width: 900px) { .sticky-cta { display: none; } footer { padding-bottom: 40px; } }
 
 /* ---------- Modal ---------- */
@@ -423,3 +424,31 @@ footer a { color: var(--ink-2); }
 .confetti { position: fixed; top: -10px; width: 9px; height: 13px; z-index: 200; pointer-events: none; animation: fall linear forwards; }
 @keyframes fall { to { transform: translateY(105vh) rotate(720deg); } }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---------- Один пакет + кроки покупки ---------- */
+.prices.single { max-width: 980px; margin: 0 auto; align-items: center; }
+.price .price-note { color: #c9d3cd; margin: 0 0 4px; font-size: 15px; }
+.price .price-safe { text-align: center; font-size: 13px; color: #c9d3cd; margin: 14px 0 0; }
+.buy-steps { background: var(--bg-2); border: 1px solid var(--line); border-radius: 30px; padding: 30px 26px; }
+.buy-steps ol { list-style: none; padding: 0; margin: 0 0 22px; counter-reset: bs; }
+.buy-steps li { counter-increment: bs; position: relative; padding: 0 0 18px 52px; color: var(--ink-2); }
+.buy-steps li::before { content: counter(bs); position: absolute; left: 0; top: -4px; width: 36px; height: 36px; border-radius: 50%; background: var(--sage-l); color: var(--sage-dd); display: grid; place-items: center; font-family: var(--serif); font-size: 20px; font-weight: 600; }
+.buy-steps li::after { content: ""; position: absolute; left: 17px; top: 36px; bottom: 4px; width: 1px; background: var(--line); }
+.buy-steps li:last-child::after { display: none; }
+.buy-steps li b { color: var(--ink); }
+@media (min-width: 900px) { .prices.single { grid-template-columns: 1.05fr .95fr; } }
+.modal .fine a { color: var(--sage-d); }
+
+/* ---------- Плаваюча кнопка підтримки ---------- */
+.help-fab {
+  display: none !important;
+}
+@media (min-width: 900px) { .help-fab { display: flex !important; } }
+.help-fab {
+  position: fixed; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom)); z-index: 55; display: flex; align-items: center; gap: 8px;
+  background: var(--bg-2); color: var(--ink); border: 1px solid var(--line); border-radius: 99px; padding: 10px 16px 10px 12px;
+  text-decoration: none; font-weight: 700; font-size: 14px; box-shadow: var(--shadow-s); cursor: pointer; transition: transform .25s var(--ease);
+}
+.help-fab span { width: 30px; height: 30px; border-radius: 50%; background: #2aabee; display: grid; place-items: center; font-size: 15px; }
+.help-fab:hover { transform: translateY(-3px); }
+@media (min-width: 900px) { .help-fab { bottom: 24px; right: 24px; } }

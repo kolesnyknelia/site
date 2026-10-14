@@ -4,8 +4,8 @@
 (function () {
   "use strict";
   var C = window.SITE_CONFIG || {};
-  var CUR = C.currency || { code: "EUR", sign: "€" };
-  function money(n) { return Math.round(n).toLocaleString("uk-UA").replace(/,/g, " ") + " " + CUR.sign; }
+  var CUR = C.currency || { code: "USD", sign: "$" };
+  function money(n) { var v = Math.round(n).toLocaleString("uk-UA").replace(/,|\u00a0/g, " "); return CUR.code === "USD" ? CUR.sign + v : v + " " + CUR.sign; }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
@@ -113,8 +113,8 @@
   function calc() {
     if (!cSites) return;
     var sites = +cSites.value, price = +cPrice.value, edits = +cEdits.value;
-    var dev = sites * price + sites * edits * 12 * 15; // правка ~15 € за раз, на рік
-    var course = (C.plans && C.plans.pro ? C.plans.pro.price : 49);
+    var dev = sites * price + sites * edits * 12 * 15; // правка ~15 $ за раз, на рік
+    var course = (C.plans && C.plans.course ? C.plans.course.price : 29);
     var hosting = 0; // безкоштовний хостинг (Netlify / GitHub Pages / Vercel)
     var save = dev - course - hosting;
     $("#oSites").textContent = sites;
@@ -308,12 +308,12 @@
   } catch (e) {}
 
   /* ---------- Модальне вікно заявки ---------- */
-  var modal = $("#orderModal"), form = $("#orderForm"), success = $("#orderSuccess"), currentPlan = "pro";
+  var modal = $("#orderModal"), form = $("#orderForm"), currentPlan = "course";
   function openModal(plan) {
-    currentPlan = plan || "pro";
+    currentPlan = plan || "course";
     var p = (C.plans && C.plans[currentPlan]) || { name: "", price: "" };
-    $("#planPill").textContent = "Тариф: " + p.name + (p.price ? " — " + money(p.price) : "");
-    form.style.display = ""; success.style.display = "none";
+    $("#planPill").textContent = p.name + (p.price ? " — " + money(p.price) : "");
+    form.style.display = "";
     modal.classList.add("open"); document.body.style.overflow = "hidden";
     play("open");
     setTimeout(function () { var f = $("#fName"); if (f) f.focus(); }, 250);
@@ -335,35 +335,20 @@
 
   if (form) form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var name = $("#fName").value.trim(), tel = $("#fPhone").value.trim(), contact = $("#fContact").value.trim();
+    var name = $("#fName").value.trim(), email = $("#fEmail").value.trim(), tel = $("#fPhone").value.trim();
     if (name.length < 2) { toast("Вкажіть, будь ласка, ім'я"); play("whoosh"); $("#fName").focus(); return; }
-    if (tel.replace(/\D/g, "").length < 9) { toast("Перевірте номер телефону"); play("whoosh"); $("#fPhone").focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { toast("Перевірте email — на нього прийде доступ до уроків"); play("whoosh"); $("#fEmail").focus(); return; }
+    if (tel && tel.replace(/\D/g, "").length < 9) { toast("Перевірте номер телефону"); play("whoosh"); $("#fPhone").focus(); return; }
     var p = (C.plans && C.plans[currentPlan]) || {};
-    var data = {
-      date: new Date().toISOString(), name: name, phone: tel, contact: contact,
-      plan: p.name || currentPlan, price: p.price || "", page: location.href, utm: JSON.stringify(utm)
-    };
-    var btn = form.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Надсилаємо…";
-    send(data).then(function () {
-      form.style.display = "none"; success.style.display = "block";
-      play("success"); confetti();
-      track("Lead", { value: p.price, currency: CUR.code, content_name: p.name });
-      var pay = C.payLinks && C.payLinks[currentPlan];
-      var payBtn = $("#payBtn");
-      if (pay) { payBtn.href = pay; payBtn.style.display = ""; } else payBtn.style.display = "none";
-      $("#payHint").style.display = pay ? "" : "none";
-      var tg = $("#tgBtn");
-      if (C.telegram) { tg.href = "https://t.me/" + C.telegram; tg.style.display = ""; } else tg.style.display = "none";
-    }).catch(function () {
-      toast("Помилка мережі. Спробуйте ще раз або напишіть в Instagram");
-    }).then(function () { btn.disabled = false; btn.textContent = "Залишити заявку"; });
+    $("#fUtm").value = JSON.stringify(utm);
+    track("Lead", { value: p.price, currency: CUR.code, content_name: p.name });
+    var btn = form.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Переходимо до оплати…";
+    play("success");
+    // Справжня відправка форми: сервер збереже заявку, повідомить у Telegram і відкриє оплату WayForPay
+    form.action = C.checkoutUrl || "api/order.php";
+    form.method = "post";
+    setTimeout(function () { form.submit(); }, 250);
   });
-
-  function send(data) {
-    if (!C.formEndpoint) { console.log("[ТЕСТ-РЕЖИМ] Заявка:", data); return Promise.resolve(); }
-    // text/plain — щоб Google Apps Script прийняв запит без CORS preflight
-    return fetch(C.formEndpoint, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(data) });
-  }
 
   /* ---------- Поділитися ---------- */
   var shareUrl = location.href.split("#")[0].split("?")[0];
@@ -420,4 +405,19 @@
     window.fbq("init", C.metaPixelId); window.fbq("track", "PageView");
   }
   $$("[data-instagram]").forEach(function (a) { a.addEventListener("click", function () { track("Contact", { method: "instagram" }); }); });
+
+  /* ---------- Підтримка (help-бот у Telegram) ---------- */
+  var helpUrl = C.helpBot || (C.telegram ? "https://t.me/" + C.telegram : "");
+  $$("[data-help]").forEach(function (a) {
+    if (!helpUrl) { a.style.display = "none"; return; }
+    a.href = helpUrl; a.target = "_blank"; a.rel = "noopener";
+    a.addEventListener("click", function () { track("Contact", { method: "help_bot" }); });
+  });
+
+  /* ---------- Microsoft Clarity: теплові карти й записи сесій (куди дивляться й натискають) ---------- */
+  if (C.clarityId) {
+    (function (c, l, a, r, i, t, y) { c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i; y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", C.clarityId);
+  }
 })();

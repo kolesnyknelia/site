@@ -62,3 +62,48 @@ jobs:
             README.md
             STRATEGY.md
             DEPLOY.md
+            PAYMENTS.md
+
+      # Секретні ключі оплати/Telegram/SendPulse → /kvn.kiev.ua/private/config.php
+      # (поза публічною папкою www; у репозиторії й логах їх немає).
+      - name: Write private config
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          WFP_MERCHANT: ${{ secrets.WFP_MERCHANT }}
+          WFP_SECRET: ${{ secrets.WFP_SECRET }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          SP_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
+          SP_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
+          SP_BOOK_ID: ${{ secrets.SP_BOOK_ID }}
+        shell: python
+        run: |
+          import os, io, ftplib
+          keys = ["WFP_MERCHANT", "WFP_SECRET", "TG_BOT_TOKEN", "TG_CHAT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET", "SP_BOOK_ID"]
+          vals = {k: os.environ.get(k, "").strip() for k in keys}
+          esc = lambda v: v.replace("\\", "\\\\").replace("'", "\\'")
+          php = "<?php\n// Згенеровано автоматично з GitHub Secrets. Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => '{esc(v)}',\n" for k, v in vals.items()) + "];\n"
+          print("Заповнено:", ", ".join(k for k, v in vals.items() if v) or "нічого")
+          print("Порожні:", ", ".join(k for k, v in vals.items() if not v) or "—")
+          base = os.environ["DEPLOY_DIR"].rstrip("/").rsplit("/", 1)[0]  # /kvn.kiev.ua
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p()
+          try:
+              ftp.mkd(f"{base}/private")
+          except ftplib.error_perm:
+              pass
+          ftp.voidcmd("TYPE I")
+          with ftp.transfercmd(f"STOR {base}/private/config.php") as c:
+              c.sendall(php.encode())
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+          ftp.voidresp()
+          ftp.quit()
+          print("config.php записано в", f"{base}/private/")
