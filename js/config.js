@@ -3,10 +3,10 @@
    ========================================================= */
 window.SITE_CONFIG = {
   // Ваш Instagram (без @)
-  instagram: "your_instagram",
+  instagram: "nelia_kolesnyk",
 
   // Telegram для зв'язку (без @) — показується після заявки
-  telegram: "your_telegram",
+  telegram: "NKolesnyk9234",
 
   // Куди надсилати заявки. Вставте URL веб-застосунку Google Apps Script
   // (інструкція: backend/README.md). Порожньо = заявки лише в консолі (тест-режим).
