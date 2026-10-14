@@ -13,6 +13,9 @@ on:
       overwrite:
         description: "Перезаписати вже заповнені ключі (yes/no)"
         default: "no"
+      only:
+        description: "Імпортувати лише ці ключі (через пробіл), порожньо = всі"
+        default: ""
 
 jobs:
   import:
@@ -25,6 +28,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           SRC: ${{ inputs.source }}
           OVERWRITE: ${{ inputs.overwrite }}
+          ONLY: ${{ inputs.only }}
         shell: python
         run: |
           import os, io, re, base64, ftplib
@@ -67,14 +71,18 @@ jobs:
                   if "id" in n: return "SP_CLIENT_ID"
                   return None
               if "token" in n and ("bot" in n or "tg" in n or "telegram" in n): return "TG_BOT_TOKEN"
+              if n in ("token", "api_token", "apitoken"): return "TG_BOT_TOKEN"
               if "chat" in n and "id" in n: return "TG_CHAT_ID"
               if "merchant" in n and ("account" in n or "login" in n or n in ("merchant", "wfp_merchant")): return "WFP_MERCHANT"
               if "secret" in n and ("merchant" in n or "wfp" in n or "wayforpay" in n or n in ("secret", "secret_key", "secretkey")): return "WFP_SECRET"
               return None
 
+          only = set(os.environ.get("ONLY", "").split())
           found = {}
           for name, val in pairs:
               k = classify(name)
+              if only and k not in only:
+                  continue
               if k and val and k not in found:
                   found[k] = val
                   print(f"  {k}  ←  {name}")
