@@ -1,4 +1,4 @@
-# Тільки ПЕРЕГЛЯД: показує структуру папок на хостингу (до 3 рівнів)
+# Тільки ПЕРЕГЛЯД: показує структуру папок на хостингу (до 3 рівнів: корінь / домен / піддомен)
 # і тип кожного сайту (HTML / PHP / WordPress). Нічого не змінює.
 # Запуск вручну: Actions → Inspect hosting folders → Run workflow
 name: Inspect hosting folders
@@ -21,12 +21,22 @@ jobs:
           ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
           ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
           ftp.prot_p()
+          ftp.encoding = "latin-1"  # імена можуть бути в UTF-8 або CP1251
+
+          def nice(n):
+              raw = n.encode("latin-1")
+              for enc in ("utf-8", "cp1251"):
+                  try:
+                      return raw.decode(enc)
+                  except UnicodeDecodeError:
+                      pass
+              return n
           SKIP = {"node_modules", "wp-content", "wp-includes", "wp-admin", "vendor", "cache", ".git"}
 
           def walk(path, depth):
               try:
                   entries = list(ftp.mlsd(path, facts=["type", "size"]))
-              except ftplib.all_errors as e:
+              except Exception as e:
                   print("  " * depth + f"[немає доступу: {e}]")
                   return
               files = {n for n, f in entries if f.get("type") == "file"}
@@ -37,8 +47,8 @@ jobs:
               if "index.html" in files: kind.append("index.html")
               if "index.php" in files: kind.append("index.php")
               label = f"  files: {len(files)}, {size // 1024} KB" + (f"  <-- {', '.join(kind)}" if kind else "")
-              print("  " * depth + (path.rstrip("/").split("/")[-1] or "/") + "/" + label)
-              if depth < 3:
+              print("  " * depth + nice(path.rstrip("/").split("/")[-1] or "/") + "/" + label)
+              if depth < 2:
                   for d in dirs:
                       if d in SKIP or d.startswith("."):
                           continue
