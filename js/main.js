@@ -36,18 +36,21 @@
     o.connect(g); g.connect(a.destination);
     o.start(t); o.stop(t + dur + 0.02);
   }
+  // М'які «кришталеві» звуки під світлий стиль сайту
+  function chime(f, t, v) { tone(f, t || 0, .5, "sine", v || .1); tone(f * 2, t || 0, .25, "sine", (v || .1) / 4); }
   var SOUNDS = {
-    pop:     function () { tone(520, 0, .09, "sine", .2, 900); },
-    click:   function () { tone(1200, 0, .04, "square", .05); },
-    tab:     function () { tone(660, 0, .07, "triangle", .15); tone(990, .06, .08, "triangle", .12); },
-    coin:    function () { tone(988, 0, .08, "square", .08); tone(1319, .08, .25, "square", .08); },
-    whoosh:  function () { tone(300, 0, .22, "sawtooth", .05, 1400); },
-    success: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * .09, .22, "triangle", .14); }); },
-    open:    function () { tone(400, 0, .12, "sine", .15, 700); },
-    close:   function () { tone(700, 0, .12, "sine", .12, 380); },
-    tick:    function () { tone(1800, 0, .02, "square", .03); },
-    check:   function () { tone(784, 0, .08, "triangle", .15); tone(1175, .07, .14, "triangle", .14); },
-    insta:   function () { tone(880, 0, .06, "sine", .14); tone(1320, .05, .1, "sine", .12); tone(1760, .1, .12, "sine", .1); }
+    pop:     function () { chime(880, 0, .08); },
+    click:   function () { tone(1400, 0, .03, "sine", .05); },
+    tab:     function () { chime(659, 0, .08); chime(988, .07, .06); },
+    coin:    function () { chime(1047, 0, .09); chime(1568, .09, .08); },
+    whoosh:  function () { tone(420, 0, .35, "sine", .05, 1100); },
+    success: function () { [523, 659, 784, 1047, 1319].forEach(function (f, i) { chime(f, i * .1, .08); }); },
+    open:    function () { chime(587, 0, .07); chime(880, .08, .07); },
+    close:   function () { chime(880, 0, .06); chime(587, .08, .05); },
+    tick:    function () { tone(2200, 0, .015, "sine", .025); },
+    check:   function () { chime(784, 0, .08); chime(1175, .08, .07); },
+    insta:   function () { chime(1047, 0, .07); chime(1319, .07, .06); chime(1568, .14, .05); },
+    flip:    function () { tone(300, 0, .18, "sine", .06, 900); chime(1175, .15, .05); }
   };
   function play(name) {
     if (muted) return;
@@ -261,7 +264,7 @@
 
   /* ---------- Відгуки ---------- */
   var revWrap = $("#reviews");
-  var COLORS = ["#6c3bff", "#ff4d8d", "#18c27a", "#2f80ff", "#ff9f1c"];
+  var COLORS = ["#4f6e60", "#d9a774", "#7f9fb0", "#9db3a6", "#d9a6a0"];
   function esc(s) { return String(s || "").replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   if (revWrap && C.reviews) {
     revWrap.innerHTML = C.reviews.map(function (r, i) {
@@ -388,7 +391,7 @@
   /* ---------- Конфеті ---------- */
   function confetti() {
     if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    var cols = ["#6c3bff", "#ff4d8d", "#ffd23f", "#18c27a", "#2f80ff"];
+    var cols = ["#4f6e60", "#9db3a6", "#f1d6b8", "#d9a774", "#7f9fb0", "#d9a6a0"];
     for (var i = 0; i < 80; i++) {
       var c = document.createElement("i");
       c.className = "confetti";
