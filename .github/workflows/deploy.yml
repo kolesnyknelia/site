@@ -80,30 +80,52 @@ jobs:
           SP_BOOK_ID: ${{ secrets.SP_BOOK_ID }}
         shell: python
         run: |
-          import os, io, ftplib
-          keys = ["WFP_MERCHANT", "WFP_SECRET", "TG_BOT_TOKEN", "TG_CHAT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET", "SP_BOOK_ID"]
-          vals = {k: os.environ.get(k, "").strip() for k in keys}
-          esc = lambda v: v.replace("\\", "\\\\").replace("'", "\\'")
-          php = "<?php\n// Згенеровано автоматично з GitHub Secrets. Не редагуйте вручну.\nreturn [\n" + \
-                "".join(f"    '{k}' => '{esc(v)}',\n" for k, v in vals.items()) + "];\n"
-          print("Заповнено:", ", ".join(k for k, v in vals.items() if v) or "нічого")
-          print("Порожні:", ", ".join(k for k, v in vals.items() if not v) or "—")
+          import os, io, re, base64, ftplib
+          KEYS = ["WFP_MERCHANT", "WFP_SECRET", "TG_BOT_TOKEN", "TG_CHAT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET", "SP_BOOK_ID"]
           base = os.environ["DEPLOY_DIR"].rstrip("/").rsplit("/", 1)[0]  # /kvn.kiev.ua
+          path = f"{base}/private/config.php"
           ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
           ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
           ftp.prot_p()
-          try:
-              ftp.mkd(f"{base}/private")
-          except ftplib.error_perm:
-              pass
-          ftp.voidcmd("TYPE I")
-          with ftp.transfercmd(f"STOR {base}/private/config.php") as c:
-              c.sendall(php.encode())
+
+          def close_tls(c):
               c.settimeout(10)
               try:
                   c.unwrap()
               except Exception:
                   pass
+
+          # Наявні значення (напр. імпортовані з іншого сайту) зберігаємо;
+          # заповнені GitHub Secrets їх доповнюють або перезаписують.
+          vals = {}
+          try:
+              ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {path}") as c:
+                  while ch := c.recv(65536):
+                      buf.write(ch)
+                  close_tls(c)
+              ftp.voidresp()
+              for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", buf.getvalue().decode()):
+                  vals[k] = base64.b64decode(v).decode()
+          except ftplib.all_errors:
+              pass
+          for k in KEYS:
+              v = os.environ.get(k, "").strip()
+              if v:
+                  vals[k] = v
+
+          b64 = lambda v: base64.b64encode(v.encode()).decode()
+          php = "<?php\n// Згенеровано автоматично. Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => base64_decode('{b64(vals.get(k, ''))}'),\n" for k in KEYS) + "];\n"
+          print("Заповнено:", ", ".join(k for k in KEYS if vals.get(k)) or "нічого")
+          print("Порожні:", ", ".join(k for k in KEYS if not vals.get(k)) or "—")
+          try:
+              ftp.mkd(f"{base}/private")
+          except ftplib.error_perm:
+              pass
+          ftp.voidcmd("TYPE I")
+          with ftp.transfercmd(f"STOR {path}") as c:
+              c.sendall(php.encode()); close_tls(c)
           ftp.voidresp()
           ftp.quit()
-          print("config.php записано в", f"{base}/private/")
+          print("config.php оновлено")

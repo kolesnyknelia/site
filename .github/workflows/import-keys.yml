@@ -1,0 +1,106 @@
+# Імпорт ключів (WayForPay, Telegram-бот, SendPulse) з config.php іншого сайту
+# на цьому ж хостингу → /kvn.kiev.ua/private/config.php.
+# Значення ключів НЕ виводяться в лог — лише назви знайдених змінних.
+# Запуск: Actions → Import keys from another site → Run workflow
+name: Import keys from another site
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Файл з ключами на хостингу"
+        default: "/noosal.shop/rozmalovka/config.php"
+      overwrite:
+        description: "Перезаписати вже заповнені ключі (yes/no)"
+        default: "no"
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Import
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          SRC: ${{ inputs.source }}
+          OVERWRITE: ${{ inputs.overwrite }}
+        shell: python
+        run: |
+          import os, io, re, base64, ftplib
+          KEYS = ["WFP_MERCHANT", "WFP_SECRET", "TG_BOT_TOKEN", "TG_CHAT_ID", "SP_CLIENT_ID", "SP_CLIENT_SECRET", "SP_BOOK_ID"]
+          DST = "/kvn.kiev.ua/private/config.php"
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p()
+
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          def get(p):
+              ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {p}") as c:
+                  while ch := c.recv(65536):
+                      buf.write(ch)
+                  close_tls(c)
+              ftp.voidresp()
+              return buf.getvalue().decode("utf-8", "replace")
+
+          # Усі пари «назва → значення» з PHP: define('X','v'), $x = 'v', 'x' => 'v'
+          src = get(os.environ["SRC"].strip())
+          pairs = []
+          for rx in (r"define\(\s*['\"](\w+)['\"]\s*,\s*['\"]([^'\"]*)['\"]",
+                     r"\$(\w+)\s*=\s*['\"]([^'\"]*)['\"]",
+                     r"['\"](\w+)['\"]\s*=>\s*['\"]([^'\"]*)['\"]"):
+              pairs += re.findall(rx, src)
+          print("Змінні у файлі (лише назви):", ", ".join(sorted({n for n, v in pairs if v})) or "—")
+
+          def classify(name):
+              n = name.lower()
+              if "sendpulse" in n or n.startswith("sp_"):
+                  if "book" in n or "list" in n: return "SP_BOOK_ID"
+                  if "secret" in n: return "SP_CLIENT_SECRET"
+                  if "id" in n: return "SP_CLIENT_ID"
+                  return None
+              if "token" in n and ("bot" in n or "tg" in n or "telegram" in n): return "TG_BOT_TOKEN"
+              if "chat" in n and "id" in n: return "TG_CHAT_ID"
+              if "merchant" in n and ("account" in n or "login" in n or n in ("merchant", "wfp_merchant")): return "WFP_MERCHANT"
+              if "secret" in n and ("merchant" in n or "wfp" in n or "wayforpay" in n or n in ("secret", "secret_key", "secretkey")): return "WFP_SECRET"
+              return None
+
+          found = {}
+          for name, val in pairs:
+              k = classify(name)
+              if k and val and k not in found:
+                  found[k] = val
+                  print(f"  {k}  ←  {name}")
+
+          vals = {}
+          try:
+              for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", get(DST)):
+                  vals[k] = base64.b64decode(v).decode()
+          except ftplib.all_errors:
+              pass
+          over = os.environ.get("OVERWRITE", "no").strip().lower() == "yes"
+          for k, v in found.items():
+              if over or not vals.get(k):
+                  vals[k] = v
+
+          b64 = lambda v: base64.b64encode(v.encode()).decode()
+          php = "<?php\n// Згенеровано автоматично. Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => base64_decode('{b64(vals.get(k, ''))}'),\n" for k in KEYS) + "];\n"
+          try:
+              ftp.mkd("/kvn.kiev.ua/private")
+          except ftplib.error_perm:
+              pass
+          ftp.voidcmd("TYPE I")
+          with ftp.transfercmd(f"STOR {DST}") as c:
+              c.sendall(php.encode()); close_tls(c)
+          ftp.voidresp()
+          ftp.quit()
+          print("== Заповнено:", ", ".join(k for k in KEYS if vals.get(k)) or "нічого")
+          print("== Ще порожні:", ", ".join(k for k in KEYS if not vals.get(k)) or "—")
