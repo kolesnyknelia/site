@@ -23,9 +23,6 @@ jobs:
   copy:
     runs-on: ubuntu-latest
     steps:
-      - name: Install lftp
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-
       - name: Copy via FTPS
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
@@ -34,36 +31,85 @@ jobs:
           SRC: ${{ inputs.source }}
           SITES: ${{ inputs.sites }}
           DST: ${{ inputs.target }}
+        shell: python
         run: |
-          set -euo pipefail
-          cat > ~/.lftprc <<RC
-          set ftp:ssl-force true
-          set ftp:ssl-protect-data true
-          set ssl:verify-certificate no
-          set net:max-retries 3
-          set net:timeout 30
-          RC
-          LOGIN="open -u ${FTP_USERNAME// /},${FTP_PASSWORD} ${FTP_SERVER// /}"
-          SRC="${SRC// /}"; DST="${DST// /}"
+          import os, io, ftplib, sys
 
-          echo "== Завантажую /$SRC з хостингу"
-          lftp -e "$LOGIN; mirror --parallel=4 /$SRC /tmp/src; bye"
+          def connect():
+              f = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+              f.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+              f.prot_p()
+              f.encoding = "latin-1"  # імена файлів передаємо байт-в-байт
+              return f
 
-          echo "== Резервна копія -> /_backup/$SRC/"
-          lftp -e "$LOGIN; mirror -R --parallel=4 /tmp/src /_backup/$SRC; bye"
+          ftp = connect()
+          SRC = os.environ["SRC"].strip().strip("/")
+          DST = os.environ["DST"].strip().strip("/")
 
-          if [ -z "$SITES" ]; then
-            SITES=$(cd /tmp/src && ls -d */ | tr -d / | grep -vx www || true)
-          fi
-          for s in $SITES; do
-            if [ ! -d "/tmp/src/$s" ]; then echo "!! $s не знайдено, пропускаю"; continue; fi
-            if lftp -e "$LOGIN; cls -1 /$DST/$s/ ; bye" 2>/dev/null | grep -q .; then
-              echo "!! /$DST/$s вже існує і не порожня — пропускаю, щоб нічого не перезаписати"
-              continue
-            fi
-            echo "== $s.$SRC  ->  $s.$DST"
-            lftp -e "$LOGIN; mirror -R --parallel=4 /tmp/src/$s /$DST/$s; bye"
-          done
+          def listdir(path):
+              out = []
+              for name, facts in ftp.mlsd(path, facts=["type"]):
+                  if name in (".", "..") or facts.get("type") not in ("file", "dir"):
+                      continue
+                  out.append((name, facts["type"]))
+              return out
 
-          echo "== Готово. Вміст /$DST:"
-          lftp -e "$LOGIN; cls -1 /$DST/; bye"
+          def read_tree(path):
+              """{relpath: bytes} для всіх файлів у path"""
+              files = {}
+              def walk(rel):
+                  for name, t in listdir(f"{path}/{rel}".rstrip("/")):
+                      r = f"{rel}/{name}".lstrip("/")
+                      if t == "dir":
+                          files[r + "/"] = None
+                          walk(r)
+                      else:
+                          buf = io.BytesIO()
+                          ftp.retrbinary(f"RETR {path}/{r}", buf.write)
+                          files[r] = buf.getvalue()
+              walk("")
+              return files
+
+          def ensure_dir(path):
+              cur = ""
+              for part in path.strip("/").split("/"):
+                  cur += "/" + part
+                  try:
+                      ftp.mkd(cur)
+                  except ftplib.error_perm:
+                      pass
+
+          def write_tree(path, files):
+              ensure_dir(path)
+              for r in sorted(files):
+                  if files[r] is None:
+                      ensure_dir(f"{path}/{r}")
+              for r, data in files.items():
+                  if data is not None:
+                      ftp.storbinary(f"STOR {path}/{r}", io.BytesIO(data))
+
+          def exists_nonempty(path):
+              try:
+                  return len(listdir(path)) > 0
+              except ftplib.all_errors:
+                  return False
+
+          print(f"== Читаю /{SRC}")
+          sites = [n for n, t in listdir(f"/{SRC}") if t == "dir"]
+          wanted = os.environ.get("SITES", "").split() or [s for s in sites if s != "www"]
+
+          for s in wanted:
+              if s not in sites:
+                  print(f"!! {s} не знайдено в /{SRC}, пропускаю"); continue
+              tree = read_tree(f"/{SRC}/{s}")
+              size = sum(len(v) for v in tree.values() if v)
+              print(f"== {s}: {sum(1 for v in tree.values() if v is not None)} файлів, {size//1024} KB")
+              write_tree(f"/_backup/{SRC}/{s}", tree)
+              print(f"   резервна копія -> /_backup/{SRC}/{s}")
+              if exists_nonempty(f"/{DST}/{s}"):
+                  print(f"!! /{DST}/{s} вже існує і не порожня — НЕ перезаписую"); continue
+              write_tree(f"/{DST}/{s}", tree)
+              print(f"   скопійовано -> /{DST}/{s}  (буде {s}.{DST})")
+
+          print(f"== Готово. Папки в /{DST}:", sorted(n for n, t in listdir(f"/{DST}") if t == "dir"))
+          ftp.quit()
