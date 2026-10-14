@@ -452,3 +452,5 @@ footer a { color: var(--ink-2); }
 .help-fab span { width: 30px; height: 30px; border-radius: 50%; background: #2aabee; display: grid; place-items: center; font-size: 15px; }
 .help-fab:hover { transform: translateY(-3px); }
 @media (min-width: 900px) { .help-fab { bottom: 24px; right: 24px; } }
+.footer-contacts { margin: 6px 0 12px; line-height: 1.8; }
+.footer-legal { font-size: 13px; margin: 0 0 10px; }

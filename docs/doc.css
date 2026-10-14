@@ -1,0 +1,7 @@
+body{margin:0;background:#f7f3ec;color:#23302a;font:16px/1.7 "Manrope",system-ui,sans-serif}
+.doc{max-width:780px;margin:0 auto;padding:28px 16px 60px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(32px,6vw,46px);line-height:1.1;margin:10px 0 6px}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;margin:30px 0 8px}
+a{color:#4f6e60}.muted{color:#8d968f}
+.card{background:#fffdf9;border:1px solid #e6dfd3;border-radius:18px;padding:16px 20px}
+ul{padding-left:22px}
