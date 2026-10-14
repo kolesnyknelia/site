@@ -1,0 +1,69 @@
+# КОПІЮВАННЯ сайтів з одного домену в kvn.kiev.ua (на тому ж хостингу).
+# Нічого не видаляє: оригінали лишаються на місці.
+# Додатково робить резервну копію в /_backup/<домен>/ на хостингу.
+# Запуск: Actions → Copy sites to kvn.kiev.ua → Run workflow
+name: Copy sites to kvn.kiev.ua
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Домен, з якого копіюємо (напр. shopnash.website)"
+        required: true
+      sites:
+        description: "Які піддомени (через пробіл). Порожньо = всі, крім www"
+        required: false
+        default: ""
+      target:
+        description: "Куди копіюємо"
+        required: true
+        default: "kvn.kiev.ua"
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install lftp
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: Copy via FTPS
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          SRC: ${{ inputs.source }}
+          SITES: ${{ inputs.sites }}
+          DST: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          cat > ~/.lftprc <<RC
+          set ftp:ssl-force true
+          set ftp:ssl-protect-data true
+          set ssl:verify-certificate no
+          set net:max-retries 3
+          set net:timeout 30
+          RC
+          LOGIN="open -u ${FTP_USERNAME// /},${FTP_PASSWORD} ${FTP_SERVER// /}"
+          SRC="${SRC// /}"; DST="${DST// /}"
+
+          echo "== Завантажую /$SRC з хостингу"
+          lftp -e "$LOGIN; mirror --parallel=4 /$SRC /tmp/src; bye"
+
+          echo "== Резервна копія -> /_backup/$SRC/"
+          lftp -e "$LOGIN; mirror -R --parallel=4 /tmp/src /_backup/$SRC; bye"
+
+          if [ -z "$SITES" ]; then
+            SITES=$(cd /tmp/src && ls -d */ | tr -d / | grep -vx www || true)
+          fi
+          for s in $SITES; do
+            if [ ! -d "/tmp/src/$s" ]; then echo "!! $s не знайдено, пропускаю"; continue; fi
+            if lftp -e "$LOGIN; cls -1 /$DST/$s/ ; bye" 2>/dev/null | grep -q .; then
+              echo "!! /$DST/$s вже існує і не порожня — пропускаю, щоб нічого не перезаписати"
+              continue
+            fi
+            echo "== $s.$SRC  ->  $s.$DST"
+            lftp -e "$LOGIN; mirror -R --parallel=4 /tmp/src/$s /$DST/$s; bye"
+          done
+
+          echo "== Готово. Вміст /$DST:"
+          lftp -e "$LOGIN; cls -1 /$DST/; bye"
