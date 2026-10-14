@@ -1,0 +1,45 @@
+# Перевірка Telegram-сповіщень: який бот, у який чат пише, і чи доходить тестове повідомлення.
+# Показує лише @username бота і назву чату. Токен у лог не виводиться.
+name: Telegram check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import os, io, re, json, base64, ftplib, urllib.request, urllib.parse
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p(); buf = io.BytesIO()
+          ftp.retrbinary("RETR /kvn.kiev.ua/private/config.php", buf.write); ftp.quit()
+          cfg = {k: base64.b64decode(v).decode() for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", buf.getvalue().decode())}
+          token, chat = cfg.get("TG_BOT_TOKEN", ""), cfg.get("TG_CHAT_ID", "")
+          print("Токен є:", bool(token), "| Чат є:", bool(chat))
+          def api(method, **p):
+              try:
+                  data = urllib.parse.urlencode(p).encode() if p else None
+                  with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/{method}", data, timeout=20) as r:
+                      return json.load(r)
+              except urllib.error.HTTPError as e:
+                  return json.load(e)
+          if token:
+              me = api("getMe")
+              print("Бот:", "@" + me["result"]["username"] if me.get("ok") else me.get("description"))
+          if token and chat:
+              c = api("getChat", chat_id=chat)
+              if c.get("ok"):
+                  r = c["result"]
+                  print("Чат:", r.get("type"), "|", r.get("title") or (r.get("first_name", "") + " " + r.get("last_name", "")).strip(), "|", "@" + r["username"] if r.get("username") else "")
+              else:
+                  print("Чат: помилка —", c.get("description"))
+              m = api("sendMessage", chat_id=chat, text="🧪 Тест сповіщень з сайту kvn.kiev.ua")
+              print("Тестове повідомлення:", "надіслано ✅" if m.get("ok") else "помилка — " + str(m.get("description")))
