@@ -4,6 +4,8 @@
 (function () {
   "use strict";
   var C = window.SITE_CONFIG || {};
+  var CUR = C.currency || { code: "EUR", sign: "€" };
+  function money(n) { return Math.round(n).toLocaleString("uk-UA").replace(/,/g, " ") + " " + CUR.sign; }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
@@ -104,12 +106,12 @@
 
   /* ---------- Калькулятор економії ---------- */
   var cSites = $("#cSites"), cPrice = $("#cPrice"), cEdits = $("#cEdits");
-  function fmt(n) { return Math.round(n).toLocaleString("uk-UA").replace(/,/g, " ") + " грн"; }
+  function fmt(n) { return money(n); }
   function calc() {
     if (!cSites) return;
     var sites = +cSites.value, price = +cPrice.value, edits = +cEdits.value;
-    var dev = sites * price + sites * edits * 12 * 500; // правки ~500 грн за раз, на рік
-    var course = (C.plans && C.plans.pro ? C.plans.pro.price : 1990);
+    var dev = sites * price + sites * edits * 12 * 15; // правка ~15 € за раз, на рік
+    var course = (C.plans && C.plans.pro ? C.plans.pro.price : 49);
     var hosting = 0; // безкоштовний хостинг (Netlify / GitHub Pages / Vercel)
     var save = dev - course - hosting;
     $("#oSites").textContent = sites;
@@ -188,7 +190,7 @@
     var price = (pPrice.value || "").trim();
     return "Ти — досвідчений маркетолог і веб-дизайнер.\n" +
       "Створи односторінковий сайт (лендінг) для " + n.who + ".\n\n" +
-      "Продукт: " + product + (price ? "\nЦіна: " + price + " грн" : "") + "\n" +
+      "Продукт: " + product + (price ? "\nЦіна: " + price : "") + "\n" +
       "Мова сайту: українська.\n" +
       "Аудиторія: українці в Україні та Європі, заходять з Instagram з телефона.\n\n" +
       "Структура:\n" +
@@ -285,10 +287,10 @@
 
   /* ---------- Ціни з конфігу ---------- */
   $$("[data-plan-price]").forEach(function (el) {
-    var p = C.plans && C.plans[el.dataset.planPrice]; if (p) el.textContent = p.price.toLocaleString("uk-UA") + " грн";
+    var p = C.plans && C.plans[el.dataset.planPrice]; if (p) el.textContent = money(p.price);
   });
   $$("[data-plan-old]").forEach(function (el) {
-    var p = C.plans && C.plans[el.dataset.planOld]; if (p && p.old) el.textContent = p.old.toLocaleString("uk-UA") + " грн";
+    var p = C.plans && C.plans[el.dataset.planOld]; if (p && p.old) el.textContent = money(p.old);
   });
 
   /* ---------- UTM-мітки з реклами ---------- */
@@ -307,12 +309,12 @@
   function openModal(plan) {
     currentPlan = plan || "pro";
     var p = (C.plans && C.plans[currentPlan]) || { name: "", price: "" };
-    $("#planPill").textContent = "Тариф: " + p.name + (p.price ? " — " + p.price.toLocaleString("uk-UA") + " грн" : "");
+    $("#planPill").textContent = "Тариф: " + p.name + (p.price ? " — " + money(p.price) : "");
     form.style.display = ""; success.style.display = "none";
     modal.classList.add("open"); document.body.style.overflow = "hidden";
     play("open");
     setTimeout(function () { var f = $("#fName"); if (f) f.focus(); }, 250);
-    track("InitiateCheckout", { value: p.price, currency: "UAH", content_name: p.name });
+    track("InitiateCheckout", { value: p.price, currency: CUR.code, content_name: p.name });
   }
   function closeModal() { modal.classList.remove("open"); document.body.style.overflow = ""; play("close"); }
   $$("[data-order]").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); openModal(b.dataset.order); }); });
@@ -342,7 +344,7 @@
     send(data).then(function () {
       form.style.display = "none"; success.style.display = "block";
       play("success"); confetti();
-      track("Lead", { value: p.price, currency: "UAH", content_name: p.name });
+      track("Lead", { value: p.price, currency: CUR.code, content_name: p.name });
       var pay = C.payLinks && C.payLinks[currentPlan];
       var payBtn = $("#payBtn");
       if (pay) { payBtn.href = pay; payBtn.style.display = ""; } else payBtn.style.display = "none";

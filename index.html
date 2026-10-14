@@ -11,7 +11,7 @@
   <meta property="og:type" content="website">
   <meta property="og:locale" content="uk_UA">
   <meta property="og:title" content="Сайт за 1 вечір з ШІ — без програмістів">
-  <meta property="og:description" content="Лендінг для товару, курсу чи експерта. Навіть дитина зробить. Економія від 10 000 грн.">
+  <meta property="og:description" content="Лендінг для товару, курсу чи експерта. Навіть дитина зробить. Економія від 250 €. Від практика: 4 роки в товарці, 50+ лендінгів.">
   <meta property="og:image" content="img/og.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
@@ -58,14 +58,14 @@
         <a href="#examples" class="btn btn-ghost btn-lg" data-sound="whoosh"><span class="ico">👀</span> Дивитись приклади</a>
       </div>
       <div class="hero-proof">
-        <span>💸 Економія від 10 000 грн</span>
+        <span>💸 Економія від 250 €</span>
         <span>🧒 Зрозуміло навіть дитині</span>
         <span>🌍 Хостинг безкоштовно</span>
       </div>
     </div>
     <div class="reveal" aria-hidden="true">
       <div class="mock">
-        <div class="mock-sticker">0 ₴ на програміста</div>
+        <div class="mock-sticker">0 € на програміста</div>
         <div class="mock-bar"><i></i><i></i><i></i></div>
         <div class="mock-screen">
           <div class="mock-line big"></div>
@@ -87,13 +87,13 @@
     <div class="section-head reveal">
       <span class="eyebrow">Чому це вигідно</span>
       <h2>Ми продаємо не курс. Ми продаємо <span class="hl">ваші гроші й час</span></h2>
-      <p>Я сама займаюсь товарним бізнесом і роблю лендінги для товарів і для свого навчання. Тепер навчу вас.</p>
+      <p>Я 4 роки в товарному бізнесі, зробила понад 50 лендінгів і відправляю 2000+ замовлень на місяць. Тепер навчу вас.</p>
     </div>
     <div class="compare">
       <div class="card bad reveal">
         <h3>😩 Як зараз</h3>
         <ul class="list">
-          <li>Програміст бере 5 000–20 000 грн за 1 лендінг</li>
+          <li>Програміст бере 150–600 € за 1 лендінг</li>
           <li>Чекати 1–3 тижні, а потім ще правки за гроші</li>
           <li>Хочеш змінити ціну чи фото — знову пиши розробнику</li>
           <li>Конструктори — щомісячна підписка</li>
@@ -129,21 +129,21 @@
           <input type="range" id="cSites" min="1" max="20" value="3">
         </div>
         <div class="field">
-          <label for="cPrice">Ціна програміста за 1 сайт <output id="oPrice">8 000 грн</output></label>
-          <input type="range" id="cPrice" min="3000" max="25000" step="500" value="8000">
+          <label for="cPrice">Ціна програміста за 1 сайт <output id="oPrice">250 €</output></label>
+          <input type="range" id="cPrice" min="100" max="800" step="10" value="250">
         </div>
         <div class="field">
           <label for="cEdits">Правок на сайті в місяць <output id="oEdits">2 / міс</output></label>
           <input type="range" id="cEdits" min="0" max="10" value="2">
         </div>
-        <p style="color:var(--muted);font-size:14px;margin:0">* Правка у фрилансера ≈ 500 грн. Розрахунок за рік.</p>
+        <p style="color:var(--muted);font-size:14px;margin:0">* Правка у фрилансера ≈ 15 €. Розрахунок за рік.</p>
       </div>
       <div class="calc-result">
         <span>Ваша економія за рік:</span>
-        <div class="big" id="rSave">0 грн</div>
+        <div class="big" id="rSave">0 €</div>
         <div class="row"><span>Заплатили б програмісту</span><b id="rDev">—</b></div>
         <div class="row"><span>Курс (тариф «З підтримкою»)</span><b id="rCourse">—</b></div>
-        <div class="row"><span>Хостинг</span><b>0 грн</b></div>
+        <div class="row"><span>Хостинг</span><b>0 €</b></div>
         <div class="row"><span>Днів очікування, яких не буде</span><b id="rDays">—</b></div>
         <a href="#pricing" class="btn btn-yellow btn-block mt" data-sound="coin">💰 Хочу економити</a>
       </div>
@@ -210,8 +210,8 @@
           <input id="pProduct" class="input" placeholder="Напр.: масажер для шиї" autocomplete="off">
         </div>
         <div class="field">
-          <label for="pPrice">Ціна (грн)</label>
-          <input id="pPrice" class="input" inputmode="numeric" placeholder="Напр.: 799" autocomplete="off">
+          <label for="pPrice">Ціна</label>
+          <input id="pPrice" class="input" placeholder="Напр.: 799 грн або 25 €" autocomplete="off">
         </div>
         <button class="btn btn-block" id="genPrompt" type="button" data-sound="whoosh">🤖 Згенерувати завдання</button>
       </div>
@@ -275,18 +275,18 @@
 <!-- ============ 8. ПРО АВТОРА ============ -->
 <section class="alt" id="author">
   <div class="container author">
-    <!-- Замініть на своє фото: style="background-image:url(img/author.jpg)" і приберіть текст -->
-    <div class="author-photo reveal">Ваше фото<br>img/author.jpg</div>
+    <!-- Своє фото: покладіть img/author.jpg, додайте style="background-image:url(img/author.jpg)" і приберіть текст -->
+    <div class="author-photo reveal">Неля<br>Колесник</div>
     <div class="reveal">
       <span class="eyebrow">Хто навчає</span>
-      <h2>Привіт! Я — <span class="grad">[Ваше ім'я]</span></h2>
-      <p>Я займаюсь товарним бізнесом і щодня використовую односторінкові сайти: для продажу товарів і для свого навчання як експерт. Я не програміст — і саме тому знаю, як пояснити це просто.</p>
+      <h2>Привіт! Я — <span class="grad">Неля Колесник</span></h2>
+      <p>Уже 4 роки товарний бізнес — мій основний дохід. Я продаю товари через односторінкові сайти: сама створюю лендінги, налаштовую їх і запускаю таргетовану рекламу. Цей самий підхід працює і для експертів: на лендінгах я продаю своє навчання.</p><p>Я не програміст — і саме тому знаю, як пояснити це просто.</p>
       <p>Усе, що я покажу на курсі, я роблю сама для своїх продажів.</p>
       <div class="stats">
-        <div class="stat"><b>[N]+</b>років у товарці</div>
-        <div class="stat"><b>[N]+</b>моїх лендінгів</div>
-        <div class="stat"><b>[N]+</b>замовлень з сайтів</div>
-        <div class="stat"><b>[N]</b>учнів</div>
+        <div class="stat"><b>4 роки</b>у товарному бізнесі</div>
+        <div class="stat"><b>50+</b>створених лендінгів</div>
+        <div class="stat"><b>2000+</b>замовлень щомісяця</div>
+        <div class="stat"><b>100%</b>реклама — налаштовую сама</div>
       </div>
       <a data-instagram class="btn btn-insta mt" data-sound="insta">📸 Мій Instagram <span data-ig-handle></span></a>
     </div>
@@ -377,9 +377,9 @@
     </div>
     <div class="acc reveal">
       <details><summary data-sound="pop">Я взагалі не розбираюсь у техніці. Вийде?</summary><div class="acc-body">Так. Курс зроблено так, що зрозуміє навіть дитина: ви просто пишете ШІ звичайними словами, що потрібно, і копіюєте результат. Кожен крок — відео з екрану.</div></details>
-      <details><summary data-sound="pop">Чи треба платити за ШІ або хостинг?</summary><div class="acc-body">Ні. Ми використовуємо безкоштовні версії ШІ-інструментів і безкоштовний хостинг. Платити можна тільки за власний домен (за бажанням, ~300–500 грн/рік).</div></details>
+      <details><summary data-sound="pop">Чи треба платити за ШІ або хостинг?</summary><div class="acc-body">Ні. Ми використовуємо безкоштовні версії ШІ-інструментів і безкоштовний хостинг. Платити можна тільки за власний домен (за бажанням, ~10–15 € на рік).</div></details>
       <details><summary data-sound="pop">Скільки часу займає один сайт?</summary><div class="acc-body">Перший — 1 вечір (2–3 години разом з уроками). Наступні — 30–60 хвилин.</div></details>
-      <details><summary data-sound="pop">Я живу не в Україні. Підійде?</summary><div class="acc-body">Так, навчання онлайн, українською. Оплату приймаємо з карток будь-яких банків. Сайти можна робити для клієнтів у будь-якій країні.</div></details>
+      <details><summary data-sound="pop">Я живу не в Україні. Підійде?</summary><div class="acc-body">Так, навчання онлайн, українською. Ціна вказана в євро, оплата через WayForPay карткою будь-якого банку: сума автоматично конвертується у валюту вашої картки. Сайти можна робити для клієнтів у будь-якій країні.</div></details>
       <details><summary data-sound="pop">Чи можна робити сайти на замовлення і заробляти?</summary><div class="acc-body">Так. Багато хто після курсу робить лендінги для знайомих підприємців, експертів і магазинів — це окреме джерело доходу.</div></details>
       <details><summary data-sound="pop">Як я отримаю доступ?</summary><div class="acc-body">Після оплати доступ приходить у Telegram / на пошту протягом кількох хвилин.</div></details>
     </div>
@@ -391,7 +391,7 @@
   <div class="container">
     <div class="share reveal">
       <h2>Знаєте, кому це треба? 💌</h2>
-      <p>Поділіться з другом-підприємцем, психологом чи тренером — збережете йому тисячі гривень.</p>
+      <p>Поділіться з другом-підприємцем, психологом чи тренером — збережете йому сотні євро.</p>
       <div class="share-btns">
         <button class="btn btn-yellow" data-share="native" data-sound="whoosh">📤 Поділитися</button>
         <button class="btn" data-share="telegram" data-sound="pop">✈️ Telegram</button>
@@ -427,7 +427,7 @@
       <a href="docs/oferta.html" data-sound="click">Договір оферти</a>
       <a href="docs/privacy.html" data-sound="click">Політика конфіденційності</a>
     </div>
-    © <span id="year">2026</span> Сайт за 1 вечір з ШІ. ФОП [Ваше ПІБ].
+    © <span id="year">2026</span> Сайт за 1 вечір з ШІ. Неля Колесник.
   </div>
 </footer>
 

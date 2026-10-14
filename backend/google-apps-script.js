@@ -15,7 +15,7 @@ function doPost(e) {
 
   if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
     var text = "🔥 Нова заявка!\n\n👤 " + data.name + "\n📞 " + data.phone +
-      (data.contact ? "\n💬 " + data.contact : "") + "\n💼 Тариф: " + data.plan + " — " + data.price + " грн" +
+      (data.contact ? "\n💬 " + data.contact : "") + "\n💼 Тариф: " + data.plan + " — " + data.price + " €" +
       (data.utm && data.utm !== "{}" ? "\n📊 " + data.utm : "");
     UrlFetchApp.fetch("https://api.telegram.org/bot" + TELEGRAM_BOT_TOKEN + "/sendMessage", {
       method: "post", contentType: "application/json",
