@@ -1,0 +1,418 @@
+/* =========================================================
+   Логіка лендінгу: звуки, калькулятор, приклади, форма, «поділитися»
+   ========================================================= */
+(function () {
+  "use strict";
+  var C = window.SITE_CONFIG || {};
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- Звуки (Web Audio, без файлів) ---------- */
+  var audioCtx = null;
+  var muted = false;
+  try { muted = localStorage.getItem("muted") === "1"; } catch (e) {}
+
+  function ctx() {
+    if (!audioCtx) {
+      var A = window.AudioContext || window.webkitAudioContext;
+      if (!A) return null;
+      audioCtx = new A();
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+  function tone(freq, start, dur, type, vol, slideTo) {
+    var a = ctx(); if (!a) return;
+    var t = a.currentTime + start;
+    var o = a.createOscillator(), g = a.createGain();
+    o.type = type || "sine";
+    o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  var SOUNDS = {
+    pop:     function () { tone(520, 0, .09, "sine", .2, 900); },
+    click:   function () { tone(1200, 0, .04, "square", .05); },
+    tab:     function () { tone(660, 0, .07, "triangle", .15); tone(990, .06, .08, "triangle", .12); },
+    coin:    function () { tone(988, 0, .08, "square", .08); tone(1319, .08, .25, "square", .08); },
+    whoosh:  function () { tone(300, 0, .22, "sawtooth", .05, 1400); },
+    success: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * .09, .22, "triangle", .14); }); },
+    open:    function () { tone(400, 0, .12, "sine", .15, 700); },
+    close:   function () { tone(700, 0, .12, "sine", .12, 380); },
+    tick:    function () { tone(1800, 0, .02, "square", .03); },
+    check:   function () { tone(784, 0, .08, "triangle", .15); tone(1175, .07, .14, "triangle", .14); },
+    insta:   function () { tone(880, 0, .06, "sine", .14); tone(1320, .05, .1, "sine", .12); tone(1760, .1, .12, "sine", .1); }
+  };
+  function play(name) {
+    if (muted) return;
+    try { (SOUNDS[name] || SOUNDS.pop)(); } catch (e) {}
+    if (navigator.vibrate && name !== "tick") { try { navigator.vibrate(12); } catch (e) {} }
+  }
+  window.playSound = play;
+
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-sound]");
+    if (el) play(el.getAttribute("data-sound"));
+  });
+
+  var muteBtn = $("#muteBtn");
+  function renderMute() { if (muteBtn) { muteBtn.textContent = muted ? "🔇" : "🔊"; muteBtn.setAttribute("aria-label", muted ? "Увімкнути звук" : "Вимкнути звук"); } }
+  if (muteBtn) {
+    renderMute();
+    muteBtn.addEventListener("click", function () {
+      muted = !muted;
+      try { localStorage.setItem("muted", muted ? "1" : "0"); } catch (e) {}
+      renderMute();
+      if (!muted) play("pop");
+    });
+  }
+
+  /* ---------- Toast ---------- */
+  var toastEl = $("#toast"), toastT;
+  function toast(msg) {
+    if (!toastEl) return;
+    toastEl.textContent = msg; toastEl.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove("show"); }, 2400);
+  }
+
+  /* ---------- Instagram посилання ---------- */
+  var igUrl = "https://instagram.com/" + (C.instagram || "");
+  $$("[data-instagram]").forEach(function (a) { a.href = igUrl; a.target = "_blank"; a.rel = "noopener"; });
+  $$("[data-ig-handle]").forEach(function (s) { s.textContent = "@" + (C.instagram || ""); });
+
+  /* ---------- Поява блоків при скролі ---------- */
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (ents) {
+      ents.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { threshold: .12 });
+    $$(".reveal").forEach(function (el) { io.observe(el); });
+  } else { $$(".reveal").forEach(function (el) { el.classList.add("in"); }); }
+
+  /* ---------- Липка кнопка на мобільному ---------- */
+  var sticky = $("#stickyCta"), hero = $("#hero"), pricing = $("#pricing");
+  function onScroll() {
+    if (!sticky || !hero) return;
+    var y = window.scrollY, past = y > hero.offsetHeight - 80;
+    var atPricing = pricing && (function () { var r = pricing.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; })();
+    sticky.classList.toggle("show", past && !atPricing);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  /* ---------- Калькулятор економії ---------- */
+  var cSites = $("#cSites"), cPrice = $("#cPrice"), cEdits = $("#cEdits");
+  function fmt(n) { return Math.round(n).toLocaleString("uk-UA").replace(/,/g, " ") + " грн"; }
+  function calc() {
+    if (!cSites) return;
+    var sites = +cSites.value, price = +cPrice.value, edits = +cEdits.value;
+    var dev = sites * price + sites * edits * 12 * 500; // правки ~500 грн за раз, на рік
+    var course = (C.plans && C.plans.pro ? C.plans.pro.price : 1990);
+    var hosting = 0; // безкоштовний хостинг (Netlify / GitHub Pages / Vercel)
+    var save = dev - course - hosting;
+    $("#oSites").textContent = sites;
+    $("#oPrice").textContent = fmt(price);
+    $("#oEdits").textContent = edits + " / міс";
+    $("#rDev").textContent = fmt(dev);
+    $("#rCourse").textContent = fmt(course);
+    $("#rDays").textContent = (sites * 7 + edits * 2) + " днів";
+    var big = $("#rSave");
+    big.textContent = fmt(Math.max(save, 0));
+  }
+  [cSites, cPrice, cEdits].forEach(function (i) {
+    if (!i) return;
+    i.addEventListener("input", function () { calc(); play("tick"); });
+  });
+  calc();
+
+  /* ---------- Приклади сайтів за нішами ---------- */
+  var NICHES = {
+    tovar: {
+      url: "examples/tovar.html",
+      title: "Товарка: продаж одного товару",
+      chips: ["1 товар", "Кнопка «Купити»", "Форма: ім'я + телефон", "Таймер акції"],
+      blocks: ["Головний екран: фото товару + ціна + кнопка «Замовити»", "Проблема → як товар її вирішує", "3–5 переваг з іконками", "Фото/відео в житті + відгуки покупців", "Акція: стара/нова ціна, обмежена кількість", "Форма замовлення: ім'я, телефон → заявка в Telegram", "Доставка Новою поштою, оплата при отриманні"],
+      why: "Класика товарного бізнесу: реклама → лендінг → заявка → менеджер дзвонить → відправка НП."
+    },
+    expert: {
+      url: "examples/expert.html",
+      title: "Експерт / онлайн-курс",
+      chips: ["Продаж навчання", "Програма курсу", "Тарифи", "Оплата карткою"],
+      blocks: ["Офер: який результат отримає учень", "Для кого цей курс", "Про автора: досвід і кейси", "Програма по модулях", "Відгуки учнів", "Тарифи + кнопка оплати", "Часті питання"],
+      why: "Для блогерів, коучів, викладачів: людина з реклами одразу бачить програму, ціну й платить."
+    },
+    sport: {
+      url: "examples/sport.html",
+      title: "Тренер / спортсмен",
+      chips: ["Онлайн-тренування", "Марафон", "До/після", "Запис у Telegram"],
+      blocks: ["Головний екран з фото тренера", "Результати учнів: до / після", "Формати: персональні, група, марафон", "Як проходять тренування", "Ціни та пакети", "Кнопка «Записатися» → форма"],
+      why: "Тренеру не треба дорогий сайт: 1 сторінка з результатами і записом закриває 90% задач."
+    },
+    psy: {
+      url: "examples/psycholog.html",
+      title: "Психолог / консультант",
+      chips: ["Запис на консультацію", "Довіра", "Освіта і сертифікати", "Конфіденційність"],
+      blocks: ["Тепле привітання + фото", "З якими запитами працюю", "Освіта, підхід, сертифікати", "Як проходить консультація", "Вартість сесії", "Форма: ім'я, зручний месенджер, запит"],
+      why: "Для психологів важлива довіра: спокійний дизайн, чесна інформація і проста форма запису."
+    }
+  };
+  var frame = $("#exampleFrame"), openFull = $("#exampleOpen");
+  function showNiche(key) {
+    var n = NICHES[key]; if (!n || !frame) return;
+    $$(".tab[data-niche]").forEach(function (t) { t.setAttribute("aria-selected", t.dataset.niche === key ? "true" : "false"); });
+    frame.src = n.url;
+    if (openFull) openFull.href = n.url;
+    $("#exTitle").textContent = n.title;
+    $("#exWhy").textContent = n.why;
+    $("#exChips").innerHTML = n.chips.map(function (c) { return '<span class="chip">' + c + "</span>"; }).join("");
+    $("#exBlocks").innerHTML = n.blocks.map(function (b) { return "<li>" + b + "</li>"; }).join("");
+  }
+  $$(".tab[data-niche]").forEach(function (t) {
+    t.addEventListener("click", function () { showNiche(t.dataset.niche); });
+  });
+  showNiche("tovar");
+
+  /* ---------- Генератор промпту для ШІ ---------- */
+  var pNiche = $("#pNiche"), pProduct = $("#pProduct"), pPrice = $("#pPrice"), pOut = $("#promptOut"), typing;
+  var NICHE_TEXT = {
+    tovar: { who: "товарного бізнесу (продаж одного товару)", cta: "«Замовити зі знижкою»", form: "ім'я та телефон", extra: "блок доставки Новою поштою та оплати при отриманні, таймер акції" },
+    expert: { who: "експерта, який продає онлайн-курс", cta: "«Обрати тариф»", form: "ім'я, телефон і Telegram", extra: "програму курсу по модулях, блок «про автора», 3 тарифи" },
+    sport: { who: "тренера, який веде онлайн-тренування", cta: "«Записатися на тренування»", form: "ім'я та Telegram/Instagram", extra: "блок результатів «до/після», формати тренувань" },
+    psy: { who: "психолога, який проводить консультації", cta: "«Записатися на консультацію»", form: "ім'я, зручний месенджер і короткий запит", extra: "блок освіти та сертифікатів, опис як проходить сесія, акцент на конфіденційності" }
+  };
+  function buildPrompt() {
+    var n = NICHE_TEXT[pNiche.value] || NICHE_TEXT.tovar;
+    var product = (pProduct.value || "").trim() || "мій продукт";
+    var price = (pPrice.value || "").trim();
+    return "Ти — досвідчений маркетолог і веб-дизайнер.\n" +
+      "Створи односторінковий сайт (лендінг) для " + n.who + ".\n\n" +
+      "Продукт: " + product + (price ? "\nЦіна: " + price + " грн" : "") + "\n" +
+      "Мова сайту: українська.\n" +
+      "Аудиторія: українці в Україні та Європі, заходять з Instagram з телефона.\n\n" +
+      "Структура:\n" +
+      "1. Головний екран з сильним заголовком і кнопкою " + n.cta + "\n" +
+      "2. Проблема клієнта і як продукт її вирішує\n" +
+      "3. Переваги (3–5 пунктів з емодзі)\n" +
+      "4. " + n.extra + "\n" +
+      "5. Відгуки (залиш місце для моїх реальних відгуків)\n" +
+      "6. Часті питання\n" +
+      "7. Форма заявки: " + n.form + "\n\n" +
+      "Вимоги: один файл index.html, адаптивний під мобільний, яскравий сучасний дизайн, " +
+      "кнопки з анімацією, швидке завантаження.";
+  }
+  function typeOut() {
+    if (!pOut) return;
+    clearInterval(typing);
+    var txt = buildPrompt(), i = 0;
+    pOut.innerHTML = "";
+    var span = document.createElement("span"), caret = document.createElement("span");
+    caret.className = "caret"; pOut.appendChild(span); pOut.appendChild(caret);
+    typing = setInterval(function () {
+      i += 3; span.textContent = txt.slice(0, i);
+      if (i % 12 === 0) play("tick");
+      if (i >= txt.length) { clearInterval(typing); span.textContent = txt; }
+    }, 16);
+  }
+  var genBtn = $("#genPrompt");
+  if (genBtn) genBtn.addEventListener("click", typeOut);
+  var copyBtn = $("#copyPrompt");
+  if (copyBtn) copyBtn.addEventListener("click", function () {
+    copyText(buildPrompt(), "Промпт скопійовано! Вставте його в ChatGPT або Claude ✨");
+  });
+
+  function copyText(text, msg) {
+    function ok() { toast(msg || "Скопійовано!"); }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(ok, fallback);
+    } else fallback();
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); ok(); } catch (e) { toast("Не вдалося скопіювати"); }
+      document.body.removeChild(ta);
+    }
+  }
+
+  /* ---------- Кроки «від ідеї до сайту» ---------- */
+  var steps = $$(".step"), bar = $("#stepsBar"), note = $("#stepsNote");
+  function renderSteps() {
+    var done = steps.filter(function (s) { return s.classList.contains("done"); }).length;
+    if (bar) bar.style.width = (done / steps.length * 100) + "%";
+    if (note) note.textContent = done === steps.length
+      ? "🎉 Сайт готовий і працює! Саме так це буде на курсі."
+      : "Натискайте на кроки: " + done + " з " + steps.length + " виконано";
+    return done;
+  }
+  steps.forEach(function (s) {
+    s.setAttribute("tabindex", "0"); s.setAttribute("role", "button");
+    function toggle() {
+      s.classList.toggle("done");
+      var d = renderSteps();
+      if (d === steps.length) { play("success"); confetti(); } else play(s.classList.contains("done") ? "check" : "click");
+    }
+    s.addEventListener("click", toggle);
+    s.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  });
+  renderSteps();
+
+  /* ---------- Відгуки ---------- */
+  var revWrap = $("#reviews");
+  var COLORS = ["#6c3bff", "#ff4d8d", "#18c27a", "#2f80ff", "#ff9f1c"];
+  function esc(s) { return String(s || "").replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  if (revWrap && C.reviews) {
+    revWrap.innerHTML = C.reviews.map(function (r, i) {
+      var initials = esc((r.name || "?").trim().charAt(0));
+      return '<article class="review">' +
+        '<div class="review-head"><div class="avatar" style="background:' + COLORS[i % COLORS.length] + '">' + initials + "</div>" +
+        "<div><b>" + esc(r.name) + "</b><small>" + esc(r.role) + "</small></div></div>" +
+        '<div class="stars">★★★★★</div>' +
+        (r.image ? '<img src="' + esc(r.image) + '" alt="Відгук ' + esc(r.name) + '" loading="lazy">' : "") +
+        "<p>" + esc(r.text) + "</p>" +
+        (r.result ? '<div class="result">📈 ' + esc(r.result) + "</div>" : "") +
+        "</article>";
+    }).join("");
+  }
+  $$("[data-rev]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (!revWrap) return;
+      var card = revWrap.querySelector(".review");
+      var w = card ? card.offsetWidth + 16 : 300;
+      revWrap.scrollBy({ left: +b.dataset.rev * w, behavior: "smooth" });
+    });
+  });
+
+  /* ---------- Ціни з конфігу ---------- */
+  $$("[data-plan-price]").forEach(function (el) {
+    var p = C.plans && C.plans[el.dataset.planPrice]; if (p) el.textContent = p.price.toLocaleString("uk-UA") + " грн";
+  });
+  $$("[data-plan-old]").forEach(function (el) {
+    var p = C.plans && C.plans[el.dataset.planOld]; if (p && p.old) el.textContent = p.old.toLocaleString("uk-UA") + " грн";
+  });
+
+  /* ---------- UTM-мітки з реклами ---------- */
+  var utm = {};
+  try {
+    var qs = new URLSearchParams(location.search);
+    ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"].forEach(function (k) {
+      if (qs.get(k)) utm[k] = qs.get(k);
+    });
+    if (Object.keys(utm).length) sessionStorage.setItem("utm", JSON.stringify(utm));
+    else utm = JSON.parse(sessionStorage.getItem("utm") || "{}");
+  } catch (e) {}
+
+  /* ---------- Модальне вікно заявки ---------- */
+  var modal = $("#orderModal"), form = $("#orderForm"), success = $("#orderSuccess"), currentPlan = "pro";
+  function openModal(plan) {
+    currentPlan = plan || "pro";
+    var p = (C.plans && C.plans[currentPlan]) || { name: "", price: "" };
+    $("#planPill").textContent = "Тариф: " + p.name + (p.price ? " — " + p.price.toLocaleString("uk-UA") + " грн" : "");
+    form.style.display = ""; success.style.display = "none";
+    modal.classList.add("open"); document.body.style.overflow = "hidden";
+    play("open");
+    setTimeout(function () { var f = $("#fName"); if (f) f.focus(); }, 250);
+    track("InitiateCheckout", { value: p.price, currency: "UAH", content_name: p.name });
+  }
+  function closeModal() { modal.classList.remove("open"); document.body.style.overflow = ""; play("close"); }
+  $$("[data-order]").forEach(function (b) { b.addEventListener("click", function (e) { e.preventDefault(); openModal(b.dataset.order); }); });
+  $$("[data-close]").forEach(function (b) { b.addEventListener("click", closeModal); });
+  if (modal) modal.addEventListener("click", function (e) { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && modal && modal.classList.contains("open")) closeModal(); });
+
+  // Маска телефону: залишаємо + і цифри
+  var phone = $("#fPhone");
+  if (phone) phone.addEventListener("input", function () {
+    var v = phone.value.replace(/[^\d+]/g, "");
+    if (v && v[0] !== "+") v = "+" + v;
+    phone.value = v.slice(0, 16);
+  });
+
+  if (form) form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("#fName").value.trim(), tel = $("#fPhone").value.trim(), contact = $("#fContact").value.trim();
+    if (name.length < 2) { toast("Вкажіть, будь ласка, ім'я"); play("whoosh"); $("#fName").focus(); return; }
+    if (tel.replace(/\D/g, "").length < 9) { toast("Перевірте номер телефону"); play("whoosh"); $("#fPhone").focus(); return; }
+    var p = (C.plans && C.plans[currentPlan]) || {};
+    var data = {
+      date: new Date().toISOString(), name: name, phone: tel, contact: contact,
+      plan: p.name || currentPlan, price: p.price || "", page: location.href, utm: JSON.stringify(utm)
+    };
+    var btn = form.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Надсилаємо…";
+    send(data).then(function () {
+      form.style.display = "none"; success.style.display = "block";
+      play("success"); confetti();
+      track("Lead", { value: p.price, currency: "UAH", content_name: p.name });
+      var pay = C.payLinks && C.payLinks[currentPlan];
+      var payBtn = $("#payBtn");
+      if (pay) { payBtn.href = pay; payBtn.style.display = ""; } else payBtn.style.display = "none";
+      $("#payHint").style.display = pay ? "" : "none";
+      var tg = $("#tgBtn");
+      if (C.telegram) { tg.href = "https://t.me/" + C.telegram; tg.style.display = ""; } else tg.style.display = "none";
+    }).catch(function () {
+      toast("Помилка мережі. Спробуйте ще раз або напишіть в Instagram");
+    }).then(function () { btn.disabled = false; btn.textContent = "Залишити заявку"; });
+  });
+
+  function send(data) {
+    if (!C.formEndpoint) { console.log("[ТЕСТ-РЕЖИМ] Заявка:", data); return Promise.resolve(); }
+    // text/plain — щоб Google Apps Script прийняв запит без CORS preflight
+    return fetch(C.formEndpoint, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(data) });
+  }
+
+  /* ---------- Поділитися ---------- */
+  var shareUrl = location.href.split("#")[0].split("?")[0];
+  var shareText = "Дивись: курс, як зробити сайт за 1 вечір за допомогою ШІ — без програмістів 🚀";
+  var SHARE = {
+    native: function () {
+      if (navigator.share) navigator.share({ title: document.title, text: shareText, url: shareUrl }).catch(function () {});
+      else copyText(shareUrl, "Посилання скопійовано! 🔗");
+    },
+    telegram: "https://t.me/share/url?url=" + encodeURIComponent(shareUrl) + "&text=" + encodeURIComponent(shareText),
+    viber: "viber://forward?text=" + encodeURIComponent(shareText + " " + shareUrl),
+    whatsapp: "https://wa.me/?text=" + encodeURIComponent(shareText + " " + shareUrl),
+    facebook: "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl),
+    copy: function () { copyText(shareUrl, "Посилання скопійовано! 🔗"); }
+  };
+  $$("[data-share]").forEach(function (b) {
+    b.addEventListener("click", function (e) {
+      e.preventDefault();
+      var s = SHARE[b.dataset.share];
+      if (typeof s === "function") s(); else if (s) window.open(s, "_blank", "noopener");
+      track("Share", { method: b.dataset.share });
+    });
+  });
+
+  /* ---------- Конфеті ---------- */
+  function confetti() {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cols = ["#6c3bff", "#ff4d8d", "#ffd23f", "#18c27a", "#2f80ff"];
+    for (var i = 0; i < 80; i++) {
+      var c = document.createElement("i");
+      c.className = "confetti";
+      c.style.left = Math.random() * 100 + "vw";
+      c.style.background = cols[i % cols.length];
+      c.style.animationDuration = (1.6 + Math.random() * 1.6) + "s";
+      c.style.animationDelay = (Math.random() * .4) + "s";
+      c.style.borderRadius = Math.random() > .5 ? "50%" : "2px";
+      document.body.appendChild(c);
+      setTimeout(function (el) { el.remove(); }, 3800, c);
+    }
+  }
+  window.confetti = confetti;
+
+  /* ---------- Meta Pixel ---------- */
+  function track(ev, params) {
+    if (window.fbq) {
+      var std = ["Lead", "InitiateCheckout", "ViewContent", "Contact"];
+      window.fbq(std.indexOf(ev) > -1 ? "track" : "trackCustom", ev, params || {});
+    }
+  }
+  if (C.metaPixelId) {
+    !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s); }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    window.fbq("init", C.metaPixelId); window.fbq("track", "PageView");
+  }
+  $$("[data-instagram]").forEach(function (a) { a.addEventListener("click", function () { track("Contact", { method: "instagram" }); }); });
+})();
