@@ -117,10 +117,14 @@ jobs:
                   return []
 
           def mkdir(path):
-              try:
-                  retry(lambda: ftp.mkd(path))
-              except ftplib.error_perm:
-                  pass  # вже існує
+              """Створює папку разом з усіма батьківськими."""
+              cur = ""
+              for part in path.strip("/").split("/"):
+                  cur += "/" + part
+                  try:
+                      retry(lambda: ftp.mkd(cur))
+                  except ftplib.error_perm:
+                      pass  # вже існує
 
           def sync(src, dst):
               """Копіює src -> dst; файли, які вже є з тим самим розміром, пропускає."""
