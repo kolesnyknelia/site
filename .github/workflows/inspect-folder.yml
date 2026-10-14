@@ -1,0 +1,35 @@
+# Тільки ПЕРЕГЛЯД: список файлів у папці з правами доступу (unix.mode). Нічого не змінює.
+name: Inspect folder
+
+on:
+  workflow_dispatch:
+    inputs:
+      paths:
+        description: "Папки через пробіл, напр. /noosal.shop/lak2"
+        required: true
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          PATHS: ${{ inputs.paths }}
+        shell: python
+        run: |
+          import os, ftplib
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p(); ftp.encoding = "latin-1"
+          for p in os.environ["PATHS"].split():
+              print(f"===== {p}")
+              try:
+                  for n, f in sorted(ftp.mlsd(p, facts=["type", "size", "unix.mode", "unix.owner"])):
+                      if n in (".", ".."): continue
+                      print(f"  {f.get('type'):4} {f.get('unix.mode', '?'):5} {f.get('unix.owner', ''):10} {f.get('size', ''):>9}  {n}")
+              except Exception as e:
+                  print("  помилка:", e)
+          ftp.quit()
