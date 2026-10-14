@@ -45,7 +45,14 @@ jobs:
                       f"    '{k}' => base64_decode('{base64.b64encode(cfg.get(k, '').encode()).decode()}'),\n" for k in KEYS) + "];\n"
                   ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
                   ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"]); ftp.prot_p()
-                  ftp.storbinary("STOR /kvn.kiev.ua/private/config.php", io.BytesIO(php.encode())); ftp.quit()
+                  ftp.voidcmd("TYPE I")
+                  with ftp.transfercmd("STOR /kvn.kiev.ua/private/config.php") as c:
+                      c.sendall(php.encode()); c.settimeout(10)
+                      try:
+                          c.unwrap()  # хостинг не завжди відповідає на close_notify
+                      except Exception:
+                          pass
+                  ftp.voidresp(); ftp.quit()
                   print("Чат знайдено через /start і збережено ✅")
               else:
                   print("Чат не знайдено: напишіть боту /start і запустіть перевірку ще раз",
