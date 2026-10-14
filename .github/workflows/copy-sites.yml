@@ -18,6 +18,10 @@ on:
         description: "Куди копіюємо"
         required: true
         default: "kvn.kiev.ua"
+      overwrite:
+        description: "Перезаписати, якщо папка в kvn.kiev.ua вже є (yes/no)"
+        required: false
+        default: "no"
 
 jobs:
   copy:
@@ -31,12 +35,18 @@ jobs:
           SRC: ${{ inputs.source }}
           SITES: ${{ inputs.sites }}
           DST: ${{ inputs.target }}
+          OVERWRITE: ${{ inputs.overwrite }}
+          PYTHONUNBUFFERED: "1"
         shell: python
         run: |
-          import os, io, ftplib, sys
+          import os, io, ftplib, ssl
+
+          # Хостинг не надсилає TLS close_notify після передачі файлу —
+          # стандартний unwrap() чекав би таймаут на КОЖНОМУ файлі.
+          ssl.SSLSocket.unwrap = lambda self: self
 
           def connect():
-              f = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+              f = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=30)
               f.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
               f.prot_p()
               f.encoding = "latin-1"  # імена файлів передаємо байт-в-байт
@@ -87,6 +97,7 @@ jobs:
               for r, data in files.items():
                   if data is not None:
                       ftp.storbinary(f"STOR {path}/{r}", io.BytesIO(data))
+                      print(f"     + {path}/{r}")
 
           def exists_nonempty(path):
               try:
@@ -106,7 +117,7 @@ jobs:
               print(f"== {s}: {sum(1 for v in tree.values() if v is not None)} файлів, {size//1024} KB")
               write_tree(f"/_backup/{SRC}/{s}", tree)
               print(f"   резервна копія -> /_backup/{SRC}/{s}")
-              if exists_nonempty(f"/{DST}/{s}"):
+              if os.environ.get("OVERWRITE", "no").strip().lower() != "yes" and exists_nonempty(f"/{DST}/{s}"):
                   print(f"!! /{DST}/{s} вже існує і не порожня — НЕ перезаписую"); continue
               write_tree(f"/{DST}/{s}", tree)
               print(f"   скопійовано -> /{DST}/{s}  (буде {s}.{DST})")
