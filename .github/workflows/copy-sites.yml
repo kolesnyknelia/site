@@ -41,9 +41,7 @@ jobs:
         run: |
           import os, io, ftplib, ssl
 
-          # Хостинг не надсилає TLS close_notify після передачі файлу —
-          # стандартний unwrap() чекав би таймаут на КОЖНОМУ файлі.
-          ssl.SSLSocket.unwrap = lambda self: self
+          import time
 
           def connect():
               f = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=30)
@@ -53,6 +51,45 @@ jobs:
               return f
 
           ftp = connect()
+
+          # Хостинг не завжди відповідає на TLS close_notify, тому стандартні
+          # retrbinary/storbinary зависають. Закриваємо коректно, але чекаємо недовго.
+          def _close_tls(conn):
+              conn.settimeout(10)
+              try:
+                  conn.unwrap()
+              except Exception:
+                  pass
+
+          def retr(path):
+              ftp.voidcmd("TYPE I")
+              buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {path}") as conn:
+                  while chunk := conn.recv(65536):
+                      buf.write(chunk)
+                  _close_tls(conn)
+              ftp.voidresp()
+              return buf.getvalue()
+
+          def stor(path, data):
+              global ftp
+              for attempt in range(3):
+                  try:
+                      ftp.voidcmd("TYPE I")
+                      with ftp.transfercmd(f"STOR {path}") as conn:
+                          conn.sendall(data)
+                          _close_tls(conn)
+                      ftp.voidresp()
+                      return
+                  except ftplib.all_errors as e:
+                      print(f"     ! {path}: {e} — спроба {attempt + 2}/3")
+                      time.sleep(3)
+                      try:
+                          ftp.close()
+                      except Exception:
+                          pass
+                      ftp = connect()
+              raise RuntimeError(f"Не вдалося записати {path}")
           SRC = os.environ["SRC"].strip().strip("/")
           DST = os.environ["DST"].strip().strip("/")
 
@@ -74,9 +111,7 @@ jobs:
                           files[r + "/"] = None
                           walk(r)
                       else:
-                          buf = io.BytesIO()
-                          ftp.retrbinary(f"RETR {path}/{r}", buf.write)
-                          files[r] = buf.getvalue()
+                          files[r] = retr(f"{path}/{r}")
               walk("")
               return files
 
@@ -96,7 +131,7 @@ jobs:
                       ensure_dir(f"{path}/{r}")
               for r, data in files.items():
                   if data is not None:
-                      ftp.storbinary(f"STOR {path}/{r}", io.BytesIO(data))
+                      stor(f"{path}/{r}", data)
                       print(f"     + {path}/{r}")
 
           def exists_nonempty(path):
