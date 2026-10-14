@@ -26,6 +26,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          # adm.tools: захищене з'єднання (FTP over TLS) — без нього хостинг рве передачу файлів
+          protocol: ftps
+          log-level: verbose
           local-dir: ./
           server-dir: /kvn.kiev.ua/www/
           # Не завантажуємо на сервер службові файли і внутрішні документи
