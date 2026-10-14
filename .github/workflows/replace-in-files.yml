@@ -1,0 +1,89 @@
+# Заміна тексту у файлах сайту на хостингу (напр. старий домен → новий).
+# dry_run=yes — лише показати, скільки замін буде, нічого не змінюючи.
+name: Replace text in files
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Папка сайту, напр. /noosal.shop/lak2"
+        required: true
+      find:
+        description: "Що замінити (точний текст), напр. smst.site"
+        required: true
+      replace:
+        description: "На що замінити, напр. noosal.shop"
+        required: true
+      dry_run:
+        description: "Лише перевірити (yes/no)"
+        default: "yes"
+
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Replace via FTPS
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          ROOT: ${{ inputs.path }}
+          FIND: ${{ inputs.find }}
+          REPL: ${{ inputs.replace }}
+          DRY: ${{ inputs.dry_run }}
+          PYTHONUNBUFFERED: "1"
+        shell: python
+        run: |
+          import os, io, ftplib
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p(); ftp.encoding = "latin-1"
+          FIND = os.environ["FIND"].encode(); REPL = os.environ["REPL"].encode()
+          DRY = os.environ["DRY"].strip().lower() != "no"
+          EXTS = (".php", ".html", ".htm", ".js", ".css", ".htaccess", ".json", ".txt", ".xml")
+          SKIP = {"images", "img", "fonts", "phone_guard", "spam_guard"}
+
+          # Хостинг не завжди відповідає на TLS close_notify — закриваємо, але чекаємо недовго.
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          def get(p):
+              ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {p}") as c:
+                  while ch := c.recv(65536):
+                      buf.write(ch)
+                  close_tls(c)
+              ftp.voidresp()
+              return buf.getvalue()
+
+          def put(p, data):
+              ftp.voidcmd("TYPE I")
+              with ftp.transfercmd(f"STOR {p}") as c:
+                  c.sendall(data); close_tls(c)
+              ftp.voidresp()
+
+          total = 0
+          def walk(p):
+              global total
+              for n, f in ftp.mlsd(p, facts=["type", "size"]):
+                  if n in (".", ".."):
+                      continue
+                  full = f"{p}/{n}"
+                  if f.get("type") == "dir":
+                      if n not in SKIP:
+                          walk(full)
+                  elif n.endswith(EXTS):
+                      data = get(full); k = data.count(FIND)
+                      if k:
+                          total += k
+                          print(f"{'[перевірка] ' if DRY else ''}{full}: {k} замін")
+                          if not DRY:
+                              put(full, data.replace(FIND, REPL))
+
+          walk(os.environ["ROOT"].rstrip("/"))
+          print(f"== Разом: {total} ({'нічого не змінено, dry_run' if DRY else 'замінено'})")
+          ftp.quit()
