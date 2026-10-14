@@ -1,0 +1,48 @@
+# Тільки ПЕРЕГЛЯД: показує структуру папок на хостингу (до 3 рівнів)
+# і тип кожного сайту (HTML / PHP / WordPress). Нічого не змінює.
+# Запуск вручну: Actions → Inspect hosting folders → Run workflow
+name: Inspect hosting folders
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List folders via FTPS
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        shell: python
+        run: |
+          import os, ftplib
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p()
+          SKIP = {"node_modules", "wp-content", "wp-includes", "wp-admin", "vendor", "cache", ".git"}
+
+          def walk(path, depth):
+              try:
+                  entries = list(ftp.mlsd(path, facts=["type", "size"]))
+              except ftplib.all_errors as e:
+                  print("  " * depth + f"[немає доступу: {e}]")
+                  return
+              files = {n for n, f in entries if f.get("type") == "file"}
+              dirs = sorted(n for n, f in entries if f.get("type") == "dir")
+              size = sum(int(f.get("size", 0)) for n, f in entries if f.get("type") == "file")
+              kind = []
+              if "wp-config.php" in files: kind.append("WORDPRESS")
+              if "index.html" in files: kind.append("index.html")
+              if "index.php" in files: kind.append("index.php")
+              label = f"  files: {len(files)}, {size // 1024} KB" + (f"  <-- {', '.join(kind)}" if kind else "")
+              print("  " * depth + (path.rstrip("/").split("/")[-1] or "/") + "/" + label)
+              if depth < 3:
+                  for d in dirs:
+                      if d in SKIP or d.startswith("."):
+                          continue
+                      walk(path.rstrip("/") + "/" + d, depth + 1)
+
+          walk("/", 0)
+          ftp.quit()
