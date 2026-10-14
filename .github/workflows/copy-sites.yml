@@ -44,12 +44,15 @@ jobs:
           PYTHONUNBUFFERED: "1"
         shell: python
         run: |
-          import os, io, ftplib, ssl
+          import os, io, ftplib, time
 
-          import time
+          SRC = os.environ["SRC"].strip().strip("/")
+          DST = os.environ["DST"].strip().strip("/")
+          OVERWRITE = os.environ.get("OVERWRITE", "no").strip().lower() == "yes"
+          BACKUP = os.environ.get("BACKUP", "yes").strip().lower() == "yes"
 
           def connect():
-              f = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=30)
+              f = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
               f.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
               f.prot_p()
               f.encoding = "latin-1"  # імена файлів передаємо байт-в-байт
@@ -57,8 +60,23 @@ jobs:
 
           ftp = connect()
 
-          # Хостинг не завжди відповідає на TLS close_notify, тому стандартні
-          # retrbinary/storbinary зависають. Закриваємо коректно, але чекаємо недовго.
+          def retry(fn):
+              """Виконати дію; при збої з'єднання — перепідключитись і повторити (до 5 разів)."""
+              global ftp
+              for attempt in range(5):
+                  try:
+                      return fn()
+                  except (ftplib.error_temp, ftplib.error_reply, OSError, EOFError) as e:
+                      print(f"     ! збій ({e}), перепідключаюсь… {attempt + 1}/5")
+                      time.sleep(5)
+                      try:
+                          ftp.close()
+                      except Exception:
+                          pass
+                      ftp = connect()
+              raise RuntimeError("Хостинг не відповідає після 5 спроб")
+
+          # Хостинг не завжди відповідає на TLS close_notify — закриваємо, але чекаємо недовго.
           def _close_tls(conn):
               conn.settimeout(10)
               try:
@@ -67,101 +85,75 @@ jobs:
                   pass
 
           def retr(path):
-              ftp.voidcmd("TYPE I")
-              buf = io.BytesIO()
-              with ftp.transfercmd(f"RETR {path}") as conn:
-                  while chunk := conn.recv(65536):
-                      buf.write(chunk)
-                  _close_tls(conn)
-              ftp.voidresp()
-              return buf.getvalue()
+              def go():
+                  ftp.voidcmd("TYPE I")
+                  buf = io.BytesIO()
+                  with ftp.transfercmd(f"RETR {path}") as conn:
+                      while chunk := conn.recv(65536):
+                          buf.write(chunk)
+                      _close_tls(conn)
+                  ftp.voidresp()
+                  return buf.getvalue()
+              return retry(go)
 
           def stor(path, data):
-              global ftp
-              for attempt in range(3):
-                  try:
-                      ftp.voidcmd("TYPE I")
-                      with ftp.transfercmd(f"STOR {path}") as conn:
-                          conn.sendall(data)
-                          _close_tls(conn)
-                      ftp.voidresp()
-                      return
-                  except ftplib.all_errors as e:
-                      print(f"     ! {path}: {e} — спроба {attempt + 2}/3")
-                      time.sleep(3)
-                      try:
-                          ftp.close()
-                      except Exception:
-                          pass
-                      ftp = connect()
-              raise RuntimeError(f"Не вдалося записати {path}")
-          SRC = os.environ["SRC"].strip().strip("/")
-          DST = os.environ["DST"].strip().strip("/")
+              def go():
+                  ftp.voidcmd("TYPE I")
+                  with ftp.transfercmd(f"STOR {path}") as conn:
+                      conn.sendall(data)
+                      _close_tls(conn)
+                  ftp.voidresp()
+              retry(go)
 
           def listdir(path):
-              out = []
-              for name, facts in ftp.mlsd(path, facts=["type"]):
-                  if name in (".", "..") or facts.get("type") not in ("file", "dir"):
-                      continue
-                  out.append((name, facts["type"]))
-              return out
-
-          def read_tree(path):
-              """{relpath: bytes} для всіх файлів у path"""
-              files = {}
-              def walk(rel):
-                  for name, t in listdir(f"{path}/{rel}".rstrip("/")):
-                      r = f"{rel}/{name}".lstrip("/")
-                      if t == "dir":
-                          files[r + "/"] = None
-                          walk(r)
-                      else:
-                          files[r] = retr(f"{path}/{r}")
-              walk("")
-              return files
-
-          def ensure_dir(path):
-              cur = ""
-              for part in path.strip("/").split("/"):
-                  cur += "/" + part
-                  try:
-                      ftp.mkd(cur)
-                  except ftplib.error_perm:
-                      pass
-
-          def write_tree(path, files):
-              ensure_dir(path)
-              for r in sorted(files):
-                  if files[r] is None:
-                      ensure_dir(f"{path}/{r}")
-              for r, data in files.items():
-                  if data is not None:
-                      stor(f"{path}/{r}", data)
-                      print(f"     + {path}/{r}")
-
-          def exists_nonempty(path):
+              """[(name, type, size)]; порожньо, якщо папки немає."""
+              def go():
+                  return [(n, f.get("type"), int(f.get("size", 0) or 0))
+                          for n, f in ftp.mlsd(path, facts=["type", "size"])
+                          if n not in (".", "..") and f.get("type") in ("file", "dir")]
               try:
-                  return len(listdir(path)) > 0
-              except ftplib.all_errors:
-                  return False
+                  return retry(go)
+              except ftplib.error_perm:
+                  return []
+
+          def mkdir(path):
+              try:
+                  retry(lambda: ftp.mkd(path))
+              except ftplib.error_perm:
+                  pass  # вже існує
+
+          def sync(src, dst):
+              """Копіює src -> dst; файли, які вже є з тим самим розміром, пропускає."""
+              copied = skipped = 0
+              mkdir(dst)
+              have = {n: (t, sz) for n, t, sz in listdir(dst)}
+              for name, t, size in listdir(src):
+                  if t == "dir":
+                      c, k = sync(f"{src}/{name}", f"{dst}/{name}")
+                      copied += c; skipped += k
+                  elif have.get(name) == ("file", size):
+                      skipped += 1
+                  else:
+                      stor(f"{dst}/{name}", retr(f"{src}/{name}"))
+                      copied += 1
+                      if copied % 25 == 0:
+                          print(f"     … {dst}: скопійовано {copied}")
+              return copied, skipped
 
           print(f"== Читаю /{SRC}")
-          sites = [n for n, t in listdir(f"/{SRC}") if t == "dir"]
-          wanted = os.environ.get("SITES", "").split() or [s for s in sites if s != "www"]
+          sites = [n for n, t, _ in listdir(f"/{SRC}") if t == "dir"]
+          wanted = os.environ.get("SITES", "").split() or [x for x in sites if x != "www"]
 
-          for s in wanted:
-              if s not in sites:
-                  print(f"!! {s} не знайдено в /{SRC}, пропускаю"); continue
-              tree = read_tree(f"/{SRC}/{s}")
-              size = sum(len(v) for v in tree.values() if v)
-              print(f"== {s}: {sum(1 for v in tree.values() if v is not None)} файлів, {size//1024} KB")
-              if os.environ.get("BACKUP", "yes").strip().lower() == "yes":
-                  write_tree(f"/_backup/{SRC}/{s}", tree)
-                  print(f"   резервна копія -> /_backup/{SRC}/{s}")
-              if os.environ.get("OVERWRITE", "no").strip().lower() != "yes" and exists_nonempty(f"/{DST}/{s}"):
-                  print(f"!! /{DST}/{s} вже існує і не порожня — НЕ перезаписую"); continue
-              write_tree(f"/{DST}/{s}", tree)
-              print(f"   скопійовано -> /{DST}/{s}  (буде {s}.{DST})")
+          for site in wanted:
+              if site not in sites:
+                  print(f"!! {site} не знайдено в /{SRC}, пропускаю"); continue
+              if BACKUP:
+                  c, k = sync(f"/{SRC}/{site}", f"/_backup/{SRC}/{site}")
+                  print(f"== {site}: резервна копія /_backup/{SRC}/{site} (нових {c}, вже було {k})")
+              if not OVERWRITE and listdir(f"/{DST}/{site}"):
+                  print(f"!! /{DST}/{site} вже існує — пропускаю (overwrite=yes, щоб докопіювати)"); continue
+              c, k = sync(f"/{SRC}/{site}", f"/{DST}/{site}")
+              print(f"== {site} -> /{DST}/{site}: скопійовано {c}, вже було {k}  (буде {site}.{DST})")
 
-          print(f"== Готово. Папки в /{DST}:", sorted(n for n, t in listdir(f"/{DST}") if t == "dir"))
+          print(f"== Готово. Папки в /{DST}:", sorted(n for n, t, _ in listdir(f"/{DST}") if t == "dir"))
           ftp.quit()
