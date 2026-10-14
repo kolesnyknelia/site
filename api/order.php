@@ -26,7 +26,7 @@ order_put($ref, compact('name', 'email', 'phone', 'contact', 'utm', 'amount') + 
 log_line('leads.log', ['ref' => $ref, 'name' => $name, 'email' => $email, 'phone' => $phone, 'utm' => $utm]);
 
 $src = utm_text($utm);
-tg("🟡 <b>Новий лід — перейшов до оплати</b>\n"
+tg("🎓 <b>КУРС kvn.kiev.ua</b>\n🟡 <b>Новий лід — перейшов до оплати</b>\n"
  . "👤 " . h($name) . "\n📧 " . h($email) . "\n📞 " . h($phone ?: '—') . ($contact ? "\n💬 " . h($contact) : '')
  . "\n💵 {$amount} {$s['currency']}\n📊 " . h($src) . "\n🧾 {$ref}");
 

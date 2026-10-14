@@ -30,13 +30,13 @@ if ($status === 'Approved' && empty($o['paid'])) {
     $o['paid'] = date('c'); $o['sendpulse'] = $ok ? 'ok' : $msg;
     order_put($ref, $o);
     $src = utm_text(g($o, 'utm', array()));
-    tg("✅ <b>ОПЛАТА {$d['amount']} {$d['currency']}</b>\n"
+    tg("🎓 <b>КУРС kvn.kiev.ua</b>\n✅ <b>ОПЛАТА {$d['amount']} {$d['currency']}</b>\n"
      . "👤 " . h($name) . "\n📧 " . h($email) . "\n📞 " . h($phone ?: '—') . (!empty($o['contact']) ? "\n💬 " . h($o['contact']) : '')
      . "\n🎓 Доступ у SendPulse: " . ($ok ? 'відкрито ✅' : '❗ НЕ відкрито (' . h($msg) . ') — додайте вручну')
      . "\n📊 " . h($src) . "\n🧾 {$ref}");
 } elseif (in_array($status, ['Declined', 'Expired'], true) && empty($o['notified_fail'])) {
     $o['notified_fail'] = 1; order_put($ref, $o);
-    tg("❌ <b>Оплата не пройшла</b> ({$status}: " . h(g($d, 'reason')) . ")\n👤 " . h($name) . "\n📧 " . h($email) . "\n📞 " . h($phone ?: '—') . "\n🧾 {$ref}\nМожна написати клієнту й допомогти оплатити.");
+    tg("🎓 <b>КУРС kvn.kiev.ua</b>\n❌ <b>Оплата не пройшла</b> ({$status}: " . h(g($d, 'reason')) . ")\n👤 " . h($name) . "\n📧 " . h($email) . "\n📞 " . h($phone ?: '—') . "\n🧾 {$ref}\nМожна написати клієнту й допомогти оплатити.");
 }
 
 $time = time();
