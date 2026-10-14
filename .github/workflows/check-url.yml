@@ -19,10 +19,11 @@ jobs:
         run: |
           for h in $HOSTS; do
             echo "================ $h"
-            echo "-- DNS:"; dig +short "$h" A || true
+            echo "-- DNS:"; dig +short "${h%%/*}" A || true
             for proto in http https; do
-              echo "-- $proto://$h/"
-              curl -sS -m 20 -o /tmp/body -D /tmp/hdr -w "status=%{http_code} final=%{url_effective}\n" -L "$proto://$h/" || echo "curl error $?"
+              case "$h" in */*) u="$proto://$h" ;; *) u="$proto://$h/" ;; esac
+              echo "-- $u"
+              curl -sS -m 20 -o /tmp/body -D /tmp/hdr -w "status=%{http_code} final=%{url_effective}\n" -L "$u" || echo "curl error $?"
               grep -iE "^(HTTP|location|server|content-type)" /tmp/hdr || true
               echo "-- body (перші 300 символів):"; head -c 300 /tmp/body 2>/dev/null | tr '\n' ' '; echo
             done
