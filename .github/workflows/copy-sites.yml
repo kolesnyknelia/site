@@ -22,6 +22,10 @@ on:
         description: "Перезаписати, якщо папка в kvn.kiev.ua вже є (yes/no)"
         required: false
         default: "no"
+      backup:
+        description: "Робити резервну копію в /_backup (yes/no)"
+        required: false
+        default: "yes"
 
 jobs:
   copy:
@@ -36,6 +40,7 @@ jobs:
           SITES: ${{ inputs.sites }}
           DST: ${{ inputs.target }}
           OVERWRITE: ${{ inputs.overwrite }}
+          BACKUP: ${{ inputs.backup }}
           PYTHONUNBUFFERED: "1"
         shell: python
         run: |
@@ -150,8 +155,9 @@ jobs:
               tree = read_tree(f"/{SRC}/{s}")
               size = sum(len(v) for v in tree.values() if v)
               print(f"== {s}: {sum(1 for v in tree.values() if v is not None)} файлів, {size//1024} KB")
-              write_tree(f"/_backup/{SRC}/{s}", tree)
-              print(f"   резервна копія -> /_backup/{SRC}/{s}")
+              if os.environ.get("BACKUP", "yes").strip().lower() == "yes":
+                  write_tree(f"/_backup/{SRC}/{s}", tree)
+                  print(f"   резервна копія -> /_backup/{SRC}/{s}")
               if os.environ.get("OVERWRITE", "no").strip().lower() != "yes" and exists_nonempty(f"/{DST}/{s}"):
                   print(f"!! /{DST}/{s} вже існує і не порожня — НЕ перезаписую"); continue
               write_tree(f"/{DST}/{s}", tree)
