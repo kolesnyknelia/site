@@ -6,25 +6,26 @@ $s = settings();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: /#pricing'); exit; }
 
-$name    = trim(mb_substr((string)($_POST['name'] ?? ''), 0, 80));
-$email   = strtolower(trim(mb_substr((string)($_POST['email'] ?? ''), 0, 120)));
-$phone   = preg_replace('/[^\d+]/', '', (string)($_POST['phone'] ?? ''));
-$contact = trim(mb_substr((string)($_POST['contact'] ?? ''), 0, 80));
-$utm     = json_decode((string)($_POST['utm'] ?? '{}'), true) ?: [];
-$utm     = array_map(fn($v) => mb_substr((string)$v, 0, 120), array_slice($utm, 0, 8));
+$name    = trim(str_cut((string)g($_POST, 'name'), 80));
+$email   = strtolower(trim(str_cut((string)g($_POST, 'email'), 120)));
+$phone   = preg_replace('/[^\d+]/', '', (string)g($_POST, 'phone'));
+$contact = trim(str_cut((string)g($_POST, 'contact'), 80));
+$utm     = json_decode((string)g($_POST, 'utm', '{}'), true);
+$utm     = is_array($utm) ? array_slice($utm, 0, 8) : array();
+foreach ($utm as $k => $v) $utm[$k] = str_cut((string)$v, 120);
 
-if (mb_strlen($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (str_len($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
     exit('Будь ласка, поверніться і вкажіть ім\'я та коректний email.');
 }
 
-$ref  = 'KVN' . date('ymdHis') . random_int(100, 999);
+$ref  = 'KVN' . date('ymdHis') . mt_rand(100, 999);
 $date = time();
 $amount = $s['price'];
 order_put($ref, compact('name', 'email', 'phone', 'contact', 'utm', 'amount') + ['created' => date('c'), 'paid' => false]);
 log_line('leads.log', ['ref' => $ref, 'name' => $name, 'email' => $email, 'phone' => $phone, 'utm' => $utm]);
 
-$src = $utm ? implode(' · ', array_map(fn($k, $v) => "$k=$v", array_keys($utm), $utm)) : 'прямий захід';
+$src = utm_text($utm);
 tg("🟡 <b>Новий лід — перейшов до оплати</b>\n"
  . "👤 " . h($name) . "\n📧 " . h($email) . "\n📞 " . h($phone ?: '—') . ($contact ? "\n💬 " . h($contact) : '')
  . "\n💵 {$amount} {$s['currency']}\n📊 " . h($src) . "\n🧾 {$ref}");

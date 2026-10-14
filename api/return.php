@@ -3,9 +3,9 @@
 define('APP', 1);
 require __DIR__ . '/lib.php';
 $s = settings();
-$ref = preg_replace('/[^A-Za-z0-9_-]/', '', (string)($_GET['ref'] ?? $_POST['orderReference'] ?? ''));
+$ref = preg_replace('/[^A-Za-z0-9_-]/', '', (string)g($_GET, 'ref', g($_POST, 'orderReference')));
 $o = $ref ? order_get($ref) : [];
-$st = (string)($_POST['transactionStatus'] ?? '');
+$st = (string)g($_POST, 'transactionStatus');
 $manual = isset($_GET['manual']);
 
 if (!empty($o['paid']) || $st === 'Approved') $state = 'ok';
@@ -13,7 +13,7 @@ elseif ($manual) $state = 'manual';
 elseif (in_array($st, ['Declined', 'Expired', 'Refunded'], true)) $state = 'fail';
 else $state = 'wait';
 
-$email = $o['email'] ?? '';
+$email = g($o, 'email');
 $help = $s['help_bot'];
 $T = [
     'ok'     => ['🎉', 'Оплата пройшла!', 'Доступ до уроків надіслано на <b>' . h($email ?: 'вашу пошту') . '</b>. Перевірте також папку «Спам» і «Промоакції».<br>Якщо за 15 хвилин листа немає — напишіть у підтримку, ми швидко допоможемо.'],
