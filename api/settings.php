@@ -13,5 +13,5 @@ return [
     'price'         => 29,                     // ціна одного пакета
     'currency'      => 'USD',                  // USD / EUR / UAH
     'language'      => 'UA',
-    'help_bot'      => 'https://t.me/NKolesnyk9234', // замінити на help-бота
+    'help_bot'      => 'https://t.me/hellppbott',
 ];

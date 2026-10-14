@@ -9,7 +9,7 @@ window.SITE_CONFIG = {
   telegram: "NKolesnyk9234",
 
   // Help-бот підтримки в Telegram (повне посилання). Порожньо = кнопка веде в telegram вище.
-  helpBot: "",
+  helpBot: "https://t.me/hellppbott",
 
   // Куди відправляється форма: серверна частина сама створює замовлення,
   // пише вам у Telegram і відкриває оплату WayForPay (див. PAYMENTS.md).
