@@ -1,0 +1,29 @@
+# Перевірка сайту: DNS, HTTP/HTTPS відповідь і початок сторінки
+# Запуск: Actions → Check site → Run workflow
+name: Check site
+
+on:
+  workflow_dispatch:
+    inputs:
+      hosts:
+        description: "Адреси через пробіл (без https://)"
+        required: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        env:
+          HOSTS: ${{ inputs.hosts }}
+        run: |
+          for h in $HOSTS; do
+            echo "================ $h"
+            echo "-- DNS:"; dig +short "$h" A || true
+            for proto in http https; do
+              echo "-- $proto://$h/"
+              curl -sS -m 20 -o /tmp/body -D /tmp/hdr -w "status=%{http_code} final=%{url_effective}\n" -L "$proto://$h/" || echo "curl error $?"
+              grep -iE "^(HTTP|location|server|content-type)" /tmp/hdr || true
+              echo "-- body (перші 300 символів):"; head -c 300 /tmp/body 2>/dev/null | tr '\n' ' '; echo
+            done
+          done
