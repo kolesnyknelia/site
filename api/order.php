@@ -30,7 +30,7 @@ tg("🎓 <b>КУРС kvn.kiev.ua</b>\n🟡 <b>Новий лід — перейш
  . "👤 " . h($name) . "\n📧 " . h($email) . "\n📞 " . h($phone ?: '—') . ($contact ? "\n💬 " . h($contact) : '')
  . "\n💵 {$amount} {$s['currency']}\n📊 " . h($src) . "\n🧾 {$ref}");
 
-$merchant = secret('WFP_MERCHANT');
+$merchant = secret('WFP_MERCHANT') ?: (string)g($s, 'wfp_merchant');
 if (!$merchant || !secret('WFP_SECRET')) {
     // Оплату ще не підключено — показуємо подяку, заявка вже у Telegram
     header('Location: return.php?ref=' . urlencode($ref) . '&manual=1'); exit;

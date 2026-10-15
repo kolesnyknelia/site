@@ -8,7 +8,8 @@ if (!defined('APP')) { http_response_code(404); exit; }
 
 return [
     'site_url'      => 'https://kvn.kiev.ua',
-    'domain'        => 'kvn.kiev.ua',          // має бути підтверджений у кабінеті WayForPay
+    'domain'        => 'www.kvn.kiev.ua',      // домен магазину в кабінеті WayForPay
+    'wfp_merchant'  => 'www_kvn_kiev_ua',      // Merchant login (не секрет); секретний ключ — у GitHub Secrets
     'product_name'  => 'Курс «Сайт за 1 вечір з ШІ»',
     'price'         => 29,                     // ціна одного пакета
     'currency'      => 'USD',                  // USD / EUR / UAH
