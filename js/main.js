@@ -115,13 +115,14 @@
     var sites = +cSites.value, price = +cPrice.value, edits = +cEdits.value;
     var dev = sites * price + sites * edits * 12 * 15; // правка ~15 $ за раз, на рік
     var course = (C.plans && C.plans.course ? C.plans.course.price : 29);
-    var hosting = 0; // безкоштовний хостинг (Netlify / GitHub Pages / Vercel)
+    var hosting = C.hostingPerYear || 60; // хостинг ~$3–5/міс + домен ~$10–15/рік; піддомени — без доплат
     var save = dev - course - hosting;
     $("#oSites").textContent = sites;
     $("#oPrice").textContent = fmt(price);
     $("#oEdits").textContent = edits + " / міс";
     $("#rDev").textContent = fmt(dev);
     $("#rCourse").textContent = fmt(course);
+    if ($("#rHost")) $("#rHost").textContent = fmt(hosting);
     $("#rDays").textContent = (sites * 7 + edits * 2) + " днів";
     var big = $("#rSave");
     big.textContent = fmt(Math.max(save, 0));
