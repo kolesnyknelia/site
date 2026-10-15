@@ -454,3 +454,10 @@ footer a { color: var(--ink-2); }
 @media (min-width: 900px) { .help-fab { bottom: 24px; right: 24px; } }
 .footer-contacts { margin: 6px 0 12px; line-height: 1.8; }
 .footer-legal { font-size: 13px; margin: 0 0 10px; }
+
+/* ---------- Інші продукти ---------- */
+.more-grid { display: grid; gap: 16px; max-width: 900px; margin: 0 auto; }
+.more-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 26px; padding: 28px 24px; display: flex; flex-direction: column; }
+.more-card p { color: var(--ink-2); flex: 1; }
+.more-ico { width: 54px; height: 54px; border-radius: 16px; background: var(--sage-l); display: grid; place-items: center; font-size: 26px; margin-bottom: 14px; }
+@media (min-width: 760px) { .more-grid { grid-template-columns: 1fr 1fr; } }
