@@ -461,3 +461,6 @@ footer a { color: var(--ink-2); }
 .more-card p { color: var(--ink-2); flex: 1; }
 .more-ico { width: 54px; height: 54px; border-radius: 16px; background: var(--sage-l); display: grid; place-items: center; font-size: 26px; margin-bottom: 14px; }
 @media (min-width: 760px) { .more-grid { grid-template-columns: 1fr 1fr; } }
+.field-hint { display: block; font-size: 13px; color: var(--muted); margin-top: 6px; transition: color .2s; }
+.field-hint.bad { color: #b4532f; font-weight: 700; }
+.toast { width: max-content; max-width: calc(100vw - 32px); }

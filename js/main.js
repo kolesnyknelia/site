@@ -333,11 +333,33 @@
     phone.value = v.slice(0, 16);
   });
 
+  /* ---------- Пошта тільки Gmail: виправлення типових описок ---------- */
+  var GMAIL_TYPOS = /@(gmail\.(con|cm|co|cim|om|comm|ru|ua|com\.ua)|gmal\.com|gmai\.com|gamil\.com|gmial\.com|gnail\.com|gmaill\.com|googlemail\.com|g\.mail\.com)$/;
+  function fixGmail(v) {
+    v = (v || "").trim().toLowerCase().replace(/\s+/g, "");
+    if (/@$/.test(v)) return v + "gmail.com";
+    if (v && v.indexOf("@") === -1) return v;
+    return v.replace(GMAIL_TYPOS, "@gmail.com");
+  }
+  function emailHint(bad) { var h = $("#emailHint"); if (h) h.classList.toggle("bad", !!bad); }
+  var emailInput = $("#fEmail");
+  if (emailInput) emailInput.addEventListener("blur", function () {
+    var v = emailInput.value.trim();
+    if (!v) return;
+    var f = fixGmail(v);
+    if (f !== v.toLowerCase()) { emailInput.value = f; toast("Виправили пошту на " + f); play("check"); }
+    emailHint(!/^[a-z0-9._%+-]+@gmail\.com$/.test(emailInput.value));
+  });
+
   if (form) form.addEventListener("submit", function (e) {
     e.preventDefault();
     var name = $("#fName").value.trim(), email = $("#fEmail").value.trim(), tel = $("#fPhone").value.trim();
     if (name.length < 2) { toast("Вкажіть, будь ласка, ім'я"); play("whoosh"); $("#fName").focus(); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { toast("Перевірте email — на нього прийде доступ до уроків"); play("whoosh"); $("#fEmail").focus(); return; }
+    email = fixGmail(email); $("#fEmail").value = email;
+    if (!/^[a-z0-9._%+-]+@gmail\.com$/.test(email)) {
+      toast("Вкажіть пошту Gmail (…@gmail.com) — доступ до уроків працює тільки з нею");
+      emailHint(true); play("whoosh"); $("#fEmail").focus(); return;
+    }
     if (tel && tel.replace(/\D/g, "").length < 9) { toast("Перевірте номер телефону"); play("whoosh"); $("#fPhone").focus(); return; }
     var p = (C.plans && C.plans[currentPlan]) || {};
     $("#fUtm").value = JSON.stringify(utm);

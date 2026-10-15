@@ -14,9 +14,9 @@ $utm     = json_decode((string)g($_POST, 'utm', '{}'), true);
 $utm     = is_array($utm) ? array_slice($utm, 0, 8) : array();
 foreach ($utm as $k => $v) $utm[$k] = str_cut((string)$v, 120);
 
-if (str_len($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (str_len($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/@gmail\.com$/', $email)) {
     http_response_code(400);
-    exit('Будь ласка, поверніться і вкажіть ім\'я та коректний email.');
+    exit('Будь ласка, поверніться і вкажіть ім\'я та пошту Gmail (…@gmail.com) — доступ до уроків працює тільки з нею.');
 }
 
 $ref  = 'KVN' . date('ymdHis') . mt_rand(100, 999);
