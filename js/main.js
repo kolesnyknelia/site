@@ -266,8 +266,12 @@
   var revWrap = $("#reviews");
   var COLORS = ["#4f6e60", "#d9a774", "#7f9fb0", "#9db3a6", "#d9a6a0"];
   function esc(s) { return String(s || "").replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  if (revWrap && C.reviews) {
-    revWrap.innerHTML = C.reviews.map(function (r, i) {
+  // Показуємо блок відгуків лише коли є справжні (без позначки demo)
+  var realReviews = (C.reviews || []).filter(function (r) { return !r.demo; });
+  var revSec = $("#reviews-sec");
+  if (revSec) revSec.hidden = !realReviews.length;
+  if (revWrap && realReviews.length) {
+    revWrap.innerHTML = realReviews.map(function (r, i) {
       var initials = esc((r.name || "?").trim().charAt(0));
       return '<article class="review">' +
         '<div class="review-head"><div class="avatar" style="background:' + COLORS[i % COLORS.length] + '">' + initials + "</div>" +
@@ -331,6 +335,17 @@
     var v = phone.value.replace(/[^\d+]/g, "");
     if (v && v[0] !== "+") v = "+" + v;
     phone.value = v.slice(0, 16);
+  });
+
+  /* ---------- Мої справжні сайти: показ у телефоні по кліку ---------- */
+  var workFrame = $("#workFrame"), workCover = $("#workCover"), workOpen = $("#workOpen");
+  $$("[data-work]").forEach(function (t) {
+    t.addEventListener("click", function () {
+      $$("[data-work]").forEach(function (x) { x.setAttribute("aria-selected", x === t ? "true" : "false"); });
+      workFrame.src = t.dataset.work; workFrame.hidden = false;
+      if (workCover) workCover.hidden = true;
+      workOpen.href = t.dataset.work; workOpen.hidden = false;
+    });
   });
 
   /* ---------- Пошта тільки Gmail: виправлення типових описок ---------- */

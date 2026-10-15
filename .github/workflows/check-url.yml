@@ -24,7 +24,7 @@ jobs:
               case "$h" in */*) u="$proto://$h" ;; *) u="$proto://$h/" ;; esac
               echo "-- $u"
               curl -sS -m 20 -o /tmp/body -D /tmp/hdr -w "status=%{http_code} final=%{url_effective}\n" -L "$u" || echo "curl error $?"
-              grep -iE "^(HTTP|location|server|content-type)" /tmp/hdr || true
+              grep -iE "^(HTTP|location|server|content-type|x-frame-options|content-security-policy)" /tmp/hdr || true
               echo "-- body (перші 300 символів):"; head -c 300 /tmp/body 2>/dev/null | tr '\n' ' '; echo
             done
           done

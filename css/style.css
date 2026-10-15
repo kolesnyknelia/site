@@ -464,3 +464,9 @@ footer a { color: var(--ink-2); }
 .field-hint { display: block; font-size: 13px; color: var(--muted); margin-top: 6px; transition: color .2s; }
 .field-hint.bad { color: #b4532f; font-weight: 700; }
 .toast { width: max-content; max-width: calc(100vw - 32px); }
+
+/* ---------- Мої справжні сайти ---------- */
+.work-cover { height: 640px; border-radius: 38px; background: linear-gradient(160deg, var(--sage-l), var(--peach)); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 30px; color: var(--ink); }
+.work-cover .e { font-size: 64px; margin-bottom: 10px; }
+.work-cover p { font-weight: 700; max-width: 220px; }
+[hidden] { display: none !important; }
