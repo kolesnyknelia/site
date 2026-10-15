@@ -22,7 +22,8 @@ if (str_len($name) < 2 || !filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_ma
 $ref  = 'KVN' . date('ymdHis') . mt_rand(100, 999);
 $date = time();
 $amount = $s['price'];
-order_put($ref, compact('name', 'email', 'phone', 'contact', 'utm', 'amount') + ['created' => date('c'), 'paid' => false]);
+$currency = $s['currency'];
+order_put($ref, compact('name', 'email', 'phone', 'contact', 'utm', 'amount', 'currency') + ['created' => date('c'), 'paid' => false]);
 log_line('leads.log', ['ref' => $ref, 'name' => $name, 'email' => $email, 'phone' => $phone, 'utm' => $utm]);
 
 $src = utm_text($utm);

@@ -8,10 +8,13 @@ $o = $ref ? order_get($ref) : [];
 $st = (string)g($_POST, 'transactionStatus');
 $manual = isset($_GET['manual']);
 
-if (!empty($o['paid']) || $st === 'Approved') $state = 'ok';
+// Стан визначаємо за записом на сервері (його пише перевірений callback WayForPay), а не за POST із браузера
+if (!empty($o['sp_ok'])) $state = 'ok';
+elseif (!empty($o['paid'])) $state = 'prep';
 elseif ($manual) $state = 'manual';
 elseif (in_array($st, ['Declined', 'Expired', 'Refunded'], true)) $state = 'fail';
 else $state = 'wait';
+$long = !empty($o['paid']) && strtotime($o['paid']) < time() - 900; // понад 15 хв готуємо доступ
 
 $email = g($o, 'email');
 $help = $s['help_bot'];
@@ -20,11 +23,12 @@ $T = [
     'manual' => ['🌿', 'Заявку отримано!', 'Дякую! Я напишу вам найближчим часом із посиланням на оплату й доступом.'],
     'fail'   => ['😕', 'Оплата не пройшла', 'Таке буває: банк відхилив платіж або сторінку закрили. Спробуйте ще раз або напишіть у підтримку — допоможемо.'],
     'wait'   => ['⏳', 'Перевіряємо оплату…', 'Зазвичай це кілька секунд. Сторінка оновиться сама. Якщо оплата пройшла, доступ прийде на <b>' . h($email ?: 'вашу пошту') . '</b>.'],
+    'prep'   => ['🌿', 'Оплату отримано! Готуємо доступ', 'Ваш платіж пройшов ✅ Відкриваємо доступ до уроків на <b>' . h($email ?: 'вашу пошту') . '</b> — це може зайняти кілька хвилин, сторінка оновиться сама.<br><b>Будь ласка, не оплачуйте повторно.</b>' . ($long ? '<br>Якщо доступ досі не прийшов — напишіть у підтримку, ми відкриємо його вручну.' : '')],
 ][$state];
 ?><!doctype html>
 <html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= h($T[1]) ?> · Сайт за 1 вечір з ШІ</title>
-<?php if ($state === 'wait'): ?><meta http-equiv="refresh" content="5"><?php endif; ?>
+<?php if ($state === 'wait' || $state === 'prep'): ?><meta http-equiv="refresh" content="<?= $state === 'prep' ? 10 : 5 ?>"><?php endif; ?>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@500;700&display=swap" rel="stylesheet">
 <style>
 body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f3ec;font-family:Manrope,system-ui,sans-serif;color:#23302a;padding:16px}
@@ -42,12 +46,12 @@ small{color:#8d968f;display:block;margin-top:16px}
   <a class="btn l" href="/">← На сайт</a>
   <?php if ($ref): ?><small>Номер замовлення: <?= h($ref) ?></small><?php endif; ?>
 </div>
-<?php if ($state === 'ok'): ?>
+<?php if ($state === 'ok' || $state === 'prep'): ?>
 <script src="/js/config.js"></script>
 <script>
 (function(){var C=window.SITE_CONFIG||{};if(!C.metaPixelId)return;
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init',C.metaPixelId);fbq('track','Purchase',{value:<?= (float)$s['price'] ?>,currency:'<?= h($s['currency']) ?>'});})();
+fbq('init',C.metaPixelId);fbq('track','Purchase',{value:<?= (float)$s['price'] ?>,currency:'<?= h($s['currency']) ?>'},{eventID:'<?= h($ref) ?>'});})();
 </script>
 <?php endif; ?>
 </body></html>

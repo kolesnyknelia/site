@@ -8,6 +8,7 @@ function settings() {
     return $s;
 }
 
+function mb_substr_safe($s, $n) { return str_cut($s, $n); }
 function str_cut($s, $n) { return function_exists('mb_substr') ? mb_substr($s, 0, $n, 'UTF-8') : substr($s, 0, $n); }
 function str_len($s) { return function_exists('mb_strlen') ? mb_strlen($s, 'UTF-8') : strlen($s); }
 function utm_text($utm) {
@@ -44,6 +45,7 @@ function h($s) { return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
 /* ---------- Telegram ---------- */
 function tg($html) {
+    log_line('tg.log', array('text' => mb_substr_safe(strip_tags($html), 300)));
     $token = secret('TG_BOT_TOKEN'); $chat = secret('TG_CHAT_ID');
     if (!$token || !$chat) return false;
     $ch = curl_init("https://api.telegram.org/bot{$token}/sendMessage");
@@ -62,36 +64,57 @@ function wfp_sign($parts) {
 }
 
 /* ---------- SendPulse: додати email в адресну книгу (звідти автоматизація відкриває курс) ---------- */
-function sendpulse_token() {
-    $id = secret('SP_CLIENT_ID'); $sec = secret('SP_CLIENT_SECRET');
-    if (!$id || !$sec) return '';
-    $ch = curl_init('https://api.sendpulse.com/oauth/access_token');
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15,
-        CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
-        CURLOPT_POSTFIELDS => json_encode(array('grant_type' => 'client_credentials', 'client_id' => $id, 'client_secret' => $sec)),
-    ]);
-    $r = json_decode((string)curl_exec($ch), true);
-    curl_close($ch);
-    return isset($r['access_token']) ? (string)$r['access_token'] : '';
+function sp_base() {
+    $b = secret('SP_API_BASE'); // лише для локальних тестів; на сайті порожньо
+    return $b ? rtrim($b, '/') : 'https://api.sendpulse.com';
 }
 
+function sp_request($url, $payload, $token = '') {
+    $h = array('Content-Type: application/json');
+    if ($token) $h[] = "Authorization: Bearer {$token}";
+    $ch = curl_init($url);
+    curl_setopt_array($ch, array(
+        CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15, CURLOPT_CONNECTTIMEOUT => 8,
+        CURLOPT_HTTPHEADER => $h, CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
+    ));
+    $body = curl_exec($ch);
+    $err = $body === false ? curl_error($ch) : '';
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return array($code, json_decode((string)$body, true), $err);
+}
+
+/** [токен, помилка] */
+function sendpulse_token() {
+    $id = secret('SP_CLIENT_ID'); $sec = secret('SP_CLIENT_SECRET');
+    if (!$id || !$sec) return array('', 'SendPulse не налаштовано (немає ключів API)');
+    list($code, $r, $err) = sp_request(sp_base() . '/oauth/access_token',
+        array('grant_type' => 'client_credentials', 'client_id' => $id, 'client_secret' => $sec));
+    if (!empty($r['access_token'])) return array((string)$r['access_token'], '');
+    return array('', $err ? "з'єднання: {$err}" : "вхід в API: HTTP {$code}");
+}
+
+/** Додає email в адресну книгу (звідти Automation 360 відкриває курс). [успіх, причина] */
 function sendpulse_add($email, $name, $phone) {
     $book = secret('SP_BOOK_ID');
-    $token = sendpulse_token();
-    if (!$book || !$token) return array(false, 'SendPulse не налаштовано');
+    if (!$book) return array(false, 'SendPulse не налаштовано (немає номера книги)');
+    list($token, $terr) = sendpulse_token();
+    if (!$token) return array(false, $terr);
     $payload = array('emails' => array(array('email' => $email, 'variables' => array_filter(array('name' => $name, 'phone' => $phone)))));
-    $ch = curl_init("https://api.sendpulse.com/addressbooks/{$book}/emails");
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 15,
-        CURLOPT_HTTPHEADER => array('Content-Type: application/json', "Authorization: Bearer {$token}"),
-        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
-    ]);
-    $body = (string)curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    $r = json_decode($body, true);
-    return array($code === 200 && !empty($r['result']), $code === 200 ? 'ok' : "HTTP {$code}");
+    list($code, $r, $err) = sp_request(sp_base() . "/addressbooks/{$book}/emails", $payload, $token);
+    if ($code === 200 && !empty($r['result'])) return array(true, 'ok');
+    if ($err) return array(false, "з'єднання: {$err}");
+    $why = is_array($r) ? (isset($r['message']) ? $r['message'] : (isset($r['error']) ? $r['error'] : '')) : '';
+    return array(false, "HTTP {$code}" . ($why ? " ({$why})" : ''));
+}
+
+/** Блокування замовлення, щоб два повтори WayForPay не обробили його одночасно */
+function order_lock($ref) {
+    $d = private_dir() . '/orders';
+    if (!is_dir($d)) @mkdir($d, 0750, true);
+    $fh = @fopen($d . '/' . preg_replace('/[^A-Za-z0-9_-]/', '', $ref) . '.lock', 'c');
+    if ($fh) flock($fh, LOCK_EX);
+    return $fh;
 }
 
 /* Деталі замовлення, збережені під час оформлення (ім'я, телефон, UTM) */
