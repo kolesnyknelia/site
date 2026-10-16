@@ -54,6 +54,14 @@ jobs:
               close_tls(c)
           ftp.voidresp()
           src = buf.getvalue().decode("utf-8")
+
+          # Резервні копії — лише в закритій папці /_backup (не в публічній папці сайту).
+          # Прибираємо старі .bak, які могли лишитися поруч із файлом.
+          folder, fname = FILE.rsplit("/", 1)
+          for n, f in ftp.mlsd(folder, facts=["type"]):
+              if f.get("type") == "file" and n.startswith(fname + ".bak-"):
+                  ftp.delete(f"{folder}/{n}")
+                  print(f"Прибрано публічну резервну копію: {folder}/{n}")
           lines = src.split("\n")
           mask = lambda s: re.sub(r"[A-Za-z0-9:_\-]{24,}", "***", s)
 
@@ -93,7 +101,14 @@ jobs:
               print("== Пробний запуск: файл НЕ змінено")
               raise SystemExit(0)
 
-          backup = f"{FILE}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
+          backup = f"/_backup{FILE}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
+          cur = ""
+          for part in backup.strip("/").split("/")[:-1]:
+              cur += "/" + part
+              try:
+                  ftp.mkd(cur)
+              except ftplib.error_perm:
+                  pass
           for path, data in ((backup, src), (FILE, out)):
               ftp.voidcmd("TYPE I")
               with ftp.transfercmd(f"STOR {path}") as c:
