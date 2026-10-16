@@ -1,0 +1,103 @@
+# Позначити товар «Немає в наявності» у config.php магазину (поле 'stock' => false).
+# dry_run=yes — лише показати блок товару до/після, нічого не змінюючи.
+name: Product stock
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Файл товарів, напр. /vsinashi.shop/optovuk/config.php"
+        required: true
+      title:
+        description: "Точна назва товару, напр. Сережки Богемські"
+        required: true
+      in_stock:
+        description: "yes — повернути в наявність, no — немає в наявності"
+        default: "no"
+      dry_run:
+        description: "Лише показати (yes/no)"
+        default: "yes"
+
+jobs:
+  stock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Edit
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FILE: ${{ inputs.path }}
+          TITLE: ${{ inputs.title }}
+          IN_STOCK: ${{ inputs.in_stock }}
+          DRY: ${{ inputs.dry_run }}
+        shell: python
+        run: |
+          import os, io, re, ftplib, time
+          FILE, TITLE = os.environ["FILE"].strip(), os.environ["TITLE"].strip()
+          make_out = os.environ["IN_STOCK"].strip().lower() != "yes"
+          dry = os.environ["DRY"].strip().lower() != "no"
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"]); ftp.prot_p()
+
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+          with ftp.transfercmd(f"RETR {FILE}") as c:
+              while ch := c.recv(65536):
+                  buf.write(ch)
+              close_tls(c)
+          ftp.voidresp()
+          src = buf.getvalue().decode("utf-8")
+          lines = src.split("\n")
+          mask = lambda s: re.sub(r"[A-Za-z0-9:_\-]{24,}", "***", s)
+
+          idx = [i for i, l in enumerate(lines) if re.search(r"'title'\s*=>\s*'" + re.escape(TITLE) + "'", l)]
+          if len(idx) != 1:
+              raise SystemExit(f"Знайдено {len(idx)} товарів з назвою «{TITLE}» — потрібен рівно один")
+          t = idx[0]
+          # межі блоку товару: від рядка з '[' / 'array(' вище до відповідного закриття
+          start = t
+          while start > 0 and not re.search(r"(\[|array\()\s*$", lines[start - 1].rstrip()) and "=> [" not in lines[start] and "=> array(" not in lines[start]:
+              start -= 1
+          end = t
+          while end < len(lines) - 1 and not re.match(r"\s*\]\s*,?\s*$|\s*\)\s*,?\s*$", lines[end]):
+              end += 1
+          print("=== Блок товару ДО:")
+          for i in range(max(start - 1, 0), end + 1):
+              print(f"{i + 1:4}: {mask(lines[i])}")
+
+          block = "\n".join(lines[start:end + 1])
+          has_false = re.search(r"'stock'\s*=>\s*false", block)
+          new = list(lines)
+          if make_out and not has_false:
+              indent = re.match(r"\s*", lines[t]).group(0)
+              new.insert(t + 1, f"{indent}'stock' => false,")
+          elif not make_out and has_false:
+              new = [l for i, l in enumerate(lines) if not (start <= i <= end and re.match(r"\s*'stock'\s*=>\s*false\s*,?\s*$", l))]
+          else:
+              print("Нічого міняти не треба — товар уже в потрібному стані.")
+              raise SystemExit(0)
+
+          out = "\n".join(new)
+          print("=== Блок товару ПІСЛЯ:")
+          nl = out.split("\n")
+          for i in range(max(start - 1, 0), min(end + 2, len(nl))):
+              print(f"{i + 1:4}: {mask(nl[i])}")
+          if dry:
+              print("== Пробний запуск: файл НЕ змінено")
+              raise SystemExit(0)
+
+          backup = f"{FILE}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
+          for path, data in ((backup, src), (FILE, out)):
+              ftp.voidcmd("TYPE I")
+              with ftp.transfercmd(f"STOR {path}") as c:
+                  c.sendall(data.encode("utf-8")); close_tls(c)
+              ftp.voidresp()
+          ftp.quit()
+          print(f"== Збережено. Резервна копія: {backup}")
