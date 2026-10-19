@@ -20,6 +20,12 @@
     .ty ol { text-align: left; margin: 0 auto 22px; padding-left: 22px; max-width: 420px; display: grid; gap: 10px; }
     .ty .sumline { font-size: 18px; margin-bottom: 18px; }
     .ty .sumline b { color: var(--red); font: 700 26px var(--head); }
+    .msg-box { background: #f6f2ff; border-radius: 18px; padding: 16px; margin: 0 0 20px; font-size: 15px; line-height: 1.45; }
+    .msg-btns { display: grid; gap: 10px; margin-top: 12px; }
+    .mbtn { display: block; padding: 15px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 17px; text-decoration: none; }
+    .mbtn.viber { background: #7360f2; box-shadow: 0 5px 0 #5442c9; }
+    .mbtn.tg { background: #229ed9; box-shadow: 0 5px 0 #1679a8; }
+    .copy { margin-top: 12px; border: 0; background: none; color: var(--ink-2); font: 700 14px var(--font); text-decoration: underline; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -30,6 +36,14 @@
         <h1 id="hello">Дякуємо за замовлення!</h1>
         <div class="ref">Замовлення № <span id="ref">—</span></div>
         <p class="sumline" id="sumline" hidden>Розмальовок: <b id="n"></b> · До сплати: <b id="total"></b> + доставка</p>
+        <div class="msg-box">
+          <b>Підтвердіть замовлення в месенджері</b> — так ми відправимо його ще швидше. Текст уже готовий, просто натисніть «Надіслати».
+          <div class="msg-btns">
+            <a class="mbtn viber" id="viberBtn" href="#">💜 Підтвердити у Viber</a>
+            <a class="mbtn tg" id="tgBtn" href="#" target="_blank" rel="noopener">✈️ Підтвердити в Telegram</a>
+          </div>
+          <button type="button" class="copy" id="copyBtn">📋 Скопіювати текст замовлення</button>
+        </div>
         <ol>
           <li>📞 Протягом робочого дня ми зателефонуємо, щоб підтвердити замовлення.</li>
           <li>📦 Відправляємо Новою поштою в день підтвердження — ТТН надішлемо в повідомленні.</li>
@@ -43,11 +57,32 @@
   <script>
     (function () {
       var PIXEL_ID = "";   // той самий Meta Pixel ID, що в app.js → CONFIG.pixelId
+      // ⚙️ Куди приходять підтвердження замовлень
+      var VIBER_PHONE = "+380931369764";   // ваш номер у Viber (з +380)
+      var TELEGRAM = "hellppbott";         // ваш username у Telegram без @ (особистий акаунт, не бот — тоді текст підставиться сам)
       var q = new URLSearchParams(location.search), esc = function (s) { return String(s).replace(/[&<>"]/g, ""); };
       var ref = q.get("ref"), total = +q.get("total") || 0, n = +q.get("n") || 0, name = q.get("name");
       if (ref) document.getElementById("ref").textContent = esc(ref);
       if (name) document.getElementById("hello").textContent = esc(name).slice(0, 30) + ", дякуємо за замовлення!";
       if (total && n) { document.getElementById("n").textContent = n; document.getElementById("total").textContent = total + " грн"; document.getElementById("sumline").hidden = false; }
+      // Готовий текст повідомлення з замовленням
+      var o = null; try { o = JSON.parse(sessionStorage.getItem("rm_last_order") || "null"); } catch (e) {}
+      if (o && o.ref !== ref) o = null;
+      var lines = ["Доброго дня! Підтверджую замовлення розмальовок" + (ref ? " № " + ref : "") + ":"];
+      if (o) {
+        o.items.forEach(function (i) { lines.push("• " + i.name + " (" + i.variant + ")" + (i.qty > 1 ? " × " + i.qty : "")); });
+        lines.push("Разом: " + o.n + " шт., до сплати " + o.total + " грн + доставка");
+        lines.push("Ім'я: " + o.name);
+        lines.push("Доставка: " + o.city + ", Нова пошта " + o.np);
+        lines.push("Оплата: " + o.pay);
+      } else if (total) lines.push("Розмальовок: " + n + ", до сплати " + total + " грн");
+      var text = lines.join("\n");
+      document.getElementById("viberBtn").href = "viber://chat?number=" + encodeURIComponent(VIBER_PHONE) + "&draft=" + encodeURIComponent(text);
+      document.getElementById("tgBtn").href = "https://t.me/" + TELEGRAM + "?text=" + encodeURIComponent(text);
+      document.getElementById("copyBtn").addEventListener("click", function () {
+        var b = this; (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { b.textContent = "✅ Скопійовано — вставте в чат"; }, function () { prompt("Скопіюйте текст:", text); });
+      });
+
       if (PIXEL_ID && ref) {
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
         fbq("init", PIXEL_ID); fbq("track", "PageView");
