@@ -65,6 +65,7 @@ jobs:
             PAYMENTS.md
             SENDPULSE_TASKS.md
             KONSPEKTY.md
+            shop/*.md
 
       # Секретні ключі оплати/Telegram/SendPulse → /kvn.kiev.ua/private/config.php
       # (поза публічною папкою www; у репозиторії й логах їх немає).
