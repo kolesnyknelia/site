@@ -231,9 +231,9 @@
   $("#orderForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var f = e.target, ok = true, n = count();
-    ["name", "phone", "city", "np"].forEach(function (k) {
+    ["name", "telegram", "phone"].forEach(function (k) {
       var el = f.elements[k], v = el.value.trim();
-      var bad = k === "phone" ? v.replace(/\D/g, "").length < 10 : v.length < (k === "np" ? 1 : 2);
+      var bad = k === "phone" ? v.replace(/\D/g, "").length < 10 : v.length < (k === "name" ? 3 : 2);
       el.classList.toggle("err", bad); if (bad) ok = false;
     });
     $("#formErr").hidden = n > 0;
@@ -253,12 +253,11 @@
           sessionStorage.setItem("rm_last_order", JSON.stringify({
             ref: res.ref, total: res.total, n: n,
             items: Object.keys(clean).map(function (k) { return { name: byId(k.split(":")[0]).name, variant: vname(k.split(":")[1]), qty: clean[k] }; }),
-            name: f.elements.name.value.trim(), city: f.elements.city.value.trim(), np: f.elements.np.value.trim(),
-            pay: f.elements.pay.value === "prepay" ? "передоплата на картку" : "оплата при отриманні"
+            name: f.elements.name.value.trim(), phone: f.elements.phone.value.trim(), telegram: f.elements.telegram.value.trim()
           }));
         } catch (e) {}
         cart = {}; save();
-        location.href = "thanks.html?ref=" + encodeURIComponent(res.ref) + "&total=" + res.total + "&n=" + n + "&name=" + encodeURIComponent(f.elements.name.value.trim().split(" ")[0]);
+        location.href = "thanks.html?ref=" + encodeURIComponent(res.ref) + "&total=" + res.total + "&n=" + n + "&name=" + encodeURIComponent((function (p) { return p.length > 1 ? p[1] : p[0]; })(f.elements.name.value.trim().split(/\s+/)));
       })
       .catch(function () {
         alert("Не вдалося надіслати замовлення. Спробуйте ще раз або напишіть нам у Telegram @hellppbott.");

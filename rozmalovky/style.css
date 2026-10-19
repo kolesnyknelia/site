@@ -195,3 +195,5 @@ form input.err { border-color: #d62828; }
 .oform { background: #fff; border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
 .err-msg { color: #d62828; font-weight: 800; text-align: center; margin: 0 0 10px; }
 .order .hint { margin-top: 14px; }
+
+.tg-note { background: #e8f5fc; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.45; margin: 4px 0 14px; color: #1d4f6b; }
