@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Розмальовки-антистрес · 20 картин A4 на пружині</title>
+  <meta name="description" content="Атмосферні розмальовки для дорослих: зима, осінь, Різдво, Halloween, хвостики. 20 картин A4 на металевій пружині. Що більше — то дешевше.">
+  <meta property="og:title" content="Розмальовки-антистрес — 20 картин A4">
+  <meta property="og:description" content="1 розмальовка — 349 грн, 2 — 598 грн, 3 — 799 грн. Відправка в день замовлення.">
+  <meta property="og:image" content="img/selo-mockup.webp">
+  <meta name="theme-color" content="#e2341d">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖍️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <a href="#" class="logo">🖍️ <span>Розмалюй момент</span></a>
+  <button class="cart-btn" data-open-cart aria-label="Кошик">🛒 <b id="cartCount">0</b></button>
+</header>
+
+<!-- 1. Головний екран -->
+<section class="hero">
+  <div class="wrap">
+    <h1>Розмальовки, які <em>повертають тепло</em></h1>
+    <p class="lead">Зима в селі, осінній затишок, Різдво, спогади з дитинства. Кожна — 20 картин A4 на металевій пружині. Відправляємо в день замовлення.</p>
+    <a class="btn" href="#catalog">Обрати розмальовки ↓</a>
+    <div class="hero-pics" aria-hidden="true">
+      <img src="img/selo-cover.webp" alt="" class="p1">
+      <img src="img/christmas-cover.webp" alt="" class="p2">
+      <img src="img/halloween-cover.webp" alt="" class="p3">
+    </div>
+  </div>
+</section>
+
+<!-- 2. Ціни за кількістю -->
+<section class="tiers">
+  <div class="wrap">
+    <h2>Що більше — то вигідніше</h2>
+    <div class="tier-grid" id="tierGrid"></div>
+    <p class="tier-note">Можна брати різні розмальовки й різні варіанти: знижка рахується автоматично в кошику.</p>
+  </div>
+</section>
+
+<!-- 3. Каталог -->
+<section id="catalog" class="catalog">
+  <div class="wrap">
+    <h2>Оберіть свої розмальовки</h2>
+    <p class="sub">Натисніть на розмальовку, щоб погортати сторінки</p>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- 4. Класична чи преміум -->
+<section class="variants">
+  <div class="wrap">
+    <h2>Класична чи преміум?</h2>
+    <div class="var-grid">
+      <div class="var-card">
+        <img src="img/dusha-1.webp" alt="Класична розмальовка: чистий контур" loading="lazy">
+        <h3>🍂 Класична</h3>
+        <p>Чистий, красивий контур на весь аркуш — без зайвих деталей і заливок. Тільки ви, олівці й простір для фантазії.</p>
+      </div>
+      <div class="var-card">
+        <img src="img/dusha-2.webp" alt="Преміум розмальовка з кольоровим прикладом" loading="lazy">
+        <h3>✨ Преміум</h3>
+        <p>На кожній сторінці — кольоровий приклад, за яким можна розфарбовувати, і святкове оформлення сторінки.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Характеристики -->
+<section class="specs">
+  <div class="wrap">
+    <ul>
+      <li>20 авторських ілюстрацій = 20 аркушів</li>
+      <li>Формат A4</li>
+      <li>Металева пружина — сторінки лежать рівно</li>
+      <li>2 варіанти: класична або преміум</li>
+      <li>Відправка в день замовлення Новою поштою</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6. Відгуки: тільки справжні, з app.js → REVIEWS -->
+<section class="reviews" id="reviewsBlock" hidden>
+  <div class="wrap"><h2>Відгуки</h2><div class="rev-grid" id="reviews"></div></div>
+</section>
+
+<!-- 7. FAQ -->
+<section class="faq">
+  <div class="wrap">
+    <h2>Питання</h2>
+    <details><summary>Як рахується знижка?</summary><p>1 розмальовка — 349 грн, 2 — 598 грн, 3 — 799 грн, кожна наступна — ще 249 грн. Розмальовки можна поєднувати будь-які.</p></details>
+    <details><summary>Коли відправите?</summary><p>У день замовлення (якщо замовили до 16:00), інакше — наступного робочого дня. Доставка Новою поштою 1–3 дні.</p></details>
+    <details><summary>Як оплатити?</summary><p>При отриманні на Новій пошті або передоплатою на картку — як вам зручніше.</p></details>
+    <details><summary>Чим розфарбовувати?</summary><p>Кольоровими олівцями, фломастерами, маркерами чи гелевими ручками. Для фарб краще обирати сухі техніки.</p></details>
+    <details><summary>Чи підійде на подарунок?</summary><p>Так! Розмальовки — популярний подарунок на свята. Візьміть кілька: так ще й вигідніше.</p></details>
+  </div>
+</section>
+
+<footer class="foot">
+  <p>Розмалюй момент · розмальовки-антистрес</p>
+  <p class="muted">Telegram: <a href="https://t.me/hellppbott">@hellppbott</a> · +380 93 136 97 64</p>
+  <p class="muted">ФОП Костенко Ольга Володимирівна · ІПН 2191604463</p>
+</footer>
+
+<!-- Липка панель кошика -->
+<button class="cartbar" id="cartbar" data-open-cart hidden>
+  <span id="cartbarText">У кошику 0</span><b id="cartbarTotal">0 грн</b>
+</button>
+
+<!-- Розмальовка: гортання сторінок -->
+<div class="modal" id="prodModal" hidden>
+  <div class="sheet">
+    <button class="x" data-close aria-label="Закрити">✕</button>
+    <div id="prodBody"></div>
+  </div>
+</div>
+
+<!-- Кошик -->
+<div class="modal" id="cartModal" hidden>
+  <div class="sheet">
+    <button class="x" data-close aria-label="Закрити">✕</button>
+    <h3>Ваше замовлення</h3>
+    <div id="cartList"></div>
+    <div class="hint" id="cartHint"></div>
+    <div class="sum" id="sumBox">
+      <div><span>Звичайна ціна</span><s id="sumFull">0 грн</s></div>
+      <div class="save"><span>Ваша економія</span><b id="sumSave">0 грн</b></div>
+      <div class="total"><span>До сплати</span><b id="sumTotal">0 грн</b></div>
+      <small>+ доставка за тарифами Нової пошти</small>
+    </div>
+    <form id="orderForm" novalidate>
+      <label>Ім'я та прізвище<input name="name" required autocomplete="name" placeholder="Олена Коваленко"></label>
+      <label>Телефон<input name="phone" required type="tel" autocomplete="tel" placeholder="+380 __ ___ __ __"></label>
+      <label>Місто<input name="city" required placeholder="Київ"></label>
+      <label>Відділення або поштомат Нової пошти<input name="np" required placeholder="№ 25"></label>
+      <fieldset class="pay">
+        <label><input type="radio" name="pay" value="cod" checked> Оплата при отриманні</label>
+        <label><input type="radio" name="pay" value="prepay"> Передоплата на картку</label>
+      </fieldset>
+      <label>Коментар (необов'язково)<input name="comment" placeholder="Напр.: це подарунок"></label>
+      <button class="btn full" type="submit">Оформити замовлення</button>
+      <p class="note">Ми зателефонуємо для підтвердження. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
+    </form>
+    <div id="thanks" class="thanks" hidden>
+      <div class="big">🎉</div>
+      <h3>Дякуємо! Замовлення прийнято</h3>
+      <p>Номер замовлення: <b id="orderRef"></b>. Ми зв'яжемося з вами найближчим часом.</p>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
