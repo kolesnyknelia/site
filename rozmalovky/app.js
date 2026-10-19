@@ -31,10 +31,9 @@
 
   /* ---------- Каталог ---------- */
   function renderGrid() {
-    $("#grid").classList.toggle("one", VISIBLE.length === 1);
-    $("#grid").innerHTML = VISIBLE.map(function (p, i) {
+    $("#grid").innerHTML = VISIBLE.map(function (p) {
       var cover = p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0];
-      return '<article class="card c' + (i % 6) + '" data-open="' + p.id + '">' +
+      return '<article class="card reveal" data-open="' + p.id + '">' +
         '<div class="cover"><img src="' + img(cover) + '" alt="' + esc(p.name) + '" loading="lazy">' +
         (p.tag ? '<span class="tag">' + esc(p.tag) + "</span>" : "") + '<span class="pages">20 картин</span></div>' +
         '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row"><span class="price"><small>від</small> ' + fmt(P1.classic) + "</span>" +
@@ -49,18 +48,21 @@
     });
   }
 
-  /* Стрічка «Погляньте всередину»: сторінки з усіх розмальовок (класичні й преміальні), до 12 штук */
-  function renderStrip() {
-    var el = $("#strip"); if (!el) return;
-    var out = [], rounds = 0;
-    while (out.length < 12 && rounds < 10) {
-      VISIBLE.forEach(function (p) {
-        var list = p.imgs.filter(function (n) { return !/cover|mockup/.test(n); }).concat(p.imgsPremium || []);
-        if (list[rounds]) out.push({ id: p.id, n: list[rounds], v: (p.imgsPremium || []).indexOf(list[rounds]) > -1 ? "premium" : "classic" });
-      });
-      rounds++;
-    }
-    el.innerHTML = out.slice(0, 12).map(function (x) { return '<img src="' + img(x.n) + '" alt="" data-open="' + x.id + '" data-v="' + x.v + '">'; }).join("");
+  /* Головний екран: великі обкладинки перших трьох розмальовок */
+  function renderHero() {
+    $("#heroCovers").innerHTML = VISIBLE.slice(0, 3).map(function (p) {
+      return '<button type="button" data-open="' + p.id + '"><img src="' + img(coverOf(p)) + '" alt="' + esc(p.name) + '"></button>';
+    }).join("");
+  }
+
+  /* Плавна поява блоків при прокрутці */
+  function reveal() {
+    var els = $$(".reveal:not(.in)");
+    if (!("IntersectionObserver" in window)) return els.forEach(function (el) { el.classList.add("in"); });
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    els.forEach(function (el) { io.observe(el); });
   }
 
   /* ---------- Розмальовка: гортання ---------- */
@@ -182,8 +184,9 @@
   }
 
   function renderAll(focusKey) {
-    var n = count(), total = cartTotal();
-    $("#cartCount").textContent = n;
+    var n = count(), total = cartTotal(), cc = $("#cartCount");
+    if (+cc.textContent !== n) { cc.classList.remove("bump"); void cc.offsetWidth; cc.classList.add("bump"); }
+    cc.textContent = n;
     $("#cartbar").hidden = !n || orderVisible;
     $("#cartbarText").textContent = "🛒 У кошику " + n + " шт.";
     $("#cartbarTotal").textContent = fmt(total) + " →";
@@ -228,9 +231,9 @@
   $("#orderForm").addEventListener("submit", function (e) {
     e.preventDefault();
     var f = e.target, ok = true, n = count();
-    ["name", "telegram", "phone"].forEach(function (k) {
+    ["name", "phone"].forEach(function (k) {   // Telegram — необов'язковий
       var el = f.elements[k], v = el.value.trim();
-      var bad = k === "phone" ? v.replace(/\D/g, "").length < 10 : v.length < (k === "name" ? 3 : 2);
+      var bad = k === "phone" ? v.replace(/\D/g, "").length < 10 : v.length < 3;
       el.classList.toggle("err", bad); if (bad) ok = false;
     });
     $("#formErr").hidden = n > 0;
@@ -275,5 +278,5 @@
     window.fbq("init", CONFIG.pixelId); window.fbq("track", "PageView");
   }
 
-  renderTiers(); renderGrid(); renderStrip(); renderAll();
+  renderTiers(); renderGrid(); renderHero(); renderAll(); reveal();
 })();

@@ -17,151 +17,82 @@
 </head>
 <body>
 
-<div class="strip-top"><div class="wrap"><span>🚚 Відправка в день замовлення · ✈️ Без дзвінків — усе в Telegram</span><a class="ph" href="tel:+380931369764">+380 93 136 97 64</a></div></div>
-
 <header class="top">
-  <div class="wrap">
-    <a href="#" class="logo"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#fde8df"/><g transform="rotate(-35 24 24)"><rect x="19" y="8" width="10" height="26" rx="2" fill="#ec7f62"/><rect x="19" y="13" width="10" height="3" fill="#fff" opacity=".7"/><rect x="19" y="27" width="10" height="3" fill="#fff" opacity=".7"/><path d="M19 34h10l-5 8z" fill="#f6d27b"/><path d="M22.6 39.2h2.8L24 42z" fill="#4a3e39"/></g></svg><span>Розмалюй <em>момент</em></span></a>
-    <button class="cart-btn" data-open-cart aria-label="Кошик">🛒<b id="cartCount">0</b></button>
-    <nav class="nav"><a href="#catalog">Розмальовки</a><a href="#prices">Ціни</a><a href="#variants">Варіанти</a><a href="#faq">Питання</a><a href="#order">Замовити</a></nav>
-  </div>
+  <a href="#" class="logo"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#fde8df"/><g transform="rotate(-35 24 24)"><rect x="19" y="8" width="10" height="26" rx="2" fill="#ec6f55"/><rect x="19" y="13" width="10" height="3" fill="#fff" opacity=".7"/><rect x="19" y="27" width="10" height="3" fill="#fff" opacity=".7"/><path d="M19 34h10l-5 8z" fill="#f6d27b"/><path d="M22.6 39.2h2.8L24 42z" fill="#4a3e39"/></g></svg><span>Розмалюй <em>момент</em></span></a>
+  <button class="cart-btn" data-open-cart aria-label="Кошик">🛒<b id="cartCount">0</b></button>
 </header>
 
-<!-- 1. Банер -->
+<!-- 1. Головний екран: три головні обкладинки (беруться з products.js — перші три розмальовки) -->
 <section class="hero">
+  <span class="deco cloud c1" aria-hidden="true"><svg viewBox="0 0 120 60"><path d="M20 50a16 16 0 0 1 4-31 22 22 0 0 1 41-5 17 17 0 0 1 30 9 14 14 0 0 1 5 27z" fill="#fff"/></svg></span>
+  <span class="deco cloud c2" aria-hidden="true"><svg viewBox="0 0 120 60"><path d="M20 50a16 16 0 0 1 4-31 22 22 0 0 1 41-5 17 17 0 0 1 30 9 14 14 0 0 1 5 27z" fill="#fff"/></svg></span>
+  <span class="deco rainbow" aria-hidden="true"><svg viewBox="0 0 84 50"><path d="M8 46a34 34 0 0 1 68 0" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M18 46a24 24 0 0 1 48 0" stroke="#f6d27b" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M28 46a14 14 0 0 1 28 0" stroke="#8fcfd1" stroke-width="7" fill="none" stroke-linecap="round"/></svg></span>
   <div class="wrap">
-    <div class="banner">
-      <svg class="deco cloud" viewBox="0 0 120 60" aria-hidden="true"><path d="M20 50a16 16 0 0 1 4-31 22 22 0 0 1 41-5 17 17 0 0 1 30 9 14 14 0 0 1 5 27z" fill="#fff"/><circle cx="104" cy="44" r="10" fill="#8fcfd1" opacity=".55"/></svg>
-      <svg class="deco rainbow" viewBox="0 0 84 50" aria-hidden="true"><path d="M8 46a34 34 0 0 1 68 0" stroke="#ec7f62" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M18 46a24 24 0 0 1 48 0" stroke="#f6d27b" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M28 46a14 14 0 0 1 28 0" stroke="#8fcfd1" stroke-width="7" fill="none" stroke-linecap="round"/></svg>
-      <svg class="deco star1" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l3 8 8 .5-6 5 2 8-7-4.5L5 22.5l2-8-6-5 8-.5z" fill="#fff"/></svg>
-      <svg class="deco star2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l3 8 8 .5-6 5 2 8-7-4.5L5 22.5l2-8-6-5 8-.5z" fill="#f6d27b"/></svg>
-      <div class="htext">
-        <h1>Розмальовки, що <em>дарують</em> тепло</h1>
-        <p class="lead">Авторські ілюстрації · 20 картин A4 на металевій пружині. Класична або преміум з кольоровим прикладом.</p>
-        <div class="dots-line"></div>
-        <a class="btn" href="#catalog">Обрати розмальовку</a>
-      </div>
-      <div class="pics" aria-hidden="true">
-        <img src="img/mykolai-cover.webp" alt="" class="p2" fetchpriority="high">
-        <img src="img/mykolai-1.webp" alt="" class="p1">
-        <img src="img/mykolai-p1.webp" alt="" class="p3">
-      </div>
+    <h1>Розмальовки, що <em>дарують тепло</em></h1>
+    <p class="lead">20 авторських картин A4 на металевій пружині. Класична або преміум з кольоровим прикладом. Відправляємо в день замовлення.</p>
+    <div class="hero-cta">
+      <a class="btn pulse" href="#order">Замовити зі знижкою</a>
+      <a class="btn ghost" href="#catalog">Переглянути розмальовки</a>
     </div>
+    <div class="hero-covers" id="heroCovers"></div>
   </div>
 </section>
 
-<!-- 2. Три плитки -->
-<section class="tiles">
-  <div class="wrap tile-grid">
-    <a class="tile coral" href="#variants">
-      <img src="img/mykolai-2.webp" alt="" loading="lazy">
-      <div class="t-name">Класична</div>
-      <div class="t-sub">чорно-білий контур · від 349 грн</div>
-      <span class="btn sm">Детальніше</span>
-    </a>
-    <a class="tile photo" href="#order">
-      <img src="img/mykolai-p2.webp" alt="" loading="lazy">
-      <div class="t-over"><div class="t-name">До −350 грн</div><div class="t-sub">що більше розмальовок — то дешевше кожна</div></div>
-    </a>
-    <a class="tile sky" href="#variants">
-      <img src="img/mykolai-p1.webp" alt="" loading="lazy">
-      <div class="t-name">Преміум</div>
-      <div class="t-sub">рамка + кольоровий приклад · 580 грн</div>
-      <span class="btn sm">Детальніше</span>
-    </a>
-  </div>
-</section>
-
-<!-- 3. Каталог: картки будуються з products.js -->
+<!-- 2. Каталог: картки будуються з products.js -->
 <section id="catalog" class="catalog">
   <div class="wrap">
-    <svg class="title-ico" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#fde8df"/><g transform="rotate(-35 24 24)"><rect x="19" y="8" width="10" height="26" rx="2" fill="#ec7f62"/><rect x="19" y="13" width="10" height="3" fill="#fff" opacity=".7"/><rect x="19" y="27" width="10" height="3" fill="#fff" opacity=".7"/><path d="M19 34h10l-5 8z" fill="#f6d27b"/><path d="M22.6 39.2h2.8L24 42z" fill="#4a3e39"/></g></svg>
-    <h2>Наші <em>розмальовки</em></h2>
-    <p class="sub">Натисніть на розмальовку, щоб погортати сторінки</p>
+    <h2 class="reveal">Наші <em>розмальовки</em></h2>
+    <p class="sub reveal">Натисніть на розмальовку, щоб погортати сторінки</p>
     <div class="grid" id="grid"></div>
   </div>
 </section>
 
-<!-- 4. Ціни за кількістю -->
+<!-- 3. Ціни за кількістю -->
 <section id="prices" class="tiers">
   <div class="wrap">
-    <h2>Що більше — <em>то вигідніше</em></h2>
-    <p class="sub">Знижка рахується автоматично за кількістю в кошику</p>
-    <div class="tier-grid" id="tierGrid"></div>
-    <p class="tier-note">Можна поєднувати класичні й преміальні: знижка рахується автоматично в кошику.</p>
+    <h2 class="reveal">Що більше — <em>то вигідніше</em></h2>
+    <div class="tier-grid reveal" id="tierGrid"></div>
+    <p class="tier-note">Можна поєднувати будь-які розмальовки, класичні й преміальні: знижка рахується автоматично.</p>
   </div>
 </section>
 
-<!-- 5. Класична чи преміум -->
+<!-- 4. Класична чи преміум -->
 <section id="variants" class="variants">
   <div class="wrap">
-    <h2>Класична <em>чи преміум?</em></h2>
-    <p class="sub">Кожна розмальовка є у двох варіантах</p>
+    <h2 class="reveal">Класична <em>чи преміум?</em></h2>
     <div class="var-grid">
-      <div class="var-card cl">
-        <div class="vimg"><img src="img/mykolai-2.webp" alt="Класична розмальовка: чорно-білий контур" loading="lazy"></div>
-        <h3>Класична · <b>349 грн</b></h3>
-        <p>Чорно-білий, красивий контур на весь аркуш — без зайвих деталей і заливок. Тільки ви, олівці й простір для фантазії.</p>
+      <div class="var-card reveal">
+        <img src="img/mykolai-2.webp" alt="Класична розмальовка: чорно-білий контур" loading="lazy">
+        <div class="vb"><h3>Класична <b>· 349 грн</b></h3>
+        <p>Чорно-білий, красивий контур на весь аркуш — без зайвих деталей і заливок. Тільки ви, олівці й простір для фантазії.</p></div>
       </div>
-      <div class="var-card pr">
-        <div class="vimg"><img src="img/mykolai-p1.webp" alt="Преміум розмальовка зі святковою рамкою і кольоровим прикладом" loading="lazy"></div>
-        <h3>Преміум · <b>580 грн</b></h3>
-        <p>Святкова кольорова рамка на кожній сторінці і кольоровий приклад, за яким зручно розфарбовувати.</p>
+      <div class="var-card prem reveal">
+        <img src="img/mykolai-p1.webp" alt="Преміум розмальовка зі святковою рамкою і кольоровим прикладом" loading="lazy">
+        <div class="vb"><h3>Преміум <b>· 580 грн</b></h3>
+        <p>Святкова кольорова рамка на кожній сторінці і кольоровий приклад, за яким зручно розфарбовувати.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- 6. Хмаринка: замовлення без дзвінків -->
-<section class="bubble-sec">
-  <div class="wrap">
-    <div class="box">
-      <svg class="deco rainbow" viewBox="0 0 84 50" aria-hidden="true"><path d="M8 46a34 34 0 0 1 68 0" stroke="#ec7f62" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M18 46a24 24 0 0 1 48 0" stroke="#f6d27b" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M28 46a14 14 0 0 1 28 0" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/></svg>
-      <div class="bubble">
-        <h2>Привіт! <em>Без дзвінків</em></h2>
-        <p>Оформіть замовлення — і натисніть кнопку Telegram. Доставку й оплату узгодимо в переписці, а при оплаті на ФОП — розмальовка-сюрприз у подарунок 🎁</p>
-        <a class="btn" href="#order">Оформити замовлення</a>
-      </div>
-      <div class="bubble-pic"><img src="img/mykolai-3.webp" alt="" loading="lazy"></div>
-    </div>
-  </div>
-</section>
-
-<!-- 7. Переваги -->
+<!-- 5. Переваги -->
 <section class="feats-sec">
   <div class="wrap feats">
-    <div class="feat">
-      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M6 34a18 18 0 0 1 36 0" stroke="#ec7f62" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M13 34a11 11 0 0 1 22 0" stroke="#f6d27b" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M20 34a4 4 0 0 1 8 0" stroke="#8fcfd1" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
-      <h3>Відправка в день замовлення</h3><p>Новою поштою по всій Україні, доставка 1–3 дні</p>
-    </div>
-    <div class="feat">
-      <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="8" width="28" height="34" rx="3" fill="#dcebe6"/><rect x="15" y="15" width="18" height="3" rx="1.5" fill="#8fcfd1"/><rect x="15" y="22" width="12" height="3" rx="1.5" fill="#f6d27b"/><g fill="none" stroke="#ec7f62" stroke-width="2.5"><circle cx="16" cy="8" r="3"/><circle cx="24" cy="8" r="3"/><circle cx="32" cy="8" r="3"/></g></svg>
-      <h3>A4 на металевій пружині</h3><p>20 авторських картин — сторінки лежать рівно</p>
-    </div>
-    <div class="feat">
-      <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="20" width="30" height="20" rx="3" fill="#ec7f62"/><rect x="7" y="14" width="34" height="8" rx="2" fill="#f6d27b"/><rect x="21" y="14" width="6" height="26" fill="#fff" opacity=".8"/><path d="M24 14c-4-8-12-6-9-1 2 2 9 1 9 1zm0 0c4-8 12-6 9-1-2 2-9 1-9 1z" fill="#8fcfd1"/></svg>
-      <h3>Подарунок за оплату на ФОП</h3><p>Лімітована розмальовка-сюрприз, якої немає у продажу</p>
-    </div>
+    <div class="feat reveal"><span class="fi">📖</span><b>20 картин A4</b><small>на металевій пружині — сторінки лежать рівно</small></div>
+    <div class="feat reveal"><span class="fi">🚚</span><b>Відправка в день замовлення</b><small>Новою поштою, 1–3 дні</small></div>
+    <div class="feat reveal"><span class="fi">🎁</span><b>Подарунок за оплату на ФОП</b><small>розмальовка-сюрприз, якої немає у продажу</small></div>
   </div>
 </section>
 
-<!-- 8. Стрічка сторінок з усіх розмальовок (будується з products.js) -->
-<section class="strip-sec">
-  <div class="wrap">
-    <h2>Погляньте <em>всередину</em></h2>
-    <div class="pages-strip" id="strip"></div>
-  </div>
-</section>
-
-<!-- 9. Відгуки: тільки справжні, з products.js → REVIEWS -->
+<!-- 6. Відгуки: тільки справжні, з products.js → REVIEWS -->
 <section class="reviews" id="reviewsBlock" hidden>
   <div class="wrap"><h2>Відгуки</h2><div class="rev-grid" id="reviews"></div></div>
 </section>
 
-<!-- 10. FAQ -->
+<!-- 7. FAQ -->
 <section id="faq" class="faq">
   <div class="wrap">
-    <h2>Часті <em>питання</em></h2>
+    <h2 class="reveal">Часті <em>питання</em></h2>
     <details><summary>Як рахується знижка?</summary><p>Класична: 1 — 349 грн, 2 — 598 грн, 3 — 799 грн, кожна наступна — ще 249 грн.<br>Преміум: 1 — 580 грн, 2 — 990 грн, 3 — 1390 грн, кожна наступна — ще 410 грн.<br>Знижка рахується за загальною кількістю в кошику — можна поєднувати будь-які розмальовки й варіанти.</p></details>
     <details><summary>Коли відправите?</summary><p>У день замовлення (якщо замовили до 16:00), інакше — наступного робочого дня. Доставка Новою поштою 1–3 дні.</p></details>
     <details><summary>Як оплатити?</summary><p>На офіційні реквізити ФОП (і отримати розмальовку-сюрприз у подарунок) або при отриманні на Новій пошті.</p></details>
@@ -192,9 +123,9 @@
     <div class="step"><span>2</span>Ваші контакти</div>
     <form id="orderForm" class="oform" novalidate>
       <label>Прізвище та ім'я<input name="name" required autocomplete="name" placeholder="Коваленко Олена"></label>
-      <label>Ваш Telegram<input name="telegram" required autocomplete="off" placeholder="@vash_nik або номер у Telegram"></label>
+      <label>Telegram <small class="opt">— необов'язково</small><input name="telegram" autocomplete="off" placeholder="@нік, якщо знаєте"></label>
       <label>Телефон<input name="phone" required type="tel" autocomplete="tel" placeholder="+380 __ ___ __ __"></label>
-      <div class="tg-note">✈️ <b>Не любите дзвінки?</b> Після замовлення натисніть кнопку Telegram — доставку й оплату узгодимо в переписці, без дзвінків.</div>
+      <div class="tg-note">✈️ <b>Не любите дзвінки?</b> Після замовлення на наступній сторінці натисніть кнопку Telegram — і все узгодимо в переписці.</div>
       <p class="err-msg" id="formErr" hidden>Оберіть хоча б одну розмальовку вище 👆</p>
       <button class="btn full big" type="submit" id="submitBtn">Замовити</button>
       <p class="note">Доставку Новою поштою й спосіб оплати уточнимо в Telegram або дзвінком оператора. Відправка в день підтвердження. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
@@ -203,10 +134,9 @@
 </section>
 
 <footer class="foot">
-  <a href="#" class="logo"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#fde8df"/><g transform="rotate(-35 24 24)"><rect x="19" y="8" width="10" height="26" rx="2" fill="#ec7f62"/><rect x="19" y="13" width="10" height="3" fill="#fff" opacity=".7"/><rect x="19" y="27" width="10" height="3" fill="#fff" opacity=".7"/><path d="M19 34h10l-5 8z" fill="#f6d27b"/><path d="M22.6 39.2h2.8L24 42z" fill="#4a3e39"/></g></svg><span>Розмалюй <em>момент</em></span></a>
+  <a href="#" class="logo"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#fde8df"/><g transform="rotate(-35 24 24)"><rect x="19" y="8" width="10" height="26" rx="2" fill="#ec6f55"/><rect x="19" y="13" width="10" height="3" fill="#fff" opacity=".7"/><rect x="19" y="27" width="10" height="3" fill="#fff" opacity=".7"/><path d="M19 34h10l-5 8z" fill="#f6d27b"/><path d="M22.6 39.2h2.8L24 42z" fill="#4a3e39"/></g></svg><span>Розмалюй <em>момент</em></span></a>
   <p>Telegram: <a href="https://t.me/hellppbott">@hellppbott</a> · <a href="tel:+380931369764">+380 93 136 97 64</a></p>
-  <p>ФОП Костенко Ольга Володимирівна · ІПН 2191604463</p>
-  <div class="bar"><a href="#catalog">Розмальовки</a><a href="#prices">Ціни</a><a href="#variants">Варіанти</a><a href="#faq">Питання</a><a href="#order">Замовити</a></div>
+  <p class="muted">ФОП Костенко Ольга Володимирівна · ІПН 2191604463</p>
 </footer>
 
 <!-- Липка панель кошика -->
