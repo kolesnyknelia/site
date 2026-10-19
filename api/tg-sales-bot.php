@@ -111,10 +111,13 @@ function step_variants($chat, $o) {
         $p = $D['products'][$i[0]];
         $c1 = $D['price']['classic'][1]; $p1 = $D['price']['premium'][1];
         $bp = isset($D['botPhotos'][$i[0]]) ? $D['botPhotos'][$i[0]] : [];
-        $albums = array_filter(["🍂 Класична · {$c1} грн" => g($bp, 'classic', []), "✨ Преміальна · {$p1} грн" => g($bp, 'premium', [])]);
+        // Спершу преміальна (з кольоровим прикладом), потім класична
+        $albums = array_filter(["✨ Преміальна · {$p1} грн — з кольоровим прикладом" => g($bp, 'premium', []), "🍂 Класична · {$c1} грн — чорно-біла" => g($bp, 'classic', [])]);
         foreach ($albums as $cap => $imgs) {
+            $cap .= "\n«" . $p[0] . '»';
+            if (count($imgs) === 1) { api('sendPhoto', ['chat_id' => $chat, 'photo' => $IMG . $imgs[0] . '.jpg', 'caption' => $cap]); continue; }
             $media = [];
-            foreach (array_slice($imgs, 0, 10) as $k => $im) $media[] = ['type' => 'photo', 'media' => $IMG . $im . '.jpg'] + ($k === 0 && $cap ? ['caption' => $cap . ' — «' . $p[0] . '»'] : []);
+            foreach (array_slice($imgs, 0, 10) as $k => $im) $media[] = ['type' => 'photo', 'media' => $IMG . $im . '.jpg'] + ($k === 0 ? ['caption' => $cap] : []);
             api('sendMediaGroup', ['chat_id' => $chat, 'media' => $media]);
         }
         say($chat, '<b>«' . h($p[0]) . "»</b>\n" . h($p[2]));

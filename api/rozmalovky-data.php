@@ -26,7 +26,7 @@ return [
     // Фото, які бот надсилає як приклад (файли в rozmalovky/img/tg/*.jpg, без розширення).
     // Порожньо — бот надсилає лише текст із цінами. Окремо від фото сайту.
     'botPhotos' => [
-        // 'mykolai' => ['classic' => ['tg-mykolai-c1'], 'premium' => ['tg-mykolai-p1']],
+        'mykolai' => ['premium' => ['bot-mykolai-premium'], 'classic' => ['bot-mykolai-classic']],
     ],
     'variants' => ['classic' => 'Класична', 'premium' => 'Преміальна'],
     // Ті самі ціни, що в products.js і rozmalovky-order.php
