@@ -275,3 +275,13 @@ body.in-order .help-fab span { display: none; }
 /* «20 аркушів = 20 картинок» на головному екрані */
 .hero-sheets { position: relative; z-index: 2; display: inline-block; margin: 0 auto 12px; padding: 6px 16px; border: 2px dashed rgba(255, 255, 255, .85); border-radius: 999px; font: 800 clamp(15px, 4.2vw, 19px)/1.2 var(--font); text-transform: uppercase; letter-spacing: .5px; color: #fff; animation: rise .7s both; }
 .hero .hero-sheets + .hero-price { display: flex; width: max-content; }
+
+/* Перший екран: заголовок → великі обкладинки → плашка, ціна, кнопки → короткий текст */
+body { overflow-x: clip; }
+.hero { padding-top: 22px; }
+.hero h1 { font-size: clamp(24px, 6.4vw, 42px); margin-bottom: 0; }
+.hero .hero-covers { margin: 18px auto 26px; max-width: 900px; }
+.hero-covers button { flex-basis: 36%; max-width: 300px; }
+.hero-covers button:nth-child(2) { flex-basis: 46%; max-width: 350px; }
+.hero .lead { margin: 16px auto 0; font-size: 14px; opacity: .9; }
+@media (min-width: 900px) { .hero .hero-covers { margin-top: 26px; } }
