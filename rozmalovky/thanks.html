@@ -38,7 +38,7 @@
         <p class="sumline" id="sumline" hidden>Розмальовок: <b id="n"></b> · До сплати: <b id="total"></b> + доставка</p>
         <div class="msg-box">
           <div class="nocall">📵 Не хочете, щоб вас турбували дзвінками?</div>
-          Натисніть кнопку — відкриється наш Telegram з вашим замовленням. Надішліть повідомлення, і <b>вся інформація про доставку й оплату буде там</b>. Дзвонити не будемо 🙂
+          Натисніть кнопку — відкриється наш Telegram з вашим замовленням. Натисніть «Почати» (або надішліть повідомлення), і <b>вся інформація про доставку й оплату буде там</b>. Дзвонити не будемо 🙂
           <div class="msg-btns">
             <a class="mbtn tg" id="tgBtn" href="#" target="_blank" rel="noopener">✈️ Отримати все в Telegram</a>
           </div>
@@ -59,6 +59,9 @@
       var PIXEL_ID = "";   // той самий Meta Pixel ID, що в app.js → CONFIG.pixelId
       // ⚙️ Ваш особистий Telegram без @ (особистий акаунт, не бот — тоді текст замовлення підставиться сам)
       var TELEGRAM = "hellppbott";
+      // Бот-продавець (ім'я підставляє deploy-rozmalovky.yml із секрету TG_SALES_BOT_TOKEN). Якщо задано — кнопка
+      // відкриває бота з номером замовлення, і він сам веде клієнта за скриптом продажу
+      var SALES_BOT = "";
       var q = new URLSearchParams(location.search), esc = function (s) { return String(s).replace(/[&<>"]/g, ""); };
       var ref = q.get("ref"), total = +q.get("total") || 0, n = +q.get("n") || 0, name = q.get("name");
       if (ref) document.getElementById("ref").textContent = esc(ref);
@@ -76,7 +79,9 @@
       } else if (total) lines.push("Розмальовок: " + n + ", " + total + " грн + доставка");
       lines.push("Прошу не телефонувати — напишіть мені тут, будь ласка, про доставку й оплату 🙏");
       var text = lines.join("\n");
-      document.getElementById("tgBtn").href = "https://t.me/" + TELEGRAM + "?text=" + encodeURIComponent(text);
+      document.getElementById("tgBtn").href = SALES_BOT && ref && /^RM\d+$/.test(ref)
+        ? "https://t.me/" + SALES_BOT + "?start=" + ref
+        : "https://t.me/" + TELEGRAM + "?text=" + encodeURIComponent(text);
       document.getElementById("copyBtn").addEventListener("click", function () {
         var b = this; (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { b.textContent = "✅ Скопійовано — вставте в чат"; }, function () { prompt("Скопіюйте текст:", text); });
       });

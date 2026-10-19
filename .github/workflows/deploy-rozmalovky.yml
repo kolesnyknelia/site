@@ -2,6 +2,9 @@
 # Запускається сам після змін магазину в main, або вручну: Actions → Deploy rozmalovky (rozmalovky.noosal.shop) → Run workflow.
 # Інші сайти на noosal.shop не зачіпаються. Ключ Telegram — спільний для noosal.shop, його записує deploy-shop.yml
 # у /noosal.shop/private/config.php (після додавання секретів TG_BOT_TOKEN / TG_CHAT_ID перезапустіть deploy-shop).
+# Бот-продавець: секрет TG_SALES_BOT_TOKEN (токен нового бота з @BotFather) → цей workflow дописує його в конфіг,
+# підключає webhook і ставить ім'я бота в кнопку на thanks.html. Необов'язково: TG_SALES_OWNER_ID (кому пересилати
+# повідомлення клієнтів; за замовчуванням — TG_CHAT_ID).
 name: Deploy rozmalovky (rozmalovky.noosal.shop)
 
 on:
@@ -10,6 +13,8 @@ on:
     paths:
       - "rozmalovky/**"
       - "api/rozmalovky-order.php"
+      - "api/rozmalovky-data.php"
+      - "api/tg-sales-bot.php"
       - "api/lib.php"
       - ".github/workflows/deploy-rozmalovky.yml"
   workflow_dispatch:
@@ -30,11 +35,23 @@ jobs:
 
       # Збираємо сайт: вміст rozmalovky/ у корінь піддомену + потрібні файли api/
       - name: Build
+        env:
+          TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
         run: |
           mkdir -p _deploy/api
           cp -r rozmalovky/. _deploy/
           rm -f _deploy/*.md
-          cp api/rozmalovky-order.php api/lib.php api/settings.php api/.htaccess _deploy/api/
+          cp api/rozmalovky-order.php api/rozmalovky-data.php api/tg-sales-bot.php api/lib.php api/settings.php api/.htaccess _deploy/api/
+          # Ім'я бота-продавця → кнопка «Отримати все в Telegram» на сторінці «Дякуємо»
+          if [ -n "$TG_SALES_BOT_TOKEN" ]; then
+            bot=$(curl -sS "https://api.telegram.org/bot${TG_SALES_BOT_TOKEN}/getMe" | jq -r '.result.username // empty')
+            if [ -n "$bot" ]; then
+              sed -i "s/var SALES_BOT = \"\";/var SALES_BOT = \"${bot}\";/" _deploy/thanks.html
+              echo "Sales bot: @${bot}"
+            else
+              echo "::warning::TG_SALES_BOT_TOKEN не підходить (getMe не відповів) — перевірте токен"
+            fi
+          fi
 
       - name: Prepare sync state (first deploy)
         env:
@@ -60,3 +77,56 @@ jobs:
           protocol: ftps
           local-dir: ./_deploy/
           server-dir: ${{ env.DEPLOY_DIR }}
+
+      # Токен бота-продавця → /noosal.shop/private/config.php (інші ключі зберігаються) + webhook
+      - name: Sales bot config + webhook
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
+          TG_SALES_OWNER_ID: ${{ secrets.TG_SALES_OWNER_ID }}
+        shell: python
+        run: |
+          import os, io, re, json, base64, hashlib, ftplib, urllib.request, urllib.parse
+          token = os.environ.get("TG_SALES_BOT_TOKEN", "").strip()
+          if not token:
+              print("TG_SALES_BOT_TOKEN не задано — бот-продавець вимкнений")
+              raise SystemExit(0)
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p()
+          keys = {}
+          buf = io.BytesIO()
+          try:
+              ftp.retrbinary("RETR /noosal.shop/private/config.php", buf.write)
+              for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", buf.getvalue().decode()):
+                  keys[k] = base64.b64decode(v).decode()
+          except ftplib.all_errors as e:
+              print("Конфігу ще немає:", e)
+          keys["TG_SALES_BOT_TOKEN"] = token
+          owner = os.environ.get("TG_SALES_OWNER_ID", "").strip()
+          if owner:
+              keys["TG_SALES_OWNER_ID"] = owner
+          try:
+              ftp.mkd("/noosal.shop/private")
+          except ftplib.error_perm:
+              pass
+          b64 = lambda v: base64.b64encode(v.encode()).decode()
+          php = "<?php\n// Згенеровано автоматично. Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => base64_decode('{b64(v)}'),\n" for k, v in keys.items()) + "];\n"
+          ftp.storbinary("STOR /noosal.shop/private/config.php", io.BytesIO(php.encode()))
+          ftp.storbinary("STOR /noosal.shop/private/.htaccess", io.BytesIO(b"Require all denied\n"))
+          ftp.quit()
+          print("private config:", ", ".join(k for k, v in keys.items() if v))
+
+          data = urllib.parse.urlencode({
+              "url": "https://rozmalovky.noosal.shop/api/tg-sales-bot.php",
+              "secret_token": hashlib.sha256(token.encode()).hexdigest()[:32],
+              "allowed_updates": json.dumps(["message", "callback_query"]),
+              "drop_pending_updates": "false",
+          }).encode()
+          r = json.load(urllib.request.urlopen(f"https://api.telegram.org/bot{token}/setWebhook", data, timeout=20))
+          print("setWebhook:", r.get("description", r))
+          if not r.get("ok"):
+              raise SystemExit(1)
