@@ -6,7 +6,7 @@
   "use strict";
 
   var CONFIG = {
-    orderEndpoint: "../api/shop-order.php",
+    orderEndpoint: "/api/shop-order.php",
     freeShipFrom: 1000,      // безкоштовна доставка від, грн
     prepayDiscount: 0.05,    // знижка за передоплату
     pixelId: ""              // Meta Pixel ID (порожньо — вимкнено)
