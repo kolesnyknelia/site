@@ -68,6 +68,15 @@ function order_lines($o) {
         $out[] = '• ' . h($D['products'][$i[0]][0]) . ' — ' . $D['variants'][$i[1]] . ($i[2] > 1 ? " × {$i[2]}" : '');
     return implode("\n", $out);
 }
+/** Сума за варіантами — та сама формула, що в rozmalovky-order.php */
+function order_total($items) {
+    global $D; $c = ['classic' => 0, 'premium' => 0];
+    foreach ($items as $i) if (isset($c[$i[1]])) $c[$i[1]] += $i[2];
+    $n = $c['classic'] + $c['premium'];
+    if (!$n) return 0;
+    $t = function ($v) use ($D, $n) { $p = $D['price'][$v]; return isset($p[$n]) ? $p[$n] : $p[3] + ($n - 3) * $D['extra'][$v]; };
+    return (int)round(($c['classic'] * $t('classic') + $c['premium'] * $t('premium')) / $n);
+}
 function purpose($o) { return 'Оплата за товар' . (g($o, 'ref') ? ', замовлення № ' . $o['ref'] : '') . ', ' . (g($o, 'name') ? surname($o['name']) : '[ваше прізвище]'); }
 function who($o, $chat, $from) {
     $n = g($o, 'name') ?: trim(g($from, 'first_name') . ' ' . g($from, 'last_name'));
@@ -84,14 +93,18 @@ function step_variants($chat, $o) {
         if (isset($seen[$i[0]]) || !isset($D['products'][$i[0]])) continue;
         $seen[$i[0]] = 1;
         $p = $D['products'][$i[0]];
-        $media = [];
-        foreach (array_slice($p[1], 0, 10) as $im) $media[] = ['type' => 'photo', 'media' => $IMG . $im . '.jpg'];
-        api('sendMediaGroup', ['chat_id' => $chat, 'media' => $media]);
+        $albums = empty($p[3]) ? ['' => $p[1]] : ['🍂 Класична' => $p[1], '✨ Преміальна' => $p[3]];
+        foreach ($albums as $cap => $imgs) {
+            $media = [];
+            foreach (array_slice($imgs, 0, 10) as $k => $im) $media[] = ['type' => 'photo', 'media' => $IMG . $im . '.jpg'] + ($k === 0 && $cap ? ['caption' => $cap . ' — «' . $p[0] . '»'] : []);
+            api('sendMediaGroup', ['chat_id' => $chat, 'media' => $media]);
+        }
         say($chat, '<b>«' . h($p[0]) . "»</b>\n" . h($p[2]));
     }
-    $pr = $D['price'];
-    say($chat, h($D['variantText']['classic']) . "\n\n" . h($D['variantText']['premium'])
-        . "\n\n📖 20 картин · формат A4 · металева пружина\n💰 Ціна: 1 розмальовка — {$pr[1]} грн, 2 — {$pr[2]} грн, 3 — {$pr[3]} грн (кожна наступна — ще {$D['extra']} грн).");
+    $c = $D['price']['classic']; $pm = $D['price']['premium'];
+    say($chat, h($D['variantText']['classic']) . "\n💰 1 — {$c[1]} грн, 2 — {$c[2]} грн, 3 — {$c[3]} грн (кожна наступна — ще {$D['extra']['classic']} грн)"
+        . "\n\n" . h($D['variantText']['premium']) . "\n💰 1 — {$pm[1]} грн, 2 — {$pm[2]} грн, 3 — {$pm[3]} грн (кожна наступна — ще {$D['extra']['premium']} грн)"
+        . "\n\n📖 20 картин · формат A4 · металева пружина");
     say($chat, 'Вам яку оформляти: Класичну чи Преміальну? 😊', [[['🍂 Класичну', 'v:classic'], ['✨ Преміальну', 'v:premium']]]);
 }
 function step_requisites($chat, $o) {
@@ -159,9 +172,14 @@ if (isset($u['callback_query'])) {
         say($OWNER, "✏️ Клієнт хоче змінити замовлення\n{$tag}");
         $s['step'] = 'free';
     } elseif (preg_match('/^v:(classic|premium)$/', $data, $m)) {
-        if ($o) { foreach ($o['items'] as &$i) $i[1] = $m[1]; unset($i); save('rm-orders', $o['ref'], $o); }
+        if ($o) {
+            foreach ($o['items'] as &$i) $i[1] = $m[1];
+            unset($i);
+            $o['total'] = order_total($o['items']);
+            save('rm-orders', $o['ref'], $o);
+        }
         say($chat, "Чудовий вибір! 🎨 Напишіть, будь ласка, ваші дані для відправки:\n• Прізвище та ім'я\n• Номер телефону\n• Місто та номер відділення або поштомата Нової пошти");
-        say($OWNER, '🎨 Обрано: <b>' . $D['variants'][$m[1]] . "</b>\n{$tag}");
+        say($OWNER, '🎨 Обрано: <b>' . $D['variants'][$m[1]] . '</b>' . ($o ? ' · сума ' . (int)$o['total'] . ' грн' : '') . "\n{$tag}");
         $s['step'] = 'delivery';
     } elseif ($data === 'pay:fop') {
         step_requisites($chat, $o);
