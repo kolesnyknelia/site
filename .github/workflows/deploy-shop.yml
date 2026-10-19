@@ -71,17 +71,31 @@ jobs:
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         shell: python
         run: |
-          import os, io, ftplib
+          import os, io, re, base64, ftplib
           ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
           ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
           ftp.prot_p()
+
+          # Якщо Telegram-секретів немає в GitHub — беремо той самий бот і чат із конфігу сайту курсу
+          # (/kvn.kiev.ua/private/config.php, формат base64 — як пише deploy.yml). Так погодила власниця.
+          keys = {k: os.environ.get(k, "").strip() for k in ("TG_BOT_TOKEN", "TG_CHAT_ID")}
+          if not all(keys.values()):
+              buf = io.BytesIO()
+              try:
+                  ftp.retrbinary("RETR /kvn.kiev.ua/private/config.php", buf.write)
+                  for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", buf.getvalue().decode()):
+                      if k in keys and not keys[k]:
+                          keys[k] = base64.b64decode(v).decode()
+              except ftplib.all_errors as e:
+                  print("Не вдалося прочитати конфіг kvn.kiev.ua:", e)
+
           try:
               ftp.mkd("/noosal.shop/private")
           except ftplib.error_perm:
               pass
-          esc = lambda v: v.replace("\\", "\\\\").replace("'", "\\'")
-          keys = {k: os.environ.get(k, "").strip() for k in ("TG_BOT_TOKEN", "TG_CHAT_ID")}
-          php = "<?php\nreturn [\n" + "".join(f"    '{k}' => '{esc(v)}',\n" for k, v in keys.items()) + "];\n"
+          b64 = lambda v: base64.b64encode(v.encode()).decode()
+          php = "<?php\n// Згенеровано автоматично. Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => base64_decode('{b64(v)}'),\n" for k, v in keys.items()) + "];\n"
           ftp.storbinary("STOR /noosal.shop/private/config.php", io.BytesIO(php.encode()))
           ftp.storbinary("STOR /noosal.shop/private/.htaccess", io.BytesIO(b"Require all denied\n"))
           ftp.quit()
