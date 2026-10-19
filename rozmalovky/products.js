@@ -14,7 +14,7 @@
       premium: { 1: 580, 2: 990, 3: 1390 }
     },
     extra: { classic: 249, premium: 410 },   // кожна наступна після 3-ї
-    pixelId: "",                             // Meta Pixel ID (порожньо — вимкнено)
+    pixelId: "1670156954628679",                           // Meta Pixel ID (порожньо — вимкнено)
     supportBot: ""                           // ім'я Telegram-бота підтримки — підставляє deploy-rozmalovky.yml
   };
 
