@@ -51,6 +51,7 @@
   <div class="manual" id="manual" hidden>
     <b>Замовлення не передане — заповніть вручну:</b>
     <label>Ім'я клієнта<input type="text" id="mName" placeholder="Олена"></label>
+    <label>Прізвище (для призначення платежу)<input type="text" id="mSurname" placeholder="Коваленко"></label>
     <div id="mItems"></div>
   </div>
   <div class="sumrow">Сума до сплати: <input type="number" id="sum" min="0"> грн <small class="muted">(змініть, якщо клієнт додав чи прибрав розмальовку)</small></div>
@@ -77,11 +78,12 @@
     }
   } catch (e) { order = null; }
 
-  var state = { name: "", items: [], ref: "", total: 0 };
+  var state = { name: "", surname: "", items: [], ref: "", total: 0 };
   if (order) {
     state.name = (order.n || "").split(/\s+/).length > 1 ? order.n.split(/\s+/)[1] : (order.n || "");
     state.items = (order.i || []).map(function (x) { return { id: x[0], variant: x[1], qty: x[2] }; }).filter(function (x) { return byId(x.id); });
     state.ref = order.r || ""; state.total = order.s || 0;
+    state.surname = (order.n || "").split(/\s+/).length > 1 ? order.n.split(/\s+/)[0] : "";
     var tg = order.t || "", nick = (tg.match(/^@?([A-Za-z][A-Za-z0-9_]{4,31})$/) || [])[1];
     var digits = String(order.p || "").replace(/[^\d+]/g, "");
     $("#client").innerHTML = '<div class="client"><b>' + esc(order.n) + "</b> · замовлення № " + esc(state.ref) +
@@ -94,7 +96,7 @@
       return '<label class="chk"><input type="checkbox" value="' + p.id + '"> ' + esc(p.name) + "</label>";
     }).join("");
     $("#manual").addEventListener("input", function () {
-      state.name = $("#mName").value.trim();
+      state.name = $("#mName").value.trim(); state.surname = $("#mSurname").value.trim();
       state.items = [].slice.call(document.querySelectorAll("#mItems input:checked")).map(function (c) { return { id: c.value, variant: "classic", qty: 1 }; });
       state.total = priceFor(state.items.length); $("#sum").value = state.total; render();
     });
@@ -139,8 +141,18 @@
       "Чудовий вибір! 🎨 Напишіть, будь ласка, ваші дані для відправки:\n• Прізвище та ім'я\n• Номер телефону\n• Місто та номер відділення або поштомата Нової пошти");
     html += step(5, "Подарунок за оплату на ФОП", "Після отриманих даних", S.gift);
     html += step(6, "Реквізити", "Якщо клієнт погодився оплатити",
-      "Дякуємо! 💝 Реквізити для оплати:\n\nОтримувач: " + r.recipient + "\nIBAN: " + r.iban + "\nІПН/ЄДРПОУ: " + r.code + "\nСума: " + state.total + " грн\nПризначення платежу: Оплата за замовлення" + (state.ref ? " № " + state.ref : "") +
-      "\n\nПісля оплати надішліть, будь ласка, скрін квитанції 🙏 Відправимо в день оплати разом із подарунком 🎁",
+      "Дякуємо! 💝 Реквізити для оплати:\n\n🔹 Одержувач: ФОП " + r.recipient + "\nІПН / РНОКПП: " + r.code + "\n🔹 Банк: " + r.bank + "\n🔹 IBAN: " + r.iban +
+      "\n\n💰 Сума: " + state.total + " грн\n\n📝 Призначення платежу:\n" + "Оплата за товар" + (state.ref ? ", замовлення № " + state.ref : "") + ", " + (state.surname || "[ваше прізвище]") +
+      "\n\n❗ Обов'язково вкажіть призначення платежу саме так — за ним ми знайдемо ваше замовлення." +
+      "\n\n✅ Чому вигідно оплатити одразу:" +
+      "\n🔒 Безпечно — це офіційний рахунок ФОП, платіж іде через банк, у вас залишається квитанція" +
+      "\n💸 Без комісії Нової пошти за накладений платіж (≈20 грн + 2% від суми) — ви економите" +
+      "\n🎁 Розмальовка-сюрприз у подарунок" +
+      "\n🚀 Відправляємо в день оплати" +
+      "\n\n⏱ Це займе 1 хвилину: скопіюйте IBAN → у застосунку банку оберіть «Платіж за реквізитами» → вставте IBAN, суму й призначення → готово!" +
+      "\n\nПісля оплати надішліть, будь ласка, скрін квитанції 🙏",
+      '<div class="prod"><b class="t">Окремими повідомленнями — щоб клієнт скопіював одним дотиком:</b><textarea>' + esc(r.iban) + '</textarea><button class="cp" type="button">📋 Скопіювати IBAN</button>' +
+      '<textarea>' + esc("Оплата за товар" + (state.ref ? ", замовлення № " + state.ref : "") + ", " + (state.surname || "[ваше прізвище]")) + '</textarea><button class="cp" type="button">📋 Скопіювати призначення</button></div>' +
       '<details class="alt"><summary>Якщо клієнт хоче оплатити при отриманні</summary><textarea>' + esc("Добре, без проблем! 😊 Відправимо накладеним платежем — оплата при отриманні на Новій пошті (Нова пошта бере невелику комісію за переказ). Відправка сьогодні, номер ТТН надішлю сюди 📦") + '</textarea><button class="cp" type="button">📋 Скопіювати</button></details>');
     html += step(7, "Після оплати", "Коли прийшов скрін або кошти",
       "Оплату отримали, дякуємо! ❤️ Відправляємо сьогодні — номер ТТН надішлю сюди. А розмальовка-сюрприз уже чекає у вашій посилці 🎁✨");
