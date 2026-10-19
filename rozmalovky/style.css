@@ -271,3 +271,7 @@ body.has-cart .help-fab { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 
 @media (max-width: 380px) { .help-fab span { display: none; } .help-fab { width: 54px; padding: 0; justify-content: center; } }
 body.in-order .help-fab { width: 54px; padding: 0; justify-content: center; }
 body.in-order .help-fab span { display: none; }
+
+/* «20 аркушів = 20 картинок» на головному екрані */
+.hero-sheets { position: relative; z-index: 2; display: inline-block; margin: 0 auto 12px; padding: 6px 16px; border: 2px dashed rgba(255, 255, 255, .85); border-radius: 999px; font: 800 clamp(15px, 4.2vw, 19px)/1.2 var(--font); text-transform: uppercase; letter-spacing: .5px; color: #fff; animation: rise .7s both; }
+.hero .hero-sheets + .hero-price { display: flex; width: max-content; }

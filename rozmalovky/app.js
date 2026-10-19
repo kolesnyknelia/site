@@ -36,7 +36,7 @@
       var cover = p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0];
       return '<article class="card reveal" data-open="' + p.id + '">' +
         '<div class="cover"><img src="' + img(cover) + '" alt="' + esc(p.name) + '" loading="lazy">' +
-        (p.tag ? '<span class="tag">' + esc(p.tag) + "</span>" : "") + '<span class="pages">20 картин</span></div>' +
+        (p.tag ? '<span class="tag">' + esc(p.tag) + "</span>" : "") + '<span class="pages">20 аркушів</span></div>' +
         '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row">' +
         '<button class="add" data-quick="' + p.id + '">+ У кошик</button></div></div></article>';
     }).join("");
@@ -91,7 +91,7 @@
     $("#prodBody").innerHTML =
       '<div id="galWrap">' + galleryHtml(p, currentVar) + "</div>" +
       "<h3>" + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
-      '<ul class="pfacts"><li>20 картин</li><li>A4</li><li>Металева пружина</li><li>Відправка в день замовлення</li></ul>' +
+      '<ul class="pfacts"><li>20 аркушів = 20 картинок</li><li>A4</li><li>Металева пружина</li><li>Відправка в день замовлення</li></ul>' +
       '<div class="vpick">' + VARIANTS.map(function (v) { return '<button type="button" data-var="' + v.id + '" class="' + (v.id === currentVar ? "on" : "") + '"><b>' + v.name + "</b>" + v.hint + "</button>"; }).join("") + "</div>" +
       '<p class="vnote">👀 Погляньте обидва варіанти — остаточний оберете в Telegram після оформлення.</p>' +
       '<div class="pbuy"><span class="price">' + fmt(P1.classic) + '</span><button class="btn" data-add-current>Додати в кошик</button></div>';
@@ -172,7 +172,7 @@
       return keys.map(function (k) {
         var q = cart[k] || 0, v = k.split(":")[1];
         return '<div class="pick' + (q ? " on" : "") + '"><img src="' + img(coverOf(p, v)) + '" alt="" data-open="' + p.id + '" data-v="' + v + '">' +
-          '<div class="pinfo"><b>' + esc(p.name) + '</b><small>20 картин · A4</small></div>' +
+          '<div class="pinfo"><b>' + esc(p.name) + '</b><small>20 аркушів · A4</small></div>' +
           '<div class="qty"><button type="button" data-dec="' + k + '">−</button><b>' + q + '</b><button type="button" data-inc="' + k + '">+</button></div></div>';
       }).join("");
     }).join("");
@@ -265,7 +265,7 @@
         location.href = "thanks.html?ref=" + encodeURIComponent(res.ref) + "&total=" + res.total + "&n=" + n + "&name=" + encodeURIComponent((function (p) { return p.length > 1 ? p[1] : p[0]; })(f.elements.name.value.trim().split(/\s+/)));
       })
       .catch(function () {
-        alert("Не вдалося надіслати замовлення. Спробуйте ще раз або напишіть нам у Telegram @hellppbott.");
+        alert("Не вдалося надіслати замовлення. Спробуйте ще раз або натисніть кнопку «Допомога» — напишіть нам у Telegram.");
         btn.disabled = false; renderOrder();
       });
   });
