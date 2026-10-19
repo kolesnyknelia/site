@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Дякуємо за замовлення · Розмалюй момент</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#e2341d">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖍️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .ty { min-height: 100vh; display: flex; align-items: center; padding: 30px 0; }
+    .ty .card2 { background: #fff; border-radius: 24px; box-shadow: var(--shadow); padding: 30px 22px; text-align: center; max-width: 560px; margin: 0 auto; border-top: 8px solid var(--red); }
+    .ty .big { font-size: 64px; line-height: 1; }
+    .ty h1 { font: 700 clamp(30px, 8vw, 42px)/1.1 var(--head); text-transform: uppercase; margin: 12px 0 8px; }
+    .ty .ref { display: inline-block; background: var(--bg); border-radius: 999px; padding: 6px 16px; font-weight: 800; margin: 6px 0 18px; }
+    .ty ol { text-align: left; margin: 0 auto 22px; padding-left: 22px; max-width: 420px; display: grid; gap: 10px; }
+    .ty .sumline { font-size: 18px; margin-bottom: 18px; }
+    .ty .sumline b { color: var(--red); font: 700 26px var(--head); }
+  </style>
+</head>
+<body>
+  <main class="ty">
+    <div class="wrap">
+      <div class="card2">
+        <div class="big">🎉</div>
+        <h1 id="hello">Дякуємо за замовлення!</h1>
+        <div class="ref">Замовлення № <span id="ref">—</span></div>
+        <p class="sumline" id="sumline" hidden>Розмальовок: <b id="n"></b> · До сплати: <b id="total"></b> + доставка</p>
+        <ol>
+          <li>📞 Протягом робочого дня ми зателефонуємо, щоб підтвердити замовлення.</li>
+          <li>📦 Відправляємо Новою поштою в день підтвердження — ТТН надішлемо в повідомленні.</li>
+          <li>🖍️ Готуйте олівці: за 1–3 дні розмальовки будуть у вас!</li>
+        </ol>
+        <a class="btn" href="index.html">← Повернутися до розмальовок</a>
+        <p class="muted" style="margin-top:18px;font-size:14px">Питання? Telegram <a href="https://t.me/hellppbott">@hellppbott</a> · +380 93 136 97 64</p>
+      </div>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var PIXEL_ID = "";   // той самий Meta Pixel ID, що в app.js → CONFIG.pixelId
+      var q = new URLSearchParams(location.search), esc = function (s) { return String(s).replace(/[&<>"]/g, ""); };
+      var ref = q.get("ref"), total = +q.get("total") || 0, n = +q.get("n") || 0, name = q.get("name");
+      if (ref) document.getElementById("ref").textContent = esc(ref);
+      if (name) document.getElementById("hello").textContent = esc(name).slice(0, 30) + ", дякуємо за замовлення!";
+      if (total && n) { document.getElementById("n").textContent = n; document.getElementById("total").textContent = total + " грн"; document.getElementById("sumline").hidden = false; }
+      if (PIXEL_ID && ref) {
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
+        fbq("init", PIXEL_ID); fbq("track", "PageView");
+        try { if (sessionStorage.getItem("rm_paid_" + ref)) return; sessionStorage.setItem("rm_paid_" + ref, "1"); } catch (e) {}
+        fbq("track", "Purchase", { value: total, currency: "UAH" }, { eventID: ref });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -27,7 +27,10 @@
   <div class="wrap">
     <h1>Розмальовки, які <em>повертають тепло</em></h1>
     <p class="lead">Зима в селі, осінній затишок, Різдво, спогади з дитинства. Кожна — 20 картин A4 на металевій пружині. Відправляємо в день замовлення.</p>
-    <a class="btn" href="#catalog">Обрати розмальовки ↓</a>
+    <div class="hero-cta">
+      <a class="btn" href="#order">Замовити зі знижкою</a>
+      <a class="btn ghost" href="#catalog">Ознайомитися з розмальовками</a>
+    </div>
     <div class="hero-pics" aria-hidden="true">
       <img src="img/selo-cover.webp" alt="" class="p1">
       <img src="img/christmas-cover.webp" alt="" class="p2">
@@ -103,6 +106,43 @@
   </div>
 </section>
 
+<!-- 8. Замовлення: вибір розмальовок + дані -->
+<section id="order" class="order">
+  <div class="wrap">
+    <h2>Оформити замовлення</h2>
+    <p class="sub">Що більше розмальовок — то нижча ціна за кожну</p>
+    <div class="tier-grid" id="tierGrid2"></div>
+
+    <div class="step"><span>1</span>Оберіть розмальовки і варіант</div>
+    <div class="picks" id="picks"></div>
+
+    <div class="hint" id="orderHint"></div>
+    <div class="sum" id="orderSum">
+      <div><span>Обрано</span><b id="oCount">0 шт.</b></div>
+      <div><span>Звичайна ціна</span><s id="oFull">0 грн</s></div>
+      <div class="save"><span>Ваша економія</span><b id="oSave">0 грн</b></div>
+      <div class="total"><span>До сплати</span><b id="oTotal">0 грн</b></div>
+      <small>+ доставка за тарифами Нової пошти</small>
+    </div>
+
+    <div class="step"><span>2</span>Ваші дані для доставки</div>
+    <form id="orderForm" class="oform" novalidate>
+      <label>Ім'я та прізвище<input name="name" required autocomplete="name" placeholder="Олена Коваленко"></label>
+      <label>Телефон<input name="phone" required type="tel" autocomplete="tel" placeholder="+380 __ ___ __ __"></label>
+      <label>Місто<input name="city" required placeholder="Київ"></label>
+      <label>Відділення або поштомат Нової пошти<input name="np" required placeholder="№ 25"></label>
+      <fieldset class="pay">
+        <label><input type="radio" name="pay" value="cod" checked> Оплата при отриманні</label>
+        <label><input type="radio" name="pay" value="prepay"> Передоплата на картку</label>
+      </fieldset>
+      <label>Коментар (необов'язково)<input name="comment" placeholder="Напр.: це подарунок"></label>
+      <p class="err-msg" id="formErr" hidden>Оберіть хоча б одну розмальовку вище 👆</p>
+      <button class="btn full big" type="submit" id="submitBtn">Замовити</button>
+      <p class="note">Ми зателефонуємо для підтвердження. Відправка в день замовлення. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
+    </form>
+  </div>
+</section>
+
 <footer class="foot">
   <p>Розмалюй момент · розмальовки-антистрес</p>
   <p class="muted">Telegram: <a href="https://t.me/hellppbott">@hellppbott</a> · +380 93 136 97 64</p>
@@ -135,24 +175,8 @@
       <div class="total"><span>До сплати</span><b id="sumTotal">0 грн</b></div>
       <small>+ доставка за тарифами Нової пошти</small>
     </div>
-    <form id="orderForm" novalidate>
-      <label>Ім'я та прізвище<input name="name" required autocomplete="name" placeholder="Олена Коваленко"></label>
-      <label>Телефон<input name="phone" required type="tel" autocomplete="tel" placeholder="+380 __ ___ __ __"></label>
-      <label>Місто<input name="city" required placeholder="Київ"></label>
-      <label>Відділення або поштомат Нової пошти<input name="np" required placeholder="№ 25"></label>
-      <fieldset class="pay">
-        <label><input type="radio" name="pay" value="cod" checked> Оплата при отриманні</label>
-        <label><input type="radio" name="pay" value="prepay"> Передоплата на картку</label>
-      </fieldset>
-      <label>Коментар (необов'язково)<input name="comment" placeholder="Напр.: це подарунок"></label>
-      <button class="btn full" type="submit">Оформити замовлення</button>
-      <p class="note">Ми зателефонуємо для підтвердження. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
-    </form>
-    <div id="thanks" class="thanks" hidden>
-      <div class="big">🎉</div>
-      <h3>Дякуємо! Замовлення прийнято</h3>
-      <p>Номер замовлення: <b id="orderRef"></b>. Ми зв'яжемося з вами найближчим часом.</p>
-    </div>
+    <button class="btn full" data-go-order>Оформити замовлення ↓</button>
+    <button class="btn ghost full" data-close style="margin-top:12px">Продовжити вибір</button>
   </div>
 </div>
 
