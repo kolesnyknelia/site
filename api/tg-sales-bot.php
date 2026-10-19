@@ -62,11 +62,27 @@ function titles($o) {
     if (!$names) return 'розмальовку';
     return (count($names) === 1 ? 'розмальовку «' : 'розмальовки «') . implode('», «', $names) . '»';
 }
-function order_lines($o) {
+function order_lines($o, $withVariant = true) {
     global $D; $out = [];
     foreach ((array)g($o, 'items', []) as $i) if (isset($D['products'][$i[0]]))
-        $out[] = '• ' . h($D['products'][$i[0]][0]) . ' — ' . $D['variants'][$i[1]] . ($i[2] > 1 ? " × {$i[2]}" : '');
+        $out[] = '• ' . h($D['products'][$i[0]][0]) . ($withVariant ? ' — ' . $D['variants'][$i[1]] : '') . ($i[2] > 1 ? " × {$i[2]}" : '');
     return implode("\n", $out);
+}
+function order_count($o) { $n = 0; foreach ((array)g($o, 'items', []) as $i) $n += $i[2]; return $n; }
+/** Підсумок після вибору варіанту: кількість, знижка, сума + кнопки «ще одна» / «оформити» */
+function step_summary($chat, $o, $v) {
+    global $D;
+    $n = order_count($o); $full = $n * $D['price'][$v][1]; $total = (int)$o['total'];
+    $more = $o['items']; $more[] = ['x', $v, 1];
+    $next = order_total($more) - $total;
+    say($chat, "🧾 <b>Ваше замовлення</b> (" . mb_strtolower($D['variants'][$v], 'UTF-8') . ")\n" . order_lines($o, false)
+        . "\n\nРазом: {$n} шт." . ($full > $total ? "\nЗвичайна ціна: <s>{$full} грн</s>\n🎉 Ваша знижка: <b>" . ($full - $total) . " грн</b>" : '')
+        . "\n💰 До сплати: <b>{$total} грн</b> + доставка"
+        . "\n\n🎁 Додайте ще одну розмальовку всього за <b>+{$next} грн</b>" . ($n < 3 ? ' — що більше, то вигідніше!' : ''),
+        [[['➕ Додати ще одну (+' . $next . ' грн)', 'more']], [['🔁 Інший варіант', 'vq'], ['✅ Оформити', 'go']]]);
+}
+function help_text() {
+    return "👋 Вітаємо! Це підтримка «Розмалюй момент».\n\nНапишіть сюди ваше питання — про розмальовки, доставку чи оплату — і менеджер відповість у цьому чаті 💬";
 }
 /** Сума за варіантами — та сама формула, що в rozmalovky-order.php */
 function order_total($items) {
@@ -93,7 +109,8 @@ function step_variants($chat, $o) {
         if (isset($seen[$i[0]]) || !isset($D['products'][$i[0]])) continue;
         $seen[$i[0]] = 1;
         $p = $D['products'][$i[0]];
-        $albums = empty($p[3]) ? ['' => $p[1]] : ['🍂 Класична' => $p[1], '✨ Преміальна' => $p[3]];
+        $c1 = $D['price']['classic'][1]; $p1 = $D['price']['premium'][1];
+        $albums = empty($p[3]) ? ['' => $p[1]] : ["🍂 Класична · {$c1} грн" => $p[1], "✨ Преміальна · {$p1} грн" => $p[3]];
         foreach ($albums as $cap => $imgs) {
             $media = [];
             foreach (array_slice($imgs, 0, 10) as $k => $im) $media[] = ['type' => 'photo', 'media' => $IMG . $im . '.jpg'] + ($k === 0 && $cap ? ['caption' => $cap . ' — «' . $p[0] . '»'] : []);
@@ -105,7 +122,11 @@ function step_variants($chat, $o) {
     say($chat, h($D['variantText']['classic']) . "\n💰 1 — {$c[1]} грн, 2 — {$c[2]} грн, 3 — {$c[3]} грн (кожна наступна — ще {$D['extra']['classic']} грн)"
         . "\n\n" . h($D['variantText']['premium']) . "\n💰 1 — {$pm[1]} грн, 2 — {$pm[2]} грн, 3 — {$pm[3]} грн (кожна наступна — ще {$D['extra']['premium']} грн)"
         . "\n\n📖 20 картин · формат A4 · металева пружина");
-    say($chat, 'Вам яку оформляти: Класичну чи Преміальну? 😊', [[['🍂 Класичну', 'v:classic'], ['✨ Преміальну', 'v:premium']]]);
+    ask_variant($chat);
+}
+function ask_variant($chat) {
+    global $D; $c = $D['price']['classic']; $pm = $D['price']['premium'];
+    say($chat, 'Вам яку оформляти: Класичну чи Преміальну? 😊', [[['🍂 Класичну · ' . $c[1] . ' грн', 'v:classic']], [['✨ Преміальну · ' . $pm[1] . ' грн', 'v:premium']]]);
 }
 function step_requisites($chat, $o) {
     global $D; $r = $D['requisites'];
@@ -178,8 +199,31 @@ if (isset($u['callback_query'])) {
             $o['total'] = order_total($o['items']);
             save('rm-orders', $o['ref'], $o);
         }
-        say($chat, "Чудовий вибір! 🎨 Напишіть, будь ласка, ваші дані для відправки:\n• Прізвище та ім'я\n• Номер телефону\n• Місто та номер відділення або поштомата Нової пошти");
+        $s['variant'] = $m[1];
         say($OWNER, '🎨 Обрано: <b>' . $D['variants'][$m[1]] . '</b>' . ($o ? ' · сума ' . (int)$o['total'] . ' грн' : '') . "\n{$tag}");
+        if ($o) { step_summary($chat, $o, $m[1]); $s['step'] = 'summary'; }
+        else { say($chat, "Чудовий вибір! 🎨 Напишіть, будь ласка, ваші дані для відправки:\n• Прізвище та ім'я\n• Номер телефону\n• Місто та номер відділення або поштомата Нової пошти"); $s['step'] = 'delivery'; }
+    } elseif ($data === 'vq') {
+        ask_variant($chat);
+    } elseif ($data === 'more' && $o) {
+        $rows = [];
+        foreach ($D['visible'] as $id) if (isset($D['products'][$id])) $rows[] = [['➕ ' . $D['products'][$id][0], 'add:' . $id]];
+        $rows[] = [['⬅️ Назад', 'back']];
+        say($chat, 'Яку розмальовку додати? 👇', $rows);
+    } elseif (preg_match('/^add:([a-z]+)$/', $data, $m) && $o && in_array($m[1], $D['visible'], true)) {
+        $v = g($s, 'variant', 'classic'); $found = false;
+        foreach ($o['items'] as &$i) if ($i[0] === $m[1] && $i[1] === $v) { $i[2]++; $found = true; }
+        unset($i);
+        if (!$found) $o['items'][] = [$m[1], $v, 1];
+        $o['total'] = order_total($o['items']);
+        save('rm-orders', $o['ref'], $o);
+        say($OWNER, '➕ Клієнт додав «' . h($D['products'][$m[1]][0]) . '» · тепер ' . order_count($o) . ' шт., ' . $o['total'] . " грн\n{$tag}");
+        step_summary($chat, $o, $v);
+    } elseif ($data === 'back' && $o) {
+        step_summary($chat, $o, g($s, 'variant', 'classic'));
+    } elseif ($data === 'go' && $o) {
+        say($chat, "Чудово! 🎨 Напишіть, будь ласка, ваші дані для відправки:\n• Прізвище та ім'я\n• Номер телефону\n• Місто та номер відділення або поштомата Нової пошти");
+        say($OWNER, "✅ <b>Замовлення підтверджено</b>\n" . order_lines($o) . "\nРазом: " . order_count($o) . " шт. · <b>" . (int)$o['total'] . " грн</b>\n{$tag}");
         $s['step'] = 'delivery';
     } elseif ($data === 'pay:fop') {
         step_requisites($chat, $o);
@@ -207,10 +251,14 @@ if ((string)$chat === (string)$OWNER && !preg_match('/^\/start\s+\S/', $text)
 if (preg_match('/^\/start(?:\s+(\S+))?/', $text, $m)) {
     $ref = isset($m[1]) ? preg_replace('/[^A-Za-z0-9]/', '', $m[1]) : '';
     $o = $ref ? load('rm-orders', $ref) : [];
-    if ($o) {
+    if ($ref === 'help' || !$ref && !$o) {
+        $s = ['step' => 'free'];
+        say($chat, help_text());
+        say($OWNER, "🆘 Клієнт відкрив підтримку\n" . who([], $chat, g($msg, 'from', [])));
+    } elseif ($o) {
         $o['chat'] = $chat; save('rm-orders', $ref, $o);
         $s = ['ref' => $ref, 'step' => 'confirm'];
-        say($chat, 'Доброго дня, ' . h(first_name($o['name'])) . '! 😊 Ви лишали заявку на ' . h(titles($o)) . ". Чи актуальне ваше замовлення?\n\n🧾 Замовлення № {$ref}\n" . order_lines($o) . "\n💰 До сплати: <b>{$o['total']} грн</b> + доставка",
+        say($chat, 'Доброго дня, ' . h(first_name($o['name'])) . '! 😊 Ви лишали заявку на ' . h(titles($o)) . ". Чи актуальне ваше замовлення?\n\n🧾 Замовлення № {$ref}\n" . order_lines($o, false),
             [[['✅ Так, актуальне', 'ok'], ['✏️ Хочу змінити', 'chg']]]);
         say($OWNER, "✈️ Клієнт відкрив бота — скрипт запущено\n" . who($o, $chat, g($msg, 'from', [])));
     } else {
@@ -221,6 +269,8 @@ if (preg_match('/^\/start(?:\s+(\S+))?/', $text, $m)) {
     save('rm-bot', $chat, $s);
     exit;
 }
+
+if ($text === '/help') { say($chat, help_text()); exit; }
 
 $o = g($s, 'ref') ? load('rm-orders', $s['ref']) : [];
 $tag = who($o, $chat, g($msg, 'from', []));
@@ -250,4 +300,4 @@ if ($step === 'delivery') {
 
 // Будь-яке інше повідомлення — власниці; вона відповідає через Reply
 say($OWNER, '💬 ' . h($text) . "\n\n" . $tag);
-if ($step === 'confirm' || $step === 'variant' || $step === 'pay') say($chat, 'Дякуємо! Передали ваше повідомлення менеджеру — відповімо тут 🙂 А поки можна обрати варіант кнопками вище 👆');
+if (in_array($step, ['confirm', 'variant', 'summary', 'pay'], true)) say($chat, 'Дякуємо! Передали ваше повідомлення менеджеру — відповімо тут 🙂 А поки можна обрати варіант кнопками вище 👆');

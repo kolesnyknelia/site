@@ -50,7 +50,7 @@
           <li>🖍️ Готуйте олівці: за 1–3 дні розмальовки будуть у вас!</li>
         </ol>
         <a class="btn" href="index.html">← Повернутися до розмальовок</a>
-        <p class="muted" style="margin-top:18px;font-size:14px">Питання? Telegram <a href="https://t.me/hellppbott">@hellppbott</a> · +380 93 136 97 64</p>
+        <p class="muted" style="margin-top:18px;font-size:14px">Питання? <a id="helpLink" href="https://t.me/hellppbott">Допомога в Telegram</a> · +380 93 136 97 64</p>
       </div>
     </div>
   </main>
@@ -82,6 +82,7 @@
       document.getElementById("tgBtn").href = SALES_BOT && ref && /^RM\d+$/.test(ref)
         ? "https://t.me/" + SALES_BOT + "?start=" + ref
         : "https://t.me/" + TELEGRAM + "?text=" + encodeURIComponent(text);
+      if (SALES_BOT) document.getElementById("helpLink").href = "https://t.me/" + SALES_BOT + "?start=help";
       document.getElementById("copyBtn").addEventListener("click", function () {
         var b = this; (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { b.textContent = "✅ Скопійовано — вставте в чат"; }, function () { prompt("Скопіюйте текст:", text); });
       });

@@ -21,6 +21,7 @@
 
   /* ---------- Ціни за кількістю (для обох варіантів) ---------- */
   function renderTiers() {
+    if (!$("#tierGrid")) return;   // таблиця цін зараз не показується на сайті (варіанти й знижки — у Telegram-боті)
     $("#tierGrid").innerHTML = [1, 2, 3].map(function (n) {
       var c = tierPrice("classic", n), pr = tierPrice("premium", n);
       return '<div class="tier' + (n === 3 ? " best" : "") + '"><div class="n">' + n + '</div><div class="w">' + (n === 1 ? "розмальовка" : "розмальовки") + "</div>" +
@@ -36,7 +37,7 @@
       return '<article class="card reveal" data-open="' + p.id + '">' +
         '<div class="cover"><img src="' + img(cover) + '" alt="' + esc(p.name) + '" loading="lazy">' +
         (p.tag ? '<span class="tag">' + esc(p.tag) + "</span>" : "") + '<span class="pages">20 картин</span></div>' +
-        '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row"><span class="price"><small>від</small> ' + fmt(P1.classic) + "</span>" +
+        '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row">' +
         '<button class="add" data-quick="' + p.id + '">+ У кошик</button></div></div></article>';
     }).join("");
     markInCart();
@@ -84,7 +85,6 @@
     currentVar = v;
     $$(".vpick button").forEach(function (b) { b.classList.toggle("on", b.dataset.var === v); });
     $("#galWrap").innerHTML = galleryHtml(current, v); bindGallery();
-    $("#pprice").textContent = fmt(P1[v]);
   }
   function openProduct(id, v) {
     var p = byId(id); current = p; currentVar = v || "classic";
@@ -92,8 +92,9 @@
       '<div id="galWrap">' + galleryHtml(p, currentVar) + "</div>" +
       "<h3>" + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
       '<ul class="pfacts"><li>20 картин</li><li>A4</li><li>Металева пружина</li><li>Відправка в день замовлення</li></ul>' +
-      '<div class="vpick">' + VARIANTS.map(function (v) { return '<button type="button" data-var="' + v.id + '" class="' + (v.id === currentVar ? "on" : "") + '"><b>' + v.name + " · " + fmt(P1[v.id]) + "</b>" + v.hint + "</button>"; }).join("") + "</div>" +
-      '<div class="pbuy"><span class="price" id="pprice">' + fmt(P1[currentVar]) + '</span><button class="btn" data-add-current>Додати в кошик</button></div>';
+      '<div class="vpick">' + VARIANTS.map(function (v) { return '<button type="button" data-var="' + v.id + '" class="' + (v.id === currentVar ? "on" : "") + '"><b>' + v.name + "</b>" + v.hint + "</button>"; }).join("") + "</div>" +
+      '<p class="vnote">👀 Погляньте обидва варіанти — остаточний оберете в Telegram після оформлення.</p>' +
+      '<div class="pbuy"><span class="price">' + fmt(P1.classic) + '</span><button class="btn" data-add-current>Додати в кошик</button></div>';
     openModal("#prodModal");
     bindGallery();
     track("ViewContent", { content_name: p.name });
@@ -102,7 +103,11 @@
   /* ---------- Кошик (спільний для іконки, панелі й блоку замовлення) ---------- */
   var cart = {};
   try { cart = JSON.parse(localStorage.getItem("rm_cart") || "{}") || {}; } catch (e) { cart = {}; }
-  Object.keys(cart).forEach(function (k) { var p = byId(k.split(":")[0]), v = k.split(":")[1]; if (!p || p.hidden || !/^(classic|premium)$/.test(v) || !(cart[k] > 0)) delete cart[k]; });
+  // На сайті всі розмальовки — за базовою ціною; варіант (класична / преміальна) клієнт обирає в Telegram-боті
+  Object.keys(cart).forEach(function (k) {
+    var id = k.split(":")[0], p = byId(id), q = cart[k]; delete cart[k];
+    if (p && !p.hidden && q > 0) cart[id + ":classic"] = (cart[id + ":classic"] || 0) + q;
+  });
   function save() { try { localStorage.setItem("rm_cart", JSON.stringify(cart)); } catch (e) {} }
   function count() { return Object.keys(cart).reduce(function (s, k) { return s + cart[k]; }, 0); }
   function counts(extraVar) {
@@ -130,6 +135,7 @@
   }
 
   function hintText(n) {
+    return "";   // підказки зі знижками — у Telegram-боті
     if (!n) return "";
     var c = counts(), v = c.premium > c.classic ? "premium" : "classic", more = cartTotal(v) - cartTotal();
     if (n < 3) return "🎁 Додайте ще одну розмальовку (" + vname(v).toLowerCase() + ") всього за <b>" + fmt(more) + "</b>" + (n === 2 ? " — 3 шт. найвигідніше!" : "");
@@ -166,8 +172,7 @@
       return keys.map(function (k) {
         var q = cart[k] || 0, v = k.split(":")[1];
         return '<div class="pick' + (q ? " on" : "") + '"><img src="' + img(coverOf(p, v)) + '" alt="" data-open="' + p.id + '" data-v="' + v + '">' +
-          '<div class="pinfo"><b>' + esc(p.name) + '</b><div class="pv">' + VARIANTS.map(function (x) {
-            return '<button type="button" data-sw="' + k + '" data-to="' + x.id + '" class="' + (x.id === v ? "on" : "") + '">' + x.name + " · " + fmt(P1[x.id]) + "</button>"; }).join("") + "</div></div>" +
+          '<div class="pinfo"><b>' + esc(p.name) + '</b><small>20 картин · A4</small></div>' +
           '<div class="qty"><button type="button" data-dec="' + k + '">−</button><b>' + q + '</b><button type="button" data-inc="' + k + '">+</button></div></div>';
       }).join("");
     }).join("");
@@ -175,8 +180,6 @@
   function renderOrder(focusKey) {
     var n = count();
     renderPicks(focusKey);
-    $("#tierGrid2").innerHTML = $("#tierGrid").innerHTML;
-    $$("#tierGrid2 .tier").forEach(function (t, i) { t.classList.toggle("cur", n >= i + 1 && (n < i + 2 || i === 2)); });
     $("#orderHint").innerHTML = hintText(n);
     $("#oCount").textContent = n + " шт.";
     fillSum("o", n);
@@ -187,6 +190,7 @@
     var n = count(), total = cartTotal(), cc = $("#cartCount");
     if (+cc.textContent !== n) { cc.classList.remove("bump"); void cc.offsetWidth; cc.classList.add("bump"); }
     cc.textContent = n;
+    document.body.classList.toggle("has-cart", n > 0);
     $("#cartbar").hidden = !n || orderVisible;
     $("#cartbarText").textContent = "🛒 У кошику " + n + " шт.";
     $("#cartbarTotal").textContent = fmt(total) + " →";
@@ -197,6 +201,7 @@
   var orderVisible = false;
   if ("IntersectionObserver" in window) new IntersectionObserver(function (en) {
     orderVisible = en[0].isIntersecting; $("#cartbar").hidden = !count() || orderVisible;
+    document.body.classList.toggle("in-order", orderVisible);
   }, { rootMargin: "0px 0px -30% 0px" }).observe($("#order"));
 
   /* ---------- Модальні вікна ---------- */
@@ -210,7 +215,7 @@
     if (t.dataset.quick) { e.stopPropagation(); add(t.dataset.quick, "classic"); return; }
     if (t.dataset.open) return openProduct(t.dataset.open, t.dataset.v);
     if (t.dataset.var) return showVariant(t.dataset.var);
-    if (t.hasAttribute("data-add-current")) { add(current.id, currentVar); closeModals(); openModal("#cartModal"); return; }
+    if (t.hasAttribute("data-add-current")) { add(current.id, "classic"); closeModals(); openModal("#cartModal"); return; }
     if (t.dataset.sw) { touched[t.dataset.sw.split(":")[0] + ":" + t.dataset.to] = true; delete touched[t.dataset.sw]; return switchVariant(t.dataset.sw, t.dataset.to); }
     if (t.dataset.inc) { touched[t.dataset.inc] = true; return setQty(t.dataset.inc, (cart[t.dataset.inc] || 0) + 1); }
     if (t.dataset.dec) { return setQty(t.dataset.dec, (cart[t.dataset.dec] || 0) - 1); }
@@ -277,6 +282,10 @@
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version="2.0";n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");
     window.fbq("init", CONFIG.pixelId); window.fbq("track", "PageView");
   }
+
+  /* Підтримка: кнопка «Допомога» й посилання ведуть у Telegram-бот (ім'я бота підставляє деплой) */
+  var supportUrl = "https://t.me/" + (CONFIG.supportBot ? CONFIG.supportBot + "?start=help" : "hellppbott");
+  $$("[data-support]").forEach(function (a) { a.href = supportUrl; });
 
   renderTiers(); renderGrid(); renderHero(); renderAll(); reveal();
 })();
