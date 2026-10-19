@@ -125,20 +125,15 @@
       <small>+ доставка за тарифами Нової пошти</small>
     </div>
 
-    <div class="step"><span>2</span>Ваші дані для доставки</div>
+    <div class="step"><span>2</span>Ваші контакти</div>
     <form id="orderForm" class="oform" novalidate>
-      <label>Ім'я та прізвище<input name="name" required autocomplete="name" placeholder="Олена Коваленко"></label>
+      <label>Прізвище та ім'я<input name="name" required autocomplete="name" placeholder="Коваленко Олена"></label>
+      <label>Ваш Telegram<input name="telegram" required autocomplete="off" placeholder="@vash_nik або номер у Telegram"></label>
       <label>Телефон<input name="phone" required type="tel" autocomplete="tel" placeholder="+380 __ ___ __ __"></label>
-      <label>Місто<input name="city" required placeholder="Київ"></label>
-      <label>Відділення або поштомат Нової пошти<input name="np" required placeholder="№ 25"></label>
-      <fieldset class="pay">
-        <label><input type="radio" name="pay" value="cod" checked> Оплата при отриманні</label>
-        <label><input type="radio" name="pay" value="prepay"> Передоплата на картку</label>
-      </fieldset>
-      <label>Коментар (необов'язково)<input name="comment" placeholder="Напр.: це подарунок"></label>
+      <div class="tg-note">✈️ <b>Не любите дзвінки?</b> Після замовлення натисніть кнопку Telegram — доставку й оплату узгодимо в переписці, без дзвінків.</div>
       <p class="err-msg" id="formErr" hidden>Оберіть хоча б одну розмальовку вище 👆</p>
       <button class="btn full big" type="submit" id="submitBtn">Замовити</button>
-      <p class="note">Ми зателефонуємо для підтвердження. Відправка в день замовлення. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
+      <p class="note">Доставку Новою поштою й спосіб оплати уточнимо в Telegram або дзвінком оператора. Відправка в день підтвердження. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
     </form>
   </div>
 </section>
