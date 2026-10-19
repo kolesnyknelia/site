@@ -28,6 +28,7 @@ return [
     'botPhotos' => [
         'mykolai' => ['premium' => ['bot-mykolai-premium'], 'classic' => ['bot-mykolai-classic']],
         'milenialy' => ['premium' => ['bot-milenialy-premium'], 'classic' => ['bot-milenialy-classic']],
+        'halloween' => ['premium' => ['bot-halloween-premium'], 'classic' => ['bot-halloween-classic']],
     ],
     'variants' => ['classic' => 'Класична', 'premium' => 'Преміальна'],
     // Ті самі ціни, що в products.js і rozmalovky-order.php
