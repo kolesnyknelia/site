@@ -31,9 +31,10 @@
 
   /* ---------- Каталог ---------- */
   function renderGrid() {
-    $("#grid").innerHTML = VISIBLE.map(function (p) {
+    $("#grid").classList.toggle("one", VISIBLE.length === 1);
+    $("#grid").innerHTML = VISIBLE.map(function (p, i) {
       var cover = p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0];
-      return '<article class="card" data-open="' + p.id + '">' +
+      return '<article class="card c' + (i % 6) + '" data-open="' + p.id + '">' +
         '<div class="cover"><img src="' + img(cover) + '" alt="' + esc(p.name) + '" loading="lazy">' +
         (p.tag ? '<span class="tag">' + esc(p.tag) + "</span>" : "") + '<span class="pages">20 картин</span></div>' +
         '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row"><span class="price"><small>від</small> ' + fmt(P1.classic) + "</span>" +
@@ -46,6 +47,20 @@
       var n = countOf(b.dataset.quick);
       b.classList.toggle("in", n > 0); b.textContent = n ? "✓ У кошику" + (n > 1 ? " ×" + n : "") : "+ У кошик";
     });
+  }
+
+  /* Стрічка «Погляньте всередину»: сторінки з усіх розмальовок (класичні й преміальні), до 12 штук */
+  function renderStrip() {
+    var el = $("#strip"); if (!el) return;
+    var out = [], rounds = 0;
+    while (out.length < 12 && rounds < 10) {
+      VISIBLE.forEach(function (p) {
+        var list = p.imgs.filter(function (n) { return !/cover|mockup/.test(n); }).concat(p.imgsPremium || []);
+        if (list[rounds]) out.push({ id: p.id, n: list[rounds], v: (p.imgsPremium || []).indexOf(list[rounds]) > -1 ? "premium" : "classic" });
+      });
+      rounds++;
+    }
+    el.innerHTML = out.slice(0, 12).map(function (x) { return '<img src="' + img(x.n) + '" alt="" data-open="' + x.id + '" data-v="' + x.v + '">'; }).join("");
   }
 
   /* ---------- Розмальовка: гортання ---------- */
@@ -260,5 +275,5 @@
     window.fbq("init", CONFIG.pixelId); window.fbq("track", "PageView");
   }
 
-  renderTiers(); renderGrid(); renderAll();
+  renderTiers(); renderGrid(); renderStrip(); renderAll();
 })();
