@@ -58,6 +58,9 @@ log_line('rozmalovky-orders.log', compact('ref', 'name', 'phone', 'tgUser', 'car
 $items = array();
 foreach ($cart as $key => $qty) { $parts = explode(':', (string)$key); if (count($parts) === 2 && isset($PRODUCTS[$parts[0]], $VARIANTS[$parts[1]]) && (int)$qty > 0) $items[] = [$parts[0], $parts[1], (int)$qty]; }
 $payload = rtrim(strtr(base64_encode(json_encode(['r' => $ref, 'n' => $name, 'p' => $phone, 't' => $tgUser, 'i' => $items, 's' => $total], JSON_UNESCAPED_UNICODE)), '+/', '-_'), '=');
+// Для бота-продавця (tg-sales-bot.php): клієнт відкриває t.me/<бот>?start=<ref>
+@mkdir(private_dir() . '/rm-orders', 0750, true);
+@file_put_contents(private_dir() . "/rm-orders/{$ref}.json", json_encode(['ref' => $ref, 'name' => $name, 'phone' => $phone, 'tg' => $tgUser, 'items' => $items, 'total' => $total, 'ts' => date('c')], JSON_UNESCAPED_UNICODE), LOCK_EX);
 $host = preg_replace('/[^a-z0-9.\-]/i', '', (string)g($_SERVER, 'HTTP_HOST', 'rozmalovky.noosal.shop'));
 $scriptUrl = 'https://' . $host . '/operator.html?o=' . $payload;
 

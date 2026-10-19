@@ -79,6 +79,15 @@ jobs:
           # Якщо Telegram-секретів немає в GitHub — беремо той самий бот і чат із конфігу сайту курсу
           # (/kvn.kiev.ua/private/config.php, формат base64 — як пише deploy.yml). Так погодила власниця.
           keys = {k: os.environ.get(k, "").strip() for k in ("TG_BOT_TOKEN", "TG_CHAT_ID")}
+          # Інші ключі з поточного конфігу (напр. TG_SALES_BOT_TOKEN від deploy-rozmalovky) не губимо
+          extra = {}
+          cur = io.BytesIO()
+          try:
+              ftp.retrbinary("RETR /noosal.shop/private/config.php", cur.write)
+              for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", cur.getvalue().decode()):
+                  extra[k] = base64.b64decode(v).decode()
+          except ftplib.all_errors:
+              pass
           if not all(keys.values()):
               buf = io.BytesIO()
               try:
@@ -89,6 +98,9 @@ jobs:
               except ftplib.all_errors as e:
                   print("Не вдалося прочитати конфіг kvn.kiev.ua:", e)
 
+          for k, v in extra.items():
+              if not keys.get(k):
+                  keys[k] = v
           try:
               ftp.mkd("/noosal.shop/private")
           except ftplib.error_perm:
