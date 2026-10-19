@@ -248,6 +248,15 @@
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (!res.ok) throw new Error(res.error || "error");
+        // Склад замовлення — для сторінки подяки (готовий текст повідомлення у Viber / Telegram)
+        try {
+          sessionStorage.setItem("rm_last_order", JSON.stringify({
+            ref: res.ref, total: res.total, n: n,
+            items: Object.keys(clean).map(function (k) { return { name: byId(k.split(":")[0]).name, variant: vname(k.split(":")[1]), qty: clean[k] }; }),
+            name: f.elements.name.value.trim(), city: f.elements.city.value.trim(), np: f.elements.np.value.trim(),
+            pay: f.elements.pay.value === "prepay" ? "передоплата на картку" : "оплата при отриманні"
+          }));
+        } catch (e) {}
         cart = {}; save();
         location.href = "thanks.html?ref=" + encodeURIComponent(res.ref) + "&total=" + res.total + "&n=" + n + "&name=" + encodeURIComponent(f.elements.name.value.trim().split(" ")[0]);
       })
