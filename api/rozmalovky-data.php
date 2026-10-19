@@ -23,6 +23,11 @@ return [
     ],
     // Розмальовки, які бот пропонує докупити (ті, що зараз видимі на сайті — без hidden у products.js)
     'visible' => ['halloween', 'mykolai', 'milenialy'],
+    // Фото, які бот надсилає як приклад (файли в rozmalovky/img/tg/*.jpg, без розширення).
+    // Порожньо — бот надсилає лише текст із цінами. Окремо від фото сайту.
+    'botPhotos' => [
+        // 'mykolai' => ['classic' => ['tg-mykolai-c1'], 'premium' => ['tg-mykolai-p1']],
+    ],
     'variants' => ['classic' => 'Класична', 'premium' => 'Преміальна'],
     // Ті самі ціни, що в products.js і rozmalovky-order.php
     'price' => ['classic' => [1 => 349, 2 => 598, 3 => 799], 'premium' => [1 => 580, 2 => 990, 3 => 1390]],

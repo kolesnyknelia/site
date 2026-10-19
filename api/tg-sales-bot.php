@@ -110,7 +110,8 @@ function step_variants($chat, $o) {
         $seen[$i[0]] = 1;
         $p = $D['products'][$i[0]];
         $c1 = $D['price']['classic'][1]; $p1 = $D['price']['premium'][1];
-        $albums = empty($p[3]) ? ['' => $p[1]] : ["🍂 Класична · {$c1} грн" => $p[1], "✨ Преміальна · {$p1} грн" => $p[3]];
+        $bp = isset($D['botPhotos'][$i[0]]) ? $D['botPhotos'][$i[0]] : [];
+        $albums = array_filter(["🍂 Класична · {$c1} грн" => g($bp, 'classic', []), "✨ Преміальна · {$p1} грн" => g($bp, 'premium', [])]);
         foreach ($albums as $cap => $imgs) {
             $media = [];
             foreach (array_slice($imgs, 0, 10) as $k => $im) $media[] = ['type' => 'photo', 'media' => $IMG . $im . '.jpg'] + ($k === 0 && $cap ? ['caption' => $cap . ' — «' . $p[0] . '»'] : []);
