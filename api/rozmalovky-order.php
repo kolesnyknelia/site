@@ -54,12 +54,20 @@ $ref   = 'RM' . date('ymdHis') . mt_rand(10, 99);
 
 log_line('rozmalovky-orders.log', compact('ref', 'name', 'phone', 'tgUser', 'cart', 'count', 'total', 'utm'));
 
+// Посилання на скрипт продажу з даними цього замовлення (operator.html)
+$items = array();
+foreach ($cart as $key => $qty) { $parts = explode(':', (string)$key); if (count($parts) === 2 && isset($PRODUCTS[$parts[0]], $VARIANTS[$parts[1]]) && (int)$qty > 0) $items[] = [$parts[0], $parts[1], (int)$qty]; }
+$payload = rtrim(strtr(base64_encode(json_encode(['r' => $ref, 'n' => $name, 'p' => $phone, 't' => $tgUser, 'i' => $items, 's' => $total], JSON_UNESCAPED_UNICODE)), '+/', '-_'), '=');
+$host = preg_replace('/[^a-z0-9.\-]/i', '', (string)g($_SERVER, 'HTTP_HOST', 'rozmalovky.noosal.shop'));
+$scriptUrl = 'https://' . $host . '/operator.html?o=' . $payload;
+
 tg("🖍️ <b>РОЗМАЛЬОВКИ — нове замовлення</b>\n"
  . implode("\n", $lines)
  . "\n\n📦 Разом: {$count} шт." . ($full > $total ? " (економія " . ($full - $total) . " грн)" : '')
  . "\n✅ <b>До сплати: {$total} грн</b> + доставка НП"
  . "\n\n👤 " . h($name) . "\n📞 " . h($phone)
  . "\n✈️ Telegram: " . ($tgNick ? '<a href="https://t.me/' . $tgNick . '">@' . h($tgNick) . '</a>' : h($tgUser))
- . "\n🚚 Доставку й оплату уточнити в Telegram або дзвінком" . "\n📊 " . h(utm_text($utm)) . "\n🧾 {$ref}");
+ . "\n🚚 Доставку й оплату уточнити в Telegram або дзвінком"
+ . "\n\n📋 <a href=\"" . h($scriptUrl) . "\">Відкрити скрипт продажу</a>" . "\n📊 " . h(utm_text($utm)) . "\n🧾 {$ref}");
 
 echo json_encode(['ok' => true, 'ref' => $ref, 'total' => $total], JSON_UNESCAPED_UNICODE);

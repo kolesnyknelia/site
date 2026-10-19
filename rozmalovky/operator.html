@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Скрипт продажу · Розмалюй момент</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#229ed9">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: #eef3f7; }
+    .op { max-width: 680px; margin: 0 auto; padding: 16px 14px 60px; }
+    .op h1 { font: 700 26px var(--head); text-transform: uppercase; margin: 6px 0 12px; }
+    .client { background: #fff; border-radius: 16px; padding: 14px; box-shadow: var(--shadow); margin-bottom: 14px; }
+    .client .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .client a.pill { background: #e8f5fc; color: #1d6b94; border-radius: 999px; padding: 6px 12px; font-weight: 800; text-decoration: none; font-size: 14px; }
+    .client .items { margin: 6px 0 0; padding-left: 18px; }
+    .manual { background: #fff8dc; border-radius: 16px; padding: 14px; margin-bottom: 14px; }
+    .manual label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+    .manual input[type=text] { width: 100%; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; font: 600 15px var(--font); margin-top: 4px; }
+    .manual .chk { display: flex; align-items: center; gap: 8px; font-weight: 600; margin: 4px 0; }
+    .sumrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 10px; font-weight: 800; }
+    .sumrow small { flex-basis: 100%; }
+    .sumrow input { width: 110px; padding: 8px 10px; border: 2px solid var(--line); border-radius: 10px; font: 800 16px var(--font); }
+    .ostep { background: #fff; border-radius: 16px; padding: 14px; box-shadow: var(--shadow); margin-bottom: 12px; border-left: 6px solid #229ed9; }
+    .ostep h3 { font: 700 18px var(--head); text-transform: uppercase; margin: 0 0 4px; display: flex; gap: 8px; align-items: center; }
+    .ostep h3 span { background: #229ed9; color: #fff; border-radius: 50%; width: 28px; height: 28px; display: grid; place-items: center; font-size: 15px; flex: none; }
+    .ostep .when { color: var(--muted); font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .ostep textarea { width: 100%; min-height: 90px; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; font: 600 15px/1.45 var(--font); resize: vertical; }
+    .cp { margin-top: 8px; background: #229ed9; color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; font: 800 15px var(--font); cursor: pointer; }
+    .cp.done { background: var(--green); }
+    .prod { border-top: 1px dashed var(--line); padding-top: 12px; margin-top: 12px; }
+    .prod b.t { display: block; margin-bottom: 8px; }
+    .photos { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+    .photos a { flex: 0 0 auto; position: relative; }
+    .photos img { height: 150px; border-radius: 8px; display: block; }
+    .photos a span { position: absolute; left: 4px; bottom: 4px; background: rgba(0, 0, 0, .65); color: #fff; font-size: 11px; font-weight: 800; border-radius: 999px; padding: 2px 7px; }
+    .tip { font-size: 13px; color: var(--ink-2); margin: 6px 0 0; }
+    .alt { background: #f6f6f6; border-radius: 12px; padding: 10px; margin-top: 10px; }
+    .alt summary { font-weight: 800; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main class="op">
+  <h1>📋 Скрипт продажу</h1>
+  <div id="client"></div>
+  <div class="manual" id="manual" hidden>
+    <b>Замовлення не передане — заповніть вручну:</b>
+    <label>Ім'я клієнта<input type="text" id="mName" placeholder="Олена"></label>
+    <div id="mItems"></div>
+  </div>
+  <div class="sumrow">Сума до сплати: <input type="number" id="sum" min="0"> грн <small class="muted">(змініть, якщо клієнт додав чи прибрав розмальовку)</small></div>
+  <div id="steps" style="margin-top:14px"></div>
+</main>
+
+<script src="products.js"></script>
+<script>
+(function () {
+  "use strict";
+  var P = RM.PRODUCTS, S = RM.SALES, C = RM.CONFIG;
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  var byId = function (id) { return P.filter(function (p) { return p.id === id; })[0]; };
+  var priceFor = function (n) { return n <= 0 ? 0 : (C.price[n] || C.price[3] + (n - 3) * C.extra); };
+
+  /* Замовлення з посилання в Telegram: ?o=<base64url JSON> */
+  var order = null;
+  try {
+    var raw = new URLSearchParams(location.search).get("o");
+    if (raw) {
+      var b64 = raw.replace(/-/g, "+").replace(/_/g, "/");
+      order = JSON.parse(decodeURIComponent(escape(atob(b64))));
+    }
+  } catch (e) { order = null; }
+
+  var state = { name: "", items: [], ref: "", total: 0 };
+  if (order) {
+    state.name = (order.n || "").split(/\s+/).length > 1 ? order.n.split(/\s+/)[1] : (order.n || "");
+    state.items = (order.i || []).map(function (x) { return { id: x[0], variant: x[1], qty: x[2] }; }).filter(function (x) { return byId(x.id); });
+    state.ref = order.r || ""; state.total = order.s || 0;
+    var tg = order.t || "", nick = (tg.match(/^@?([A-Za-z][A-Za-z0-9_]{4,31})$/) || [])[1];
+    var digits = String(order.p || "").replace(/[^\d+]/g, "");
+    $("#client").innerHTML = '<div class="client"><b>' + esc(order.n) + "</b> · замовлення № " + esc(state.ref) +
+      '<ul class="items">' + state.items.map(function (x) { return "<li>" + esc(byId(x.id).name) + " — " + (x.variant === "premium" ? "Преміум" : "Класична") + (x.qty > 1 ? " × " + x.qty : "") + "</li>"; }).join("") + "</ul>" +
+      '<div class="row">' + (nick ? '<a class="pill" href="https://t.me/' + nick + '" target="_blank">✈️ Написати @' + esc(nick) + "</a>" : (tg ? '<span class="pill">✈️ ' + esc(tg) + "</span>" : "")) +
+      (digits ? '<a class="pill" href="tel:' + esc(digits) + '">📞 ' + esc(order.p) + "</a>" : "") + "</div></div>";
+  } else {
+    $("#manual").hidden = false;
+    $("#mItems").innerHTML = P.filter(function (p) { return !p.hidden; }).map(function (p) {
+      return '<label class="chk"><input type="checkbox" value="' + p.id + '"> ' + esc(p.name) + "</label>";
+    }).join("");
+    $("#manual").addEventListener("input", function () {
+      state.name = $("#mName").value.trim();
+      state.items = [].slice.call(document.querySelectorAll("#mItems input:checked")).map(function (c) { return { id: c.value, variant: "classic", qty: 1 }; });
+      state.total = priceFor(state.items.length); $("#sum").value = state.total; render();
+    });
+  }
+  $("#sum").value = state.total;
+  $("#sum").addEventListener("input", function () { state.total = +this.value || 0; render(); });
+
+  function titles() {
+    var names = []; state.items.forEach(function (x) { var n = byId(x.id).name; if (names.indexOf(n) < 0) names.push(n); });
+    if (!names.length) return "розмальовку";
+    return (names.length === 1 ? "розмальовку «" : "розмальовки «") + names.join("», «") + "»";
+  }
+  var hi = function () { return state.name ? ", " + state.name : ""; };
+
+  function step(n, title, when, text, extra, extraFirst) {
+    var t = text != null ? '<textarea>' + esc(text) + '</textarea><button class="cp" type="button">📋 Скопіювати</button>' : "";
+    return '<section class="ostep"><h3><span>' + n + "</span>" + title + '</h3><div class="when">' + when + "</div>" +
+      (extraFirst ? (extra || "") + '<div class="prod"><b class="t">І наприкінці — питання:</b>' + t + "</div>" : t + (extra || "")) + "</section>";
+  }
+
+  function render() {
+    var count = state.items.reduce(function (s, x) { return s + x.qty; }, 0) || 1;
+    var unique = []; state.items.forEach(function (x) { if (unique.indexOf(x.id) < 0) unique.push(x.id); });
+    var bundle = "💰 Ціна: 1 розмальовка — " + C.price[1] + " грн, 2 — " + C.price[2] + " грн, 3 — " + C.price[3] + " грн (кожна наступна — ще " + C.extra + " грн).";
+    var r = S.requisites;
+    var html = "";
+    html += step(1, "Перше повідомлення", "Надішліть одразу після заявки",
+      "Доброго дня" + hi() + "! 😊 Ви лишали заявку на " + titles() + ". Чи актуальне ваше замовлення?");
+    html += step(2, "Два варіанти", "Коли клієнт відповів «так»",
+      "Чудово! 🥰 Кожна розмальовка є у 2 варіантах — Класична та Преміальна. Зараз розпишу про кожну, а ви оберіть, яка підходить саме вам 👇");
+
+    var prods = unique.map(function (id) {
+      var p = byId(id);
+      return '<div class="prod"><b class="t">' + esc(p.name) + '</b><div class="photos">' +
+        p.imgs.map(function (im, i) { return '<a href="img/' + im + '.webp" target="_blank" download="' + im + '.webp"><img src="img/' + im + '.webp" alt=""><span>' + (i + 1) + "</span></a>"; }).join("") +
+        '</div><p class="tip">Натисніть на фото → збережіть → надішліть клієнту в Telegram.</p>' +
+        '<textarea>' + esc("«" + p.name + "»\n" + p.desc + "\n\n" + S.variantText.classic + "\n\n" + S.variantText.premium + "\n\n📖 20 картин · формат A4 · металева пружина\n" + bundle) + '</textarea><button class="cp" type="button">📋 Скопіювати опис</button></div>';
+    }).join("");
+    html += step(3, "Фото й опис кожної", "Надішліть фото, потім опис. Обов'язково завершіть питанням (внизу)",
+      "Вам яку оформляти: Класичну чи Преміальну? 😊", prods || '<p class="tip">Оберіть розмальовки вгорі.</p>', true);
+    html += step(4, "Дані для відправки", "Коли клієнт обрав варіант",
+      "Чудовий вибір! 🎨 Напишіть, будь ласка, ваші дані для відправки:\n• Прізвище та ім'я\n• Номер телефону\n• Місто та номер відділення або поштомата Нової пошти");
+    html += step(5, "Подарунок за оплату на ФОП", "Після отриманих даних", S.gift);
+    html += step(6, "Реквізити", "Якщо клієнт погодився оплатити",
+      "Дякуємо! 💝 Реквізити для оплати:\n\nОтримувач: " + r.recipient + "\nIBAN: " + r.iban + "\nІПН/ЄДРПОУ: " + r.code + "\nСума: " + state.total + " грн\nПризначення платежу: Оплата за замовлення" + (state.ref ? " № " + state.ref : "") +
+      "\n\nПісля оплати надішліть, будь ласка, скрін квитанції 🙏 Відправимо в день оплати разом із подарунком 🎁",
+      '<details class="alt"><summary>Якщо клієнт хоче оплатити при отриманні</summary><textarea>' + esc("Добре, без проблем! 😊 Відправимо накладеним платежем — оплата при отриманні на Новій пошті (Нова пошта бере невелику комісію за переказ). Відправка сьогодні, номер ТТН надішлю сюди 📦") + '</textarea><button class="cp" type="button">📋 Скопіювати</button></details>');
+    html += step(7, "Після оплати", "Коли прийшов скрін або кошти",
+      "Оплату отримали, дякуємо! ❤️ Відправляємо сьогодні — номер ТТН надішлю сюди. А розмальовка-сюрприз уже чекає у вашій посилці 🎁✨");
+    $("#steps").innerHTML = html;
+    [].slice.call(document.querySelectorAll("#steps textarea")).forEach(fit);
+  }
+  function fit(ta) { ta.style.height = "auto"; ta.style.height = (ta.scrollHeight + 4) + "px"; }
+  document.addEventListener("input", function (e) { if (e.target.matches("#steps textarea")) fit(e.target); });
+  document.addEventListener("toggle", function (e) { [].slice.call(e.target.querySelectorAll ? e.target.querySelectorAll("textarea") : []).forEach(fit); }, true);
+  render();
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".cp"); if (!b) return;
+    var ta = b.previousElementSibling; while (ta && ta.tagName !== "TEXTAREA") ta = ta.previousElementSibling;
+    if (!ta) return;
+    var done = function () { b.classList.add("done"); b.textContent = "✅ Скопійовано"; setTimeout(function () { b.classList.remove("done"); b.textContent = "📋 Скопіювати"; }, 1800); };
+    if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(done, function () { ta.select(); document.execCommand("copy"); done(); });
+    else { ta.select(); document.execCommand("copy"); done(); }
+  });
+})();
+</script>
+</body>
+</html>
