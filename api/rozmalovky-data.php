@@ -27,6 +27,7 @@ return [
     // Порожньо — бот надсилає лише текст із цінами. Окремо від фото сайту.
     'botPhotos' => [
         'mykolai' => ['premium' => ['bot-mykolai-premium'], 'classic' => ['bot-mykolai-classic']],
+        'milenialy' => ['premium' => ['bot-milenialy-premium'], 'classic' => ['bot-milenialy-classic']],
     ],
     'variants' => ['classic' => 'Класична', 'premium' => 'Преміальна'],
     // Ті самі ціни, що в products.js і rozmalovky-order.php
