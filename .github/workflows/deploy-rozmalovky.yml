@@ -42,11 +42,12 @@ jobs:
           cp -r rozmalovky/. _deploy/
           rm -f _deploy/*.md
           cp api/rozmalovky-order.php api/rozmalovky-data.php api/tg-sales-bot.php api/lib.php api/settings.php api/.htaccess _deploy/api/
-          # Ім'я бота-продавця → кнопка «Отримати все в Telegram» на сторінці «Дякуємо»
+          # Ім'я бота-продавця → кнопка «Отримати все в Telegram» на сторінці «Дякуємо» і кнопка «Допомога» на сайті
           if [ -n "$TG_SALES_BOT_TOKEN" ]; then
             bot=$(curl -sS "https://api.telegram.org/bot${TG_SALES_BOT_TOKEN}/getMe" | jq -r '.result.username // empty')
             if [ -n "$bot" ]; then
               sed -i "s/var SALES_BOT = \"\";/var SALES_BOT = \"${bot}\";/" _deploy/thanks.html
+              sed -i "s/supportBot: \"\"/supportBot: \"${bot}\"/" _deploy/products.js
               echo "Sales bot: @${bot}"
             else
               echo "::warning::TG_SALES_BOT_TOKEN не підходить (getMe не відповів) — перевірте токен"
@@ -130,3 +131,10 @@ jobs:
           print("setWebhook:", r.get("description", r))
           if not r.get("ok"):
               raise SystemExit(1)
+          # Меню бота: «Почати» і «Допомога»
+          cmds = urllib.parse.urlencode({"commands": json.dumps([
+              {"command": "start", "description": "Почати"},
+              {"command": "help", "description": "Допомога — написати менеджеру"},
+          ], ensure_ascii=False)}).encode()
+          r = json.load(urllib.request.urlopen(f"https://api.telegram.org/bot{token}/setMyCommands", cmds, timeout=20))
+          print("setMyCommands:", r.get("ok"))

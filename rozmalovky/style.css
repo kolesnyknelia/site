@@ -248,3 +248,26 @@ form input.err { border-color: #d64545; animation: shake .35s; }
 .note { font-size: 12px; color: var(--muted); text-align: center; }
 
 @media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } .reveal { opacity: 1; transform: none; } }
+
+/* Ціна на головному екрані */
+.hero-price { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 10px; background: #fff; color: var(--ink); border-radius: 999px; padding: 6px 16px 6px 6px; margin: 0 auto 18px; box-shadow: 0 12px 24px -14px rgba(70, 30, 15, .6); animation: rise .7s .1s both; }
+.hero-price b { background: var(--sun); border-radius: 999px; padding: 6px 14px; font: 800 20px var(--font); }
+.hero-price span { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+
+/* Вікно розмальовки: підказка про вибір варіанту */
+.vnote { margin: -4px 0 14px; font-size: 13px; color: var(--ink-2); text-align: center; }
+.pinfo small { color: var(--muted); font-size: 12px; }
+
+/* Кнопка «Допомога» (Telegram) — плаває, періодично похитується */
+.help-fab { position: fixed; right: 14px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 31; display: flex; align-items: center; gap: 8px; height: 54px; padding: 0 16px 0 14px; border-radius: 999px; background: #229ed9; color: #fff; text-decoration: none; font: 800 14px var(--font); box-shadow: 0 12px 26px -10px rgba(20, 110, 160, .8); transition: bottom .3s, transform .2s; animation: fabIn .6s .8s both; }
+.help-fab svg { width: 26px; height: 26px; flex: none; animation: wiggle 5s 2s ease-in-out infinite; }
+.help-fab::before { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 0 0 rgba(34, 158, 217, .55); animation: ring 2.6s ease-out infinite; }
+.help-fab:active { transform: scale(.95); }
+body.has-cart .help-fab { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 66px); }
+@media (min-width: 760px) { body.has-cart .help-fab { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 70px); } }
+@keyframes ring { 0% { box-shadow: 0 0 0 0 rgba(34, 158, 217, .55); } 80%, 100% { box-shadow: 0 0 0 14px rgba(34, 158, 217, 0); } }
+@keyframes wiggle { 0%, 84%, 100% { transform: rotate(0); } 88% { transform: rotate(-16deg); } 92% { transform: rotate(14deg); } 96% { transform: rotate(-8deg); } }
+@keyframes fabIn { from { opacity: 0; transform: translateY(20px) scale(.8); } }
+@media (max-width: 380px) { .help-fab span { display: none; } .help-fab { width: 54px; padding: 0; justify-content: center; } }
+body.in-order .help-fab { width: 54px; padding: 0; justify-content: center; }
+body.in-order .help-fab span { display: none; }
