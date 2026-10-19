@@ -66,7 +66,7 @@
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var byId = function (id) { return P.filter(function (p) { return p.id === id; })[0]; };
-  var priceFor = function (n) { return n <= 0 ? 0 : (C.price[n] || C.price[3] + (n - 3) * C.extra); };
+  var priceFor = function (n) { return RM.total({ classic: n }); };
 
   /* Замовлення з посилання в Telegram: ?o=<base64url JSON> */
   var order = null;
@@ -120,7 +120,9 @@
   function render() {
     var count = state.items.reduce(function (s, x) { return s + x.qty; }, 0) || 1;
     var unique = []; state.items.forEach(function (x) { if (unique.indexOf(x.id) < 0) unique.push(x.id); });
-    var bundle = "💰 Ціна: 1 розмальовка — " + C.price[1] + " грн, 2 — " + C.price[2] + " грн, 3 — " + C.price[3] + " грн (кожна наступна — ще " + C.extra + " грн).";
+    var pc = C.price.classic, pp = C.price.premium;
+    var bundle = "💰 Класична: 1 — " + pc[1] + " грн, 2 — " + pc[2] + " грн, 3 — " + pc[3] + " грн (кожна наступна — ще " + C.extra.classic + " грн)\n" +
+      "💰 Преміальна: 1 — " + pp[1] + " грн, 2 — " + pp[2] + " грн, 3 — " + pp[3] + " грн (кожна наступна — ще " + C.extra.premium + " грн)";
     var r = S.requisites;
     var html = "";
     html += step(1, "Перше повідомлення", "Надішліть одразу після заявки",
@@ -131,7 +133,7 @@
     var prods = unique.map(function (id) {
       var p = byId(id);
       return '<div class="prod"><b class="t">' + esc(p.name) + '</b><div class="photos">' +
-        p.imgs.map(function (im, i) { return '<a href="img/' + im + '.webp" target="_blank" download="' + im + '.webp"><img src="img/' + im + '.webp" alt=""><span>' + (i + 1) + "</span></a>"; }).join("") +
+        p.imgs.concat(p.imgsPremium || []).map(function (im, i) { return '<a href="img/' + im + '.webp" target="_blank" download="' + im + '.webp"><img src="img/' + im + '.webp" alt=""><span>' + (i + 1) + "</span></a>"; }).join("") +
         '</div><p class="tip">Натисніть на фото → збережіть → надішліть клієнту в Telegram.</p>' +
         '<textarea>' + esc("«" + p.name + "»\n" + p.desc + "\n\n" + S.variantText.classic + "\n\n" + S.variantText.premium + "\n\n📖 20 картин · формат A4 · металева пружина\n" + bundle) + '</textarea><button class="cp" type="button">📋 Скопіювати опис</button></div>';
     }).join("");

@@ -16,20 +16,16 @@
   var img = function (n) { return "img/" + n + ".webp"; };
   var byId = function (id) { return PRODUCTS.filter(function (p) { return p.id === id; })[0]; };
 
-  /** Ціна за кількість розмальовок у кошику */
-  function priceFor(n) {
-    if (n <= 0) return 0;
-    if (CONFIG.price[n]) return CONFIG.price[n];
-    return CONFIG.price[3] + (n - 3) * CONFIG.extra;
-  }
+  var tierPrice = RM.tierPrice, P1 = { classic: tierPrice("classic", 1), premium: tierPrice("premium", 1) };
+  var galleryOf = function (p, v) { return v === "premium" && p.imgsPremium ? p.imgsPremium : p.imgs; };
 
-  /* ---------- Ціни за кількістю ---------- */
+  /* ---------- Ціни за кількістю (для обох варіантів) ---------- */
   function renderTiers() {
     $("#tierGrid").innerHTML = [1, 2, 3].map(function (n) {
-      var p = priceFor(n), eco = n * CONFIG.price[1] - p;
+      var c = tierPrice("classic", n), pr = tierPrice("premium", n);
       return '<div class="tier' + (n === 3 ? " best" : "") + '"><div class="n">' + n + '</div><div class="w">' + (n === 1 ? "розмальовка" : "розмальовки") + "</div>" +
-        '<div class="p">' + fmt(p) + '</div><div class="each">' + (n > 1 ? fmt(p / n) + " за шт." : "&nbsp;") + "</div>" +
-        (eco ? '<span class="eco">−' + fmt(eco) + "</span>" : '<span class="eco" style="visibility:hidden">—</span>') + "</div>";
+        '<div class="vrow"><small>Класична</small><div class="p">' + fmt(c) + "</div>" + (n > 1 ? '<span class="eco">−' + fmt(n * P1.classic - c) + "</span>" : "") + "</div>" +
+        '<div class="vrow prem"><small>Преміум</small><div class="p">' + fmt(pr) + "</div>" + (n > 1 ? '<span class="eco">−' + fmt(n * P1.premium - pr) + "</span>" : "") + "</div></div>";
     }).join("");
   }
 
@@ -40,7 +36,7 @@
       return '<article class="card" data-open="' + p.id + '">' +
         '<div class="cover"><img src="' + img(cover) + '" alt="' + esc(p.name) + '" loading="lazy">' +
         (p.tag ? '<span class="tag">' + esc(p.tag) + "</span>" : "") + '<span class="pages">20 картин</span></div>' +
-        '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row"><span class="price">' + fmt(CONFIG.price[1]) + "</span>" +
+        '<div class="body"><h3>' + esc(p.name) + '</h3><div class="row"><span class="price"><small>від</small> ' + fmt(P1.classic) + "</span>" +
         '<button class="add" data-quick="' + p.id + '">+ У кошик</button></div></div></article>';
     }).join("");
     markInCart();
@@ -54,21 +50,35 @@
 
   /* ---------- Розмальовка: гортання ---------- */
   var current = null, currentVar = "classic";
-  function openProduct(id) {
-    var p = byId(id); current = p; currentVar = "classic";
-    $("#prodBody").innerHTML =
-      '<div class="gallery" id="gal">' + p.imgs.map(function (n, i) { return '<img src="' + img(n) + '" alt="' + esc(p.name) + " — сторінка " + (i + 1) + '">'; }).join("") + "</div>" +
-      '<div class="dots" id="dots">' + p.imgs.map(function (n, i) { return '<i class="' + (i ? "" : "on") + '"></i>'; }).join("") + "</div>" +
-      "<h3>" + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
-      '<ul class="pfacts"><li>20 картин</li><li>A4</li><li>Металева пружина</li><li>Відправка в день замовлення</li></ul>' +
-      '<div class="vpick">' + VARIANTS.map(function (v) { return '<button type="button" data-var="' + v.id + '" class="' + (v.id === currentVar ? "on" : "") + '"><b>' + v.name + "</b>" + v.hint + "</button>"; }).join("") + "</div>" +
-      '<div class="pbuy"><span class="price">' + fmt(CONFIG.price[1]) + '</span><button class="btn" data-add-current>Додати в кошик</button></div>';
-    openModal("#prodModal");
+  function galleryHtml(p, v) {
+    var list = galleryOf(p, v);
+    return '<div class="gallery" id="gal">' + list.map(function (n, i) { return '<img src="' + img(n) + '" alt="' + esc(p.name) + " — " + vname(v) + ", сторінка " + (i + 1) + '">'; }).join("") + "</div>" +
+      '<div class="dots" id="dots">' + list.map(function (n, i) { return '<i class="' + (i ? "" : "on") + '"></i>'; }).join("") + "</div>";
+  }
+  function bindGallery() {
     var gal = $("#gal");
     gal.addEventListener("scroll", function () {
       var i = Math.round(gal.scrollLeft / (gal.firstChild.offsetWidth + 10));
       $$("#dots i").forEach(function (d, k) { d.classList.toggle("on", k === i); });
     }, { passive: true });
+  }
+  /** Перемикання варіанту у вікні розмальовки: інші фото й ціна */
+  function showVariant(v) {
+    currentVar = v;
+    $$(".vpick button").forEach(function (b) { b.classList.toggle("on", b.dataset.var === v); });
+    $("#galWrap").innerHTML = galleryHtml(current, v); bindGallery();
+    $("#pprice").textContent = fmt(P1[v]);
+  }
+  function openProduct(id, v) {
+    var p = byId(id); current = p; currentVar = v || "classic";
+    $("#prodBody").innerHTML =
+      '<div id="galWrap">' + galleryHtml(p, currentVar) + "</div>" +
+      "<h3>" + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
+      '<ul class="pfacts"><li>20 картин</li><li>A4</li><li>Металева пружина</li><li>Відправка в день замовлення</li></ul>' +
+      '<div class="vpick">' + VARIANTS.map(function (v) { return '<button type="button" data-var="' + v.id + '" class="' + (v.id === currentVar ? "on" : "") + '"><b>' + v.name + " · " + fmt(P1[v.id]) + "</b>" + v.hint + "</button>"; }).join("") + "</div>" +
+      '<div class="pbuy"><span class="price" id="pprice">' + fmt(P1[currentVar]) + '</span><button class="btn" data-add-current>Додати в кошик</button></div>';
+    openModal("#prodModal");
+    bindGallery();
     track("ViewContent", { content_name: p.name });
   }
 
@@ -78,14 +88,22 @@
   Object.keys(cart).forEach(function (k) { var p = byId(k.split(":")[0]), v = k.split(":")[1]; if (!p || p.hidden || !/^(classic|premium)$/.test(v) || !(cart[k] > 0)) delete cart[k]; });
   function save() { try { localStorage.setItem("rm_cart", JSON.stringify(cart)); } catch (e) {} }
   function count() { return Object.keys(cart).reduce(function (s, k) { return s + cart[k]; }, 0); }
+  function counts(extraVar) {
+    var c = { classic: 0, premium: 0 };
+    Object.keys(cart).forEach(function (k) { c[k.split(":")[1]] += cart[k]; });
+    if (extraVar) c[extraVar]++;
+    return c;
+  }
+  function cartTotal(extraVar) { return RM.total(counts(extraVar)); }
+  function fullPrice() { var c = counts(); return c.classic * P1.classic + c.premium * P1.premium; }
   function countOf(id) { return Object.keys(cart).reduce(function (s, k) { return s + (k.split(":")[0] === id ? cart[k] : 0); }, 0); }
-  function coverOf(p) { return p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0]; }
+  function coverOf(p, v) { if (v === "premium" && p.imgsPremium) return p.imgsPremium[0]; return p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0]; }
   function vname(id) { return VARIANTS.filter(function (x) { return x.id === id; })[0].name; }
 
   function add(id, variant) {
     var key = id + ":" + (variant || "classic");
     cart[key] = (cart[key] || 0) + 1; save(); renderAll();
-    track("AddToCart", { value: priceFor(count()) - priceFor(count() - 1), currency: "UAH", content_name: byId(id).name });
+    track("AddToCart", { value: P1[variant || "classic"], currency: "UAH", content_name: byId(id).name });
   }
   function setQty(key, q) { if (q <= 0) delete cart[key]; else cart[key] = q; save(); renderAll(); }
   function switchVariant(key, v) {
@@ -96,11 +114,12 @@
 
   function hintText(n) {
     if (!n) return "";
-    if (n < 3) return "🎁 Додайте ще одну розмальовку всього за <b>" + fmt(priceFor(n + 1) - priceFor(n)) + "</b> — " + (n === 1 ? "2 за " + fmt(priceFor(2)) : "3 за " + fmt(priceFor(3)) + " (найвигідніше!)");
-    return "🔥 Максимальна знижка! Кожна наступна — лише <b>" + fmt(CONFIG.extra) + "</b>";
+    var c = counts(), v = c.premium > c.classic ? "premium" : "classic", more = cartTotal(v) - cartTotal();
+    if (n < 3) return "🎁 Додайте ще одну розмальовку (" + vname(v).toLowerCase() + ") всього за <b>" + fmt(more) + "</b>" + (n === 2 ? " — 3 шт. найвигідніше!" : "");
+    return "🔥 Максимальна знижка! Кожна наступна — лише <b>" + fmt(CONFIG.extra.classic) + "</b> (класична) або <b>" + fmt(CONFIG.extra.premium) + "</b> (преміум)";
   }
   function fillSum(prefix, n) {
-    var total = priceFor(n), full = n * CONFIG.price[1];
+    var total = cartTotal(), full = fullPrice();
     $("#" + prefix + "Full").textContent = fmt(full);
     $("#" + prefix + "Save").textContent = "−" + fmt(full - total);
     $("#" + prefix + "Total").textContent = fmt(total);
@@ -112,7 +131,7 @@
     var keys = Object.keys(cart).filter(function (k) { return cart[k] > 0; }), n = count();
     $("#cartList").innerHTML = keys.length ? keys.map(function (k) {
       var p = byId(k.split(":")[0]);
-      return '<div class="line"><img src="' + img(coverOf(p)) + '" alt=""><span class="nm">' + esc(p.name) + "<small>" + vname(k.split(":")[1]) + "</small></span>" +
+      return '<div class="line"><img src="' + img(coverOf(p, k.split(":")[1])) + '" alt=""><span class="nm">' + esc(p.name) + "<small>" + vname(k.split(":")[1]) + "</small></span>" +
         '<span class="qty"><button type="button" data-dec="' + k + '">−</button><b>' + cart[k] + '</b><button type="button" data-inc="' + k + '">+</button></span></div>';
     }).join("") : '<p class="empty">Кошик порожній — оберіть розмальовки 👇</p>';
     $("#cartHint").innerHTML = hintText(n);
@@ -129,9 +148,9 @@
       if (!keys.length) keys = [p.id + ":classic"];
       return keys.map(function (k) {
         var q = cart[k] || 0, v = k.split(":")[1];
-        return '<div class="pick' + (q ? " on" : "") + '"><img src="' + img(coverOf(p)) + '" alt="" data-open="' + p.id + '">' +
+        return '<div class="pick' + (q ? " on" : "") + '"><img src="' + img(coverOf(p, v)) + '" alt="" data-open="' + p.id + '" data-v="' + v + '">' +
           '<div class="pinfo"><b>' + esc(p.name) + '</b><div class="pv">' + VARIANTS.map(function (x) {
-            return '<button type="button" data-sw="' + k + '" data-to="' + x.id + '" class="' + (x.id === v ? "on" : "") + '">' + x.name + "</button>"; }).join("") + "</div></div>" +
+            return '<button type="button" data-sw="' + k + '" data-to="' + x.id + '" class="' + (x.id === v ? "on" : "") + '">' + x.name + " · " + fmt(P1[x.id]) + "</button>"; }).join("") + "</div></div>" +
           '<div class="qty"><button type="button" data-dec="' + k + '">−</button><b>' + q + '</b><button type="button" data-inc="' + k + '">+</button></div></div>';
       }).join("");
     }).join("");
@@ -144,11 +163,11 @@
     $("#orderHint").innerHTML = hintText(n);
     $("#oCount").textContent = n + " шт.";
     fillSum("o", n);
-    $("#submitBtn").textContent = n ? "Замовити за " + fmt(priceFor(n)) : "Замовити";
+    $("#submitBtn").textContent = n ? "Замовити за " + fmt(cartTotal()) : "Замовити";
   }
 
   function renderAll(focusKey) {
-    var n = count(), total = priceFor(n);
+    var n = count(), total = cartTotal();
     $("#cartCount").textContent = n;
     $("#cartbar").hidden = !n || orderVisible;
     $("#cartbarText").textContent = "🛒 У кошику " + n + " шт.";
@@ -165,14 +184,14 @@
   /* ---------- Модальні вікна ---------- */
   function openModal(sel) { $(sel).hidden = false; document.body.style.overflow = "hidden"; }
   function closeModals() { $$(".modal").forEach(function (m) { m.hidden = true; }); document.body.style.overflow = ""; }
-  function goOrder() { closeModals(); $("#order").scrollIntoView({ behavior: "smooth" }); track("InitiateCheckout", { value: priceFor(count()), currency: "UAH" }); }
+  function goOrder() { closeModals(); $("#order").scrollIntoView({ behavior: "smooth" }); track("InitiateCheckout", { value: cartTotal(), currency: "UAH" }); }
 
   document.addEventListener("click", function (e) {
     var t = e.target.closest("button, [data-open], [data-open-cart], a[href='#order']");
     if (!t) { if (e.target.classList.contains("modal")) closeModals(); return; }
     if (t.dataset.quick) { e.stopPropagation(); add(t.dataset.quick, "classic"); return; }
-    if (t.dataset.open) return openProduct(t.dataset.open);
-    if (t.dataset.var) { currentVar = t.dataset.var; $$(".vpick button").forEach(function (b) { b.classList.toggle("on", b === t); }); return; }
+    if (t.dataset.open) return openProduct(t.dataset.open, t.dataset.v);
+    if (t.dataset.var) return showVariant(t.dataset.var);
     if (t.hasAttribute("data-add-current")) { add(current.id, currentVar); closeModals(); openModal("#cartModal"); return; }
     if (t.dataset.sw) { touched[t.dataset.sw.split(":")[0] + ":" + t.dataset.to] = true; delete touched[t.dataset.sw]; return switchVariant(t.dataset.sw, t.dataset.to); }
     if (t.dataset.inc) { touched[t.dataset.inc] = true; return setQty(t.dataset.inc, (cart[t.dataset.inc] || 0) + 1); }
@@ -180,7 +199,7 @@
     if (t.hasAttribute("data-go-order")) return goOrder();
     if (t.hasAttribute("data-close")) return closeModals();
     if (t.hasAttribute("data-open-cart")) { if (t.id === "cartbar") return goOrder(); renderCart(); openModal("#cartModal"); return; }
-    if (t.matches("a[href='#order']")) { track("InitiateCheckout", { value: priceFor(count()), currency: "UAH" }); }
+    if (t.matches("a[href='#order']")) { track("InitiateCheckout", { value: cartTotal(), currency: "UAH" }); }
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModals(); });
 

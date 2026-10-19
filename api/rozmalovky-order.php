@@ -18,9 +18,12 @@ $PRODUCTS = [
     'zhyttya'   => 'Розмальовка нашого життя',
 ];
 $VARIANTS = ['classic' => 'Класична', 'premium' => 'Преміум'];
-$PRICE = [1 => 349, 2 => 598, 3 => 799];
-$EXTRA = 249;
-$price_for = function ($n) use ($PRICE, $EXTRA) { return $n <= 0 ? 0 : (isset($PRICE[$n]) ? $PRICE[$n] : $PRICE[3] + ($n - 3) * $EXTRA); };
+// Ціни за кількістю — окремо для кожного варіанту; знижка за загальну кількість у кошику
+$PRICE = ['classic' => [1 => 349, 2 => 598, 3 => 799], 'premium' => [1 => 580, 2 => 990, 3 => 1390]];
+$EXTRA = ['classic' => 249, 'premium' => 410];
+$tier = function ($v, $n) use ($PRICE, $EXTRA) { return $n <= 0 ? 0 : (isset($PRICE[$v][$n]) ? $PRICE[$v][$n] : $PRICE[$v][3] + ($n - 3) * $EXTRA[$v]); };
+// Та сама формула, що RM.total() у products.js
+$total_for = function ($c) use ($tier) { $n = $c['classic'] + $c['premium']; return $n ? (int)round(($c['classic'] * $tier('classic', $n) + $c['premium'] * $tier('premium', $n)) / $n) : 0; };
 
 $name    = trim(str_cut((string)g($_POST, 'name'), 80));
 $phone   = preg_replace('/[^\d+]/', '', (string)g($_POST, 'phone'));
@@ -32,13 +35,13 @@ $utm     = json_decode((string)g($_POST, 'utm', '{}'), true);
 $utm     = is_array($utm) ? array_slice($utm, 0, 8) : array();
 foreach ($utm as $k => $v) $utm[$k] = str_cut((string)$v, 120);
 
-$lines = array(); $count = 0;
+$lines = array(); $count = 0; $byVar = ['classic' => 0, 'premium' => 0];
 if (is_array($cart)) {
     foreach ($cart as $key => $qty) {
         $qty = (int)$qty;
         $parts = explode(':', (string)$key);
         if (count($parts) !== 2 || !isset($PRODUCTS[$parts[0]], $VARIANTS[$parts[1]]) || $qty < 1 || $qty > 20) continue;
-        $count += $qty;
+        $count += $qty; $byVar[$parts[1]] += $qty;
         $lines[] = '• ' . h($PRODUCTS[$parts[0]]) . ' — ' . $VARIANTS[$parts[1]] . " × {$qty}";
     }
 }
@@ -48,8 +51,8 @@ if (str_len($name) < 2 || strlen(preg_replace('/\D/', '', $phone)) < 10 || str_l
     exit(json_encode(['ok' => false, 'error' => 'invalid'], JSON_UNESCAPED_UNICODE));
 }
 
-$total = $price_for($count);
-$full  = $count * $PRICE[1];
+$total = $total_for($byVar);
+$full  = $byVar['classic'] * $PRICE['classic'][1] + $byVar['premium'] * $PRICE['premium'][1];
 $ref   = 'RM' . date('ymdHis') . mt_rand(10, 99);
 
 log_line('rozmalovky-orders.log', compact('ref', 'name', 'phone', 'tgUser', 'cart', 'count', 'total', 'utm'));
