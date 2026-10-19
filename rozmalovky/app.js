@@ -107,60 +107,115 @@
     track("ViewContent", { content_name: p.name });
   }
 
-  /* ---------- Кошик ---------- */
+  /* ---------- Кошик (спільний для іконки, панелі й блоку замовлення) ---------- */
   var cart = {};
   try { cart = JSON.parse(localStorage.getItem("rm_cart") || "{}") || {}; } catch (e) { cart = {}; }
-  Object.keys(cart).forEach(function (k) { var p = byId(k.split(":")[0]); if (!p || p.hidden || !(cart[k] > 0)) delete cart[k]; });
+  Object.keys(cart).forEach(function (k) { var p = byId(k.split(":")[0]), v = k.split(":")[1]; if (!p || p.hidden || !/^(classic|premium)$/.test(v) || !(cart[k] > 0)) delete cart[k]; });
   function save() { try { localStorage.setItem("rm_cart", JSON.stringify(cart)); } catch (e) {} }
   function count() { return Object.keys(cart).reduce(function (s, k) { return s + cart[k]; }, 0); }
   function countOf(id) { return Object.keys(cart).reduce(function (s, k) { return s + (k.split(":")[0] === id ? cart[k] : 0); }, 0); }
+  function coverOf(p) { return p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0]; }
+  function vname(id) { return VARIANTS.filter(function (x) { return x.id === id; })[0].name; }
 
   function add(id, variant) {
     var key = id + ":" + (variant || "classic");
-    cart[key] = (cart[key] || 0) + 1; save(); renderCart();
-    $("#thanks").hidden = true; $("#sumBox").hidden = false;
+    cart[key] = (cart[key] || 0) + 1; save(); renderAll();
     track("AddToCart", { value: priceFor(count()) - priceFor(count() - 1), currency: "UAH", content_name: byId(id).name });
   }
+  function setQty(key, q) { if (q <= 0) delete cart[key]; else cart[key] = q; save(); renderAll(); }
+  function switchVariant(key, v) {
+    var id = key.split(":")[0], to = id + ":" + v; if (to === key) return;
+    var q = cart[key] || 0; delete cart[key]; if (q) cart[to] = (cart[to] || 0) + q;
+    save(); renderAll(to);
+  }
 
+  function hintText(n) {
+    if (!n) return "";
+    if (n < 3) return "🎁 Додайте ще одну розмальовку всього за <b>" + fmt(priceFor(n + 1) - priceFor(n)) + "</b> — " + (n === 1 ? "2 за " + fmt(priceFor(2)) : "3 за " + fmt(priceFor(3)) + " (найвигідніше!)");
+    return "🔥 Максимальна знижка! Кожна наступна — лише <b>" + fmt(CONFIG.extra) + "</b>";
+  }
+  function fillSum(prefix, n) {
+    var total = priceFor(n), full = n * CONFIG.price[1];
+    $("#" + prefix + "Full").textContent = fmt(full);
+    $("#" + prefix + "Save").textContent = "−" + fmt(full - total);
+    $("#" + prefix + "Total").textContent = fmt(total);
+    $("#" + prefix + "Save").parentNode.hidden = full === total; $("#" + prefix + "Full").parentNode.hidden = full === total;
+  }
+
+  /* Кошик у вікні */
   function renderCart() {
-    var keys = Object.keys(cart), n = count(), total = priceFor(n), full = n * CONFIG.price[1];
+    var keys = Object.keys(cart).filter(function (k) { return cart[k] > 0; }), n = count();
     $("#cartList").innerHTML = keys.length ? keys.map(function (k) {
-      var parts = k.split(":"), p = byId(parts[0]), v = VARIANTS.filter(function (x) { return x.id === parts[1]; })[0];
-      var cover = p.imgs[0].indexOf("mockup") > -1 && p.imgs[1] ? p.imgs[1] : p.imgs[0];
-      return '<div class="line"><img src="' + img(cover) + '" alt=""><span class="nm">' + esc(p.name) + "<small>" + v.name + "</small></span>" +
+      var p = byId(k.split(":")[0]);
+      return '<div class="line"><img src="' + img(coverOf(p)) + '" alt=""><span class="nm">' + esc(p.name) + "<small>" + vname(k.split(":")[1]) + "</small></span>" +
         '<span class="qty"><button type="button" data-dec="' + k + '">−</button><b>' + cart[k] + '</b><button type="button" data-inc="' + k + '">+</button></span></div>';
     }).join("") : '<p class="empty">Кошик порожній — оберіть розмальовки 👇</p>';
-    var next = priceFor(n + 1) - total;
-    $("#cartHint").innerHTML = !n ? "" : n < 3
-      ? "🎁 Додайте ще одну розмальовку всього за <b>" + fmt(next) + "</b> — " + (n === 1 ? "2 за " + fmt(priceFor(2)) : "3 за " + fmt(priceFor(3)) + " (найвигідніше!)")
-      : "🔥 Максимальна знижка! Кожна наступна — лише <b>" + fmt(CONFIG.extra) + "</b>";
-    $("#sumFull").textContent = fmt(full);
-    $("#sumSave").textContent = "−" + fmt(full - total);
-    $("#sumSave").parentNode.hidden = full === total; $("#sumFull").parentNode.hidden = full === total;
-    $("#sumTotal").textContent = fmt(total);
+    $("#cartHint").innerHTML = hintText(n);
+    fillSum("sum", n);
+    $("#sumBox").hidden = !n;
+    $("[data-go-order]").hidden = !n;
+  }
+
+  /* Блок замовлення внизу: усі розмальовки зі степперами */
+  var touched = {};   // рядки з кількістю 0, які лишаємо на обраному варіанті
+  function renderPicks(focusKey) {
+    $("#picks").innerHTML = VISIBLE.map(function (p) {
+      var keys = VARIANTS.map(function (v) { return p.id + ":" + v.id; }).filter(function (k) { return cart[k] > 0 || k === focusKey || touched[k]; });
+      if (!keys.length) keys = [p.id + ":classic"];
+      return keys.map(function (k) {
+        var q = cart[k] || 0, v = k.split(":")[1];
+        return '<div class="pick' + (q ? " on" : "") + '"><img src="' + img(coverOf(p)) + '" alt="" data-open="' + p.id + '">' +
+          '<div class="pinfo"><b>' + esc(p.name) + '</b><div class="pv">' + VARIANTS.map(function (x) {
+            return '<button type="button" data-sw="' + k + '" data-to="' + x.id + '" class="' + (x.id === v ? "on" : "") + '">' + x.name + "</button>"; }).join("") + "</div></div>" +
+          '<div class="qty"><button type="button" data-dec="' + k + '">−</button><b>' + q + '</b><button type="button" data-inc="' + k + '">+</button></div></div>';
+      }).join("");
+    }).join("");
+  }
+  function renderOrder(focusKey) {
+    var n = count();
+    renderPicks(focusKey);
+    $("#tierGrid2").innerHTML = $("#tierGrid").innerHTML;
+    $$("#tierGrid2 .tier").forEach(function (t, i) { t.classList.toggle("cur", n >= i + 1 && (n < i + 2 || i === 2)); });
+    $("#orderHint").innerHTML = hintText(n);
+    $("#oCount").textContent = n + " шт.";
+    fillSum("o", n);
+    $("#submitBtn").textContent = n ? "Замовити за " + fmt(priceFor(n)) : "Замовити";
+  }
+
+  function renderAll(focusKey) {
+    var n = count(), total = priceFor(n);
     $("#cartCount").textContent = n;
-    $("#cartbar").hidden = !n;
+    $("#cartbar").hidden = !n || orderVisible;
     $("#cartbarText").textContent = "🛒 У кошику " + n + " шт.";
     $("#cartbarTotal").textContent = fmt(total) + " →";
-    if ($("#thanks").hidden) { $("#orderForm").hidden = !n; $("#sumBox").hidden = !n; }
-    markInCart();
+    markInCart(); renderCart(); renderOrder(focusKey);
   }
+
+  // Липка панель не потрібна, коли блок замовлення вже на екрані
+  var orderVisible = false;
+  if ("IntersectionObserver" in window) new IntersectionObserver(function (en) {
+    orderVisible = en[0].isIntersecting; $("#cartbar").hidden = !count() || orderVisible;
+  }, { rootMargin: "0px 0px -30% 0px" }).observe($("#order"));
 
   /* ---------- Модальні вікна ---------- */
   function openModal(sel) { $(sel).hidden = false; document.body.style.overflow = "hidden"; }
   function closeModals() { $$(".modal").forEach(function (m) { m.hidden = true; }); document.body.style.overflow = ""; }
+  function goOrder() { closeModals(); $("#order").scrollIntoView({ behavior: "smooth" }); track("InitiateCheckout", { value: priceFor(count()), currency: "UAH" }); }
 
   document.addEventListener("click", function (e) {
-    var t = e.target.closest("button, [data-open], [data-open-cart]");
+    var t = e.target.closest("button, [data-open], [data-open-cart], a[href='#order']");
     if (!t) { if (e.target.classList.contains("modal")) closeModals(); return; }
     if (t.dataset.quick) { e.stopPropagation(); add(t.dataset.quick, "classic"); return; }
     if (t.dataset.open) return openProduct(t.dataset.open);
     if (t.dataset.var) { currentVar = t.dataset.var; $$(".vpick button").forEach(function (b) { b.classList.toggle("on", b === t); }); return; }
     if (t.hasAttribute("data-add-current")) { add(current.id, currentVar); closeModals(); openModal("#cartModal"); return; }
-    if (t.dataset.inc) { cart[t.dataset.inc]++; save(); return renderCart(); }
-    if (t.dataset.dec) { if (--cart[t.dataset.dec] <= 0) delete cart[t.dataset.dec]; save(); return renderCart(); }
+    if (t.dataset.sw) { touched[t.dataset.sw.split(":")[0] + ":" + t.dataset.to] = true; delete touched[t.dataset.sw]; return switchVariant(t.dataset.sw, t.dataset.to); }
+    if (t.dataset.inc) { touched[t.dataset.inc] = true; return setQty(t.dataset.inc, (cart[t.dataset.inc] || 0) + 1); }
+    if (t.dataset.dec) { return setQty(t.dataset.dec, (cart[t.dataset.dec] || 0) - 1); }
+    if (t.hasAttribute("data-go-order")) return goOrder();
     if (t.hasAttribute("data-close")) return closeModals();
-    if (t.hasAttribute("data-open-cart")) { renderCart(); openModal("#cartModal"); track("InitiateCheckout", { value: priceFor(count()), currency: "UAH" }); }
+    if (t.hasAttribute("data-open-cart")) { if (t.id === "cartbar") return goOrder(); renderCart(); openModal("#cartModal"); return; }
+    if (t.matches("a[href='#order']")) { track("InitiateCheckout", { value: priceFor(count()), currency: "UAH" }); }
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModals(); });
 
@@ -170,35 +225,33 @@
   new URLSearchParams(location.search).forEach(function (v, k) { if (/^utm_|^fbclid$/.test(k)) utm[k] = v.slice(0, 120); });
   try { sessionStorage.setItem("rm_utm", JSON.stringify(utm)); } catch (e) {}
 
-  /* ---------- Оформлення ---------- */
+  /* ---------- Оформлення → сторінка подяки ---------- */
   $("#orderForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    var f = e.target, ok = true;
-    ["name", "phone", "city", "np"].forEach(function (n) {
-      var el = f.elements[n], v = el.value.trim();
-      var bad = n === "phone" ? v.replace(/\D/g, "").length < 10 : v.length < (n === "np" ? 1 : 2);
+    var f = e.target, ok = true, n = count();
+    ["name", "phone", "city", "np"].forEach(function (k) {
+      var el = f.elements[k], v = el.value.trim();
+      var bad = k === "phone" ? v.replace(/\D/g, "").length < 10 : v.length < (k === "np" ? 1 : 2);
       el.classList.toggle("err", bad); if (bad) ok = false;
     });
-    if (!ok || !count()) return;
-    var btn = f.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Надсилаємо…";
+    $("#formErr").hidden = n > 0;
+    if (!n) { $("#picks").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    if (!ok) { var first = f.querySelector(".err"); if (first) first.focus(); return; }
+    var btn = $("#submitBtn"); btn.disabled = true; btn.textContent = "Надсилаємо…";
     var data = new FormData(f);
-    data.append("cart", JSON.stringify(cart));
+    var clean = {}; Object.keys(cart).forEach(function (k) { if (cart[k] > 0) clean[k] = cart[k]; });
+    data.append("cart", JSON.stringify(clean));
     data.append("utm", JSON.stringify(utm));
     fetch(CONFIG.orderEndpoint, { method: "POST", body: data })
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (!res.ok) throw new Error(res.error || "error");
-        track("Purchase", { value: res.total, currency: "UAH" });
-        $("#orderRef").textContent = res.ref;
         cart = {}; save();
-        $("#thanks").hidden = false; $("#orderForm").hidden = true; $("#sumBox").hidden = true;
-        $("#cartHint").innerHTML = ""; $("#cartList").innerHTML = "";
-        renderCart();
-        btn.disabled = false; btn.textContent = "Оформити замовлення";
+        location.href = "thanks.html?ref=" + encodeURIComponent(res.ref) + "&total=" + res.total + "&n=" + n + "&name=" + encodeURIComponent(f.elements.name.value.trim().split(" ")[0]);
       })
       .catch(function () {
         alert("Не вдалося надіслати замовлення. Спробуйте ще раз або напишіть нам у Telegram @hellppbott.");
-        btn.disabled = false; btn.textContent = "Оформити замовлення";
+        btn.disabled = false; renderOrder();
       });
   });
 
@@ -215,5 +268,5 @@
     window.fbq("init", CONFIG.pixelId); window.fbq("track", "PageView");
   }
 
-  renderTiers(); renderGrid(); renderCart();
+  renderTiers(); renderGrid(); renderAll();
 })();
