@@ -125,7 +125,7 @@ function step_variants($chat, $o) {
     $c = $D['price']['classic']; $pm = $D['price']['premium'];
     say($chat, h($D['variantText']['classic']) . "\n💰 1 — {$c[1]} грн, 2 — {$c[2]} грн, 3 — {$c[3]} грн (кожна наступна — ще {$D['extra']['classic']} грн)"
         . "\n\n" . h($D['variantText']['premium']) . "\n💰 1 — {$pm[1]} грн, 2 — {$pm[2]} грн, 3 — {$pm[3]} грн (кожна наступна — ще {$D['extra']['premium']} грн)"
-        . "\n\n📖 20 картин · формат A4 · металева пружина");
+        . "\n\n📖 20 аркушів = 20 картинок · формат A4 · металева пружина");
     ask_variant($chat);
 }
 function ask_variant($chat) {

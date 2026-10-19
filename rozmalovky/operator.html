@@ -135,7 +135,7 @@
       return '<div class="prod"><b class="t">' + esc(p.name) + '</b><div class="photos">' +
         p.imgs.concat(p.imgsPremium || []).map(function (im, i) { return '<a href="img/' + im + '.webp" target="_blank" download="' + im + '.webp"><img src="img/' + im + '.webp" alt=""><span>' + (i + 1) + "</span></a>"; }).join("") +
         '</div><p class="tip">Натисніть на фото → збережіть → надішліть клієнту в Telegram.</p>' +
-        '<textarea>' + esc("«" + p.name + "»\n" + p.desc + "\n\n" + S.variantText.classic + "\n\n" + S.variantText.premium + "\n\n📖 20 картин · формат A4 · металева пружина\n" + bundle) + '</textarea><button class="cp" type="button">📋 Скопіювати опис</button></div>';
+        '<textarea>' + esc("«" + p.name + "»\n" + p.desc + "\n\n" + S.variantText.classic + "\n\n" + S.variantText.premium + "\n\n📖 20 аркушів = 20 картинок · формат A4 · металева пружина\n" + bundle) + '</textarea><button class="cp" type="button">📋 Скопіювати опис</button></div>';
     }).join("");
     html += step(3, "Фото й опис кожної", "Надішліть фото, потім опис. Обов'язково завершіть питанням (внизу)",
       "Вам яку оформляти: Класичну чи Преміальну? 😊", prods || '<p class="tip">Оберіть розмальовки вгорі.</p>', true);
