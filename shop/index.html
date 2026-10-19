@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Тямко · розвивальні набори для малюків 2–6 років</title>
+  <meta name="description" content="Розвивальна папка на липучках, магнітний режим дня й емоції, розмальовки наліпками, паперові вирізалки і «Знайди і покажи». Українською. Доставка Новою поштою.">
+  <meta property="og:title" content="Тямко — розвивальні набори для малюків">
+  <meta property="og:description" content="Година корисної гри без гаджетів. 5 наборів українською для дітей 2–6 років.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#fff7ec">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦉</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shop.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="logo" href="#"><span class="owl">🦉</span> Тямко</a>
+  <nav class="nav">
+    <a href="#sets">Набори</a>
+    <a href="#bundles">Комплекти</a>
+    <a href="#faq">Питання</a>
+  </nav>
+  <button class="cart-btn" data-open-cart aria-label="Кошик">🛒 <b id="cartCount">0</b></button>
+</header>
+
+<!-- 1. Головний екран -->
+<section class="hero">
+  <div class="wrap hero-in">
+    <div>
+      <span class="chip">🇺🇦 Українською · 2–6 років</span>
+      <h1>Година корисної гри — <em>без телефону</em> і мультиків</h1>
+      <p class="lead">5 розвивальних наборів від Тямка: дитина клеїть, шукає, вирізає і вчиться, а ви спокійно п'єте каву.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#sets">Обрати набір →</a>
+        <a class="btn ghost" href="#bundles">Комплекти зі знижкою</a>
+      </div>
+      <ul class="ticks">
+        <li>🚚 Нова пошта по всій Україні</li>
+        <li>💳 Передоплата −5% або оплата при отриманні</li>
+        <li>🎁 Безкоштовна доставка від 1 000 грн</li>
+      </ul>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="stack">
+        <div class="cover c1"><span>🦉</span><b>Велика<br>розвивальна<br>папка</b></div>
+        <div class="cover c2"><span>🙂</span><b>Мій день<br>і емоції</b></div>
+        <div class="cover c3"><span>🔍</span><b>Знайди<br>і покажи</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Біль → рішення -->
+<section class="pain wrap">
+  <h2>Знайомо?</h2>
+  <div class="pain-grid">
+    <div class="card">📱 «Дай телефон!» — і так щодня</div>
+    <div class="card">😩 Іграшок повна кімната, а дитині нудно</div>
+    <div class="card">⏰ Ранки зі сльозами: не хоче вдягатися й чистити зуби</div>
+    <div class="card">🧩 Хочеться розвивати, але немає часу вигадувати заняття</div>
+  </div>
+  <p class="pain-answer">Тямко вже все вигадав: <b>готові заняття на місяці</b>, які дитина хоче робити сама.</p>
+</section>
+
+<!-- 3. Набори -->
+<section id="sets" class="sets">
+  <div class="wrap">
+    <h2>5 наборів Тямка</h2>
+    <p class="sub">Натисніть «Що всередині», щоб побачити повний склад</p>
+    <div id="products" class="products"></div>
+  </div>
+</section>
+
+<!-- 4. Комплекти -->
+<section id="bundles" class="wrap bundles">
+  <h2>Комплекти: вигідніше разом</h2>
+  <div id="bundleList" class="bundle-grid"></div>
+</section>
+
+<!-- 5. Для кого / вік -->
+<section class="wrap age">
+  <h2>Який набір під вік дитини</h2>
+  <div class="age-grid">
+    <div class="card"><b>2–3 роки</b><span>Велика папка · Мій день і емоції</span></div>
+    <div class="card"><b>3–4 роки</b><span>Велика папка · Знайди і покажи · Емоції</span></div>
+    <div class="card"><b>4–6 років</b><span>Наліпки за номерами · Паперове містечко · Знайди і покажи</span></div>
+  </div>
+</section>
+
+<!-- 6. Чому Тямко -->
+<section class="why">
+  <div class="wrap why-grid">
+    <div><span>🇺🇦</span><b>Усе українською</b><p>Абетка, свята, Карпати, тварини України</p></div>
+    <div><span>♻️</span><b>Багаторазово</b><p>Ламіновані сторінки, липучки й магніти: граємось місяцями</p></div>
+    <div><span>🧠</span><b>Користь</b><p>Моторика, рахунок, літери, логіка, мовлення, емоції</p></div>
+    <div><span>🎁</span><b>Готовий подарунок</b><p>Гарна упаковка: на Миколая, Новий рік, день народження</p></div>
+  </div>
+</section>
+
+<!-- 7. Відгуки: показуються лише справжні, з shop.js → REVIEWS -->
+<section class="wrap reviews" id="reviewsBlock" hidden>
+  <h2>Відгуки батьків</h2>
+  <div id="reviews" class="rev-grid"></div>
+</section>
+
+<!-- 8. FAQ -->
+<section id="faq" class="wrap faq">
+  <h2>Питання</h2>
+  <details><summary>З якого віку?</summary><p>Велика папка й картки емоцій — з 2 років, решта наборів — з 3–4 років. У наборах є дрібні деталі, тому малюкам до 3 років граємо з дорослим.</p></details>
+  <details><summary>Скільки йде доставка?</summary><p>Відправляємо Новою поштою за 1–2 робочі дні, доставка 1–3 дні. Безкоштовна доставка — від 1 000 грн.</p></details>
+  <details><summary>Як оплатити?</summary><p>Передоплатою на картку (знижка 5%) або при отриманні на пошті.</p></details>
+  <details><summary>Можна повернути?</summary><p>Так, протягом 14 днів, якщо набір не використовувався і збережено упаковку (згідно з законом про захист прав споживачів).</p></details>
+  <details><summary>Чи підійде як подарунок?</summary><p>Так. Набори в подарунковій упаковці, а за запитом приберемо з посилки накладну з ціною.</p></details>
+</section>
+
+<!-- 9. Фінальний заклик -->
+<section class="final">
+  <div class="wrap">
+    <h2>Подаруйте дитині годину цікавої гри щодня</h2>
+    <a class="btn big" href="#bundles">Обрати комплект →</a>
+  </div>
+</section>
+
+<footer class="foot wrap">
+  <p>🦉 Тямко · розвивальні набори для дітей</p>
+  <p class="muted">Telegram: <a href="https://t.me/hellppbott">@hellppbott</a> · +380 93 136 97 64</p>
+  <p class="muted">ФОП Костенко Ольга Володимирівна · ІПН 2191604463</p>
+</footer>
+
+<!-- Липка кнопка на телефоні -->
+<button class="sticky" data-open-cart>🛒 Кошик · <b id="stickyTotal">0 грн</b></button>
+
+<!-- Модальне вікно: склад набору -->
+<div class="modal" id="infoModal" hidden>
+  <div class="sheet">
+    <button class="x" data-close>✕</button>
+    <div id="infoBody"></div>
+  </div>
+</div>
+
+<!-- Кошик + оформлення -->
+<div class="modal" id="cartModal" hidden>
+  <div class="sheet">
+    <button class="x" data-close>✕</button>
+    <h3>Ваше замовлення</h3>
+    <div id="cartList"></div>
+    <div class="sum">
+      <div><span>Товари</span><b id="sumItems">0 грн</b></div>
+      <div id="rowDisc" hidden><span>Передоплата −5%</span><b id="sumDisc">0 грн</b></div>
+      <div><span>Доставка</span><b id="sumShip">за тарифом НП</b></div>
+      <div class="total"><span>Разом</span><b id="sumTotal">0 грн</b></div>
+    </div>
+    <form id="orderForm" novalidate>
+      <label>Ім'я та прізвище<input name="name" required autocomplete="name" placeholder="Олена Коваленко"></label>
+      <label>Телефон<input name="phone" required type="tel" autocomplete="tel" placeholder="+380 __ ___ __ __"></label>
+      <label>Місто<input name="city" required placeholder="Київ"></label>
+      <label>Відділення або поштомат Нової пошти<input name="np" required placeholder="№ 25"></label>
+      <fieldset class="pay">
+        <label><input type="radio" name="pay" value="prepay" checked> Передоплата на картку <b>−5%</b></label>
+        <label><input type="radio" name="pay" value="cod"> Оплата при отриманні</label>
+      </fieldset>
+      <label>Коментар (необов'язково)<input name="comment" placeholder="Напр.: без накладної з ціною, це подарунок"></label>
+      <button class="btn big full" type="submit">Оформити замовлення</button>
+      <p class="note">Менеджер зателефонує або напише для підтвердження. Натискаючи кнопку, ви погоджуєтесь з обробкою персональних даних.</p>
+    </form>
+    <div id="thanks" hidden class="thanks">
+      <div class="big-emoji">🎉</div>
+      <h3>Дякуємо! Замовлення прийнято</h3>
+      <p>Номер замовлення: <b id="orderRef"></b>. Ми зв'яжемося з вами найближчим часом.</p>
+    </div>
+  </div>
+</div>
+
+<script src="shop.js"></script>
+</body>
+</html>
