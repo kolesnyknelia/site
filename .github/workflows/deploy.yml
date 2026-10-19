@@ -67,6 +67,7 @@ jobs:
             KONSPEKTY.md
             shop/**
             print/**
+            rozmalovky/**
             .gitignore
 
       # Секретні ключі оплати/Telegram/SendPulse → /kvn.kiev.ua/private/config.php
