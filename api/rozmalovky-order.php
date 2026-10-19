@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(json_
 
 // Ті самі товари й ціни, що в rozmalovky/app.js — суму з браузера не беремо
 $PRODUCTS = [
+    'mykolai'   => 'Чудеса від Святого Миколая',
     'selo'      => 'Зима в українському селі',
     'milenialy' => 'Зима міленіалів: назад у дитинство',
     'dusha'     => 'Розмальовка для душі: осінь',
