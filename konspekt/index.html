@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="robots" content="noindex, nofollow">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <!-- не передаємо адресу конспекту сайтам, на які ведуть посилання -->
+  <meta name="referrer" content="no-referrer">
   <title>Конспект · Сайт за 1 вечір з ШІ</title>
   <meta name="description" content="Конспект курсу «Сайт за 1 вечір з ШІ» Нелі Колесник: усі кроки, промпти, посилання й чек-листи в одному місці.">
   <meta name="theme-color" content="#f7f3ec">
@@ -151,6 +153,20 @@
     .say { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
     .say span { background: var(--sage-l); border-radius: 999px; padding: 7px 13px; font-size: 14px; font-weight: 600; }
     .say span::before { content: "💬 "; }
+
+    /* ---------- приклад сайту в рамці телефона ---------- */
+    .example { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; background: var(--bg); border-radius: var(--radius); padding: 18px; margin: 14px 0 6px; max-width: 760px; }
+    .phone { width: 280px; height: 560px; border-radius: 34px; padding: 10px; background: #1f2622; box-shadow: var(--shadow); }
+    .phone iframe { width: 100%; height: 100%; border: 0; border-radius: 25px; background: #fff; display: block; }
+    .example-info { display: grid; gap: 8px; justify-items: start; min-width: 0; }
+    .example-info b { font-size: 17px; }
+    .example-info ul { margin: 0; }
+    .example-info .more { margin: 4px 0 0; font-size: 14px; color: var(--ink-2); }
+    @media (max-width: 640px) {
+      .example { grid-template-columns: minmax(0, 1fr); justify-items: center; padding: 14px; }
+      .phone { width: min(280px, 100%); height: 520px; }
+      .example-info { justify-items: stretch; }
+    }
 
     /* ---------- скріни ---------- */
     figure { margin: 14px 0 20px; max-width: 760px; }
@@ -358,9 +374,23 @@
       <div class="note"><div><b>Хто ти + що створити + для кого + структура + вимоги</b><p>Чим конкретніше завдання, тим менше правок потім.</p></div></div>
     </section>
 
-    <section class="step" id="b2-5" data-title="Шаблони промптів">
-      <div class="step-head"><span class="step-n">05</span><div><h3>Готові шаблони — копіюйте і підставляйте своє</h3><span class="chip">10 хвилин</span></div></div>
-      <h4>📦 Для товарки</h4>
+    <section class="step" id="b2-5" data-title="Сайт для товарки">
+      <div class="step-head"><span class="step-n">05</span><div><h3>📦 Сайт для товарки: приклад і промпт</h3><span class="chip">10 хвилин</span></div></div>
+      <p>Спершу подивіться, який сайт вийде: один товар, фото, вигода, стара й нова ціна, таймер, форма «ім'я + телефон». Погортайте приклад прямо тут.</p>
+      <div class="example">
+        <div class="phone"><iframe src="https://kvn.kiev.ua/examples/tovar.html" title="Приклад сайту для товарки" loading="lazy"></iframe></div>
+        <div class="example-info">
+          <b>Приклад: масажний пістолет</b>
+          <ul>
+            <li>перший екран: фото + вигода + ціна + кнопка;</li>
+            <li>біль клієнта і переваги;</li>
+            <li>відгуки, акція з таймером;</li>
+            <li>форма заявки, доставка, питання.</li>
+          </ul>
+          <a class="btn" href="https://kvn.kiev.ua/examples/tovar.html" target="_blank" rel="noopener">Відкрити на весь екран</a>
+        </div>
+      </div>
+      <h4>Промпт для товарки — копіюйте і підставляйте своє</h4>
       <div class="prompt"><div class="prompt-bar"><span>Промпт · сайт для товару</span><button class="btn" type="button" data-copy="p-tovarka">Скопіювати</button></div>
 <pre id="p-tovarka">Ти — досвідчений маркетолог і веб-дизайнер.
 Створи односторінковий сайт для продажу товару: <span class="ph">[назва товару]</span>.
@@ -372,7 +402,26 @@
 доставка Новою поштою; питання та відповіді.
 Вимоги: один файл index.html, адаптивний під телефон, сучасний дизайн,
 кнопки з анімацією.</pre></div>
-      <h4>🎓 Для експерта / курсу / послуги</h4>
+    </section>
+
+    <section class="step" id="b2-6" data-title="Сайт для експерта">
+      <div class="step-head"><span class="step-n">06</span><div><h3>🎓 Сайт для експерта, курсу чи послуги: приклад і промпт</h3><span class="chip">10 хвилин</span></div></div>
+      <p>Тут продаємо не річ, а результат: обіцянка на першому екрані, про автора, програма, відгуки, ціна і запис.</p>
+      <div class="example">
+        <div class="phone"><iframe src="https://kvn.kiev.ua/examples/expert.html" title="Приклад сайту для експерта" loading="lazy"></iframe></div>
+        <div class="example-info">
+          <b>Приклад: сайт експерта</b>
+          <ul>
+            <li>перший екран з обіцянкою результату;</li>
+            <li>для кого це і про автора;</li>
+            <li>програма, відгуки;</li>
+            <li>ціна, кнопка і форма запису.</li>
+          </ul>
+          <a class="btn" href="https://kvn.kiev.ua/examples/expert.html" target="_blank" rel="noopener">Відкрити на весь екран</a>
+          <p class="more">Ще приклади: <a href="https://kvn.kiev.ua/examples/psycholog.html" target="_blank" rel="noopener">психолог</a> · <a href="https://kvn.kiev.ua/examples/sport.html" target="_blank" rel="noopener">тренер</a></p>
+        </div>
+      </div>
+      <h4>Промпт для експерта — копіюйте і підставляйте своє</h4>
       <div class="prompt"><div class="prompt-bar"><span>Промпт · сайт для експерта</span><button class="btn" type="button" data-copy="p-ekspert">Скопіювати</button></div>
 <pre id="p-ekspert">Ти — досвідчений маркетолог і веб-дизайнер.
 Створи односторінковий сайт для <span class="ph">[курсу / консультацій / послуги]</span>: <span class="ph">[назва]</span>.
@@ -385,8 +434,8 @@
 Вимоги: один файл index.html, адаптивний під телефон, спокійний стильний дизайн.</pre></div>
     </section>
 
-    <section class="step" id="b2-6" data-title="Як просити правки">
-      <div class="step-head"><span class="step-n">06</span><div><h3>Як просити правки — по одній за раз</h3><span class="chip">5 хвилин</span></div></div>
+    <section class="step" id="b2-7" data-title="Як просити правки">
+      <div class="step-head"><span class="step-n">07</span><div><h3>Як просити правки — по одній за раз</h3><span class="chip">5 хвилин</span></div></div>
       <div class="say">
         <span>Зроби кнопки зеленими й округлими</span>
         <span>Додай блок відгуків після переваг</span>
@@ -486,7 +535,7 @@ ID товару в CRM: <span class="ph">[7]</span></pre></div>
     <section class="step" id="b3-5" data-title="Генеруємо і правимо">
       <div class="step-head"><span class="step-n">05</span><div><h3>Генеруємо сайт і вносимо 3 правки</h3><span class="chip">30 хвилин</span></div></div>
       <ol>
-        <li>Беремо шаблон з <a href="#b2-5" data-go="2">Блоку 2</a> і підставляємо своє.</li>
+        <li>Беремо промпт для експерта з <a href="#b2-6" data-go="2">Блоку 2</a> і підставляємо своє.</li>
         <li>Надсилаємо в Claude, отримуємо файл <code>index.html</code>.</li>
         <li>Вносимо щонайменше 3 правки — по одній за повідомлення.</li>
       </ol>
