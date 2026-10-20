@@ -165,6 +165,7 @@ details p { margin: 0; padding: 0 16px 16px; color: var(--ink-2); }
 /* Низ */
 .foot { padding: 30px 0 110px; text-align: center; font-size: 14px; color: var(--ink-2); border-top: 1px solid var(--line); }
 .foot p { margin: 4px 0 0; }
+.foot-links a { color: var(--ink-2); }
 .sticky {
   position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
   background: rgba(251, 248, 244, .94); backdrop-filter: blur(8px); border-top: 1px solid var(--line);
