@@ -2,3 +2,5 @@
 # тому тут його не показуємо
 /konspekt     /404  404!
 /konspekt/*   /404  404!
+/konspekt-fs     /404  404!
+/konspekt-fs/*   /404  404!

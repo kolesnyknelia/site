@@ -69,6 +69,7 @@ jobs:
             print/**
             rozmalovky/**
             konspekt/**
+            konspekt-fs/**
             _redirects
             .gitignore
 
