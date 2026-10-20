@@ -736,8 +736,10 @@ ID товару в CRM: <span class="ph">[7]</span></pre></div>
         <li>Додаємо бота <code>@username_to_id_bot</code> — він одразу напише ID групи: число з мінусом, наприклад <code>-5255376551</code>. Зберігаємо разом із токеном.</li>
         <li>Після цього <code>@username_to_id_bot</code> можна видалити з групи.</li>
       </ol>
-      <figure class="narrow"><img src="img/telegram-stvoryty-hrupu.png" alt="Telegram: значок олівця над чатами і пункт «Створити групу»" loading="lazy"><figcaption>Олівець над чатами → «Створити групу».</figcaption></figure>
-      <figure><img src="img/idbot-id-hrupy.png" alt="Повідомлення IDBot у групі з обведеним ID групи" loading="lazy"><figcaption>Число з мінусом — ID групи.</figcaption></figure>
+      <figure><img src="img/telegram-stvoryty-hrupu.webp" alt="Telegram: значок олівця і пункт меню «Створити групу»" loading="lazy"><figcaption>1. Значок олівця → «Створити групу».</figcaption></figure>
+      <figure><img src="img/telegram-nova-hrupa.webp" alt="Екран «Нова група»: поле «Назва групи», кнопки «Додати учасників» і «Створити»" loading="lazy"><figcaption>2. Пишемо назву групи, тиснемо «Додати учасників», потім «Створити».</figcaption></figure>
+      <figure><img src="img/telegram-uchasnyky-hrupy.webp" alt="Учасники групи: ви, реальна людина, IDBot і ваш бот із BotFather" loading="lazy"><figcaption>3. У групі мають бути: ви, ще одна реальна людина, @username_to_id_bot і ваш бот із BotFather.</figcaption></figure>
+      <figure><img src="img/idbot-id-hrupy.webp" alt="Повідомлення IDBot у групі з обведеним ID групи" loading="lazy"><figcaption>4. IDBot пише ID групи — число з мінусом. Його й зберігаємо.</figcaption></figure>
       <div class="link-row"><span>@username_to_id_bot</span><a class="btn" href="https://t.me/username_to_id_bot" target="_blank" rel="noopener">Відкрити</a></div>
       <div class="tasks">
         <label class="task"><input type="checkbox" id="b6-t2"><span class="box"></span><span>Створила групу, додала бота і зберегла ID групи</span></label>
@@ -760,10 +762,11 @@ ID групи для заявок: <span class="ph">[-5255376551]</span>
       <p>Потрібні три речі: <b>ключ API</b>, <b>ID товару</b> і <b>адреса кабінету</b> вигляду <code>назва.lp-crm.biz</code>.</p>
       <h4>Ключ API</h4>
       <ol><li>Заходимо в LP-CRM → зліва значок налаштувань (два повзунки).</li><li>Копіюємо «Вхідний ключ API».</li></ol>
-      <figure><img src="img/lpcrm-klyuch-api.png" alt="Налаштування LP-CRM: значок з двома повзунками і рядок «Вхідний ключ API»" loading="lazy"><figcaption>Два повзунки → «Вхідний ключ API». Ключ на скріні прихований.</figcaption></figure>
+      <figure><img src="img/lpcrm-klyuch-api.webp" alt="Налаштування LP-CRM: значок з двома повзунками і рядок «Вхідний ключ API»" loading="lazy"><figcaption>Два повзунки → «Вхідний ключ API». Ключ на скріні прихований.</figcaption></figure>
       <h4>ID товару</h4>
       <ol><li>«Склад» → «Товари».</li><li>Число в першій колонці зліва — ID товару.</li></ol>
-      <figure><img src="img/lpcrm-id-tovaru.png" alt="Список товарів LP-CRM з колонкою ID" loading="lazy"><figcaption>Перша колонка — ID. Наприклад, у «Тарілки» ID 7.</figcaption></figure>
+      <figure class="narrow"><img src="img/lpcrm-sklad-tovary.webp" alt="Меню LP-CRM: «Склад» → «Товари»" loading="lazy"><figcaption>Меню зліва: «Склад» → «Товари».</figcaption></figure>
+      <figure><img src="img/lpcrm-id-tovaru.webp" alt="Список товарів LP-CRM з колонкою ID" loading="lazy"><figcaption>Перша колонка — ID. Наприклад, у «Кошика для зберігання» ID 77.</figcaption></figure>
       <div class="note"><div><b>Кілька офісів?</b><p>Claude запитає, у який офіс падають заявки. Потрібен номер офісу, а не назва — уточніть у того, хто налаштовував CRM.</p></div></div>
       <div class="note secret"><div><b>Ключ API — теж секрет</b><p>З ним можна створювати замовлення у вашій CRM. Тільки для Claude.</p></div></div>
       <div class="tasks">
