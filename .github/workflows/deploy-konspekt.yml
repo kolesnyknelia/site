@@ -2,6 +2,7 @@
 # Після змін у konspekt/ в гілці main вміст konspekt/ (без вихідників скіла)
 # завантажується в папку піддомену. Архів скіла збирається тут же зі свіжих файлів.
 # Секрети ті самі, що й для основного сайту: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
+# + KONSPEKT_KEY — секретна частина посилання на конспект (лише латиниця, цифри, - і _).
 name: Deploy konspekt (konspektsayt.kvn.kiev.ua)
 
 on:
@@ -27,17 +28,34 @@ jobs:
       - name: Get code
         uses: actions/checkout@v4
 
-      # Збираємо сайт: сторінка, файли до уроків, скріни + свіжий архів скіла
+      # Збираємо сайт. Конспект лежить у секретній папці (секрет KONSPEKT_KEY),
+      # тож відкривається лише за повним посиланням з SendPulse:
+      #   https://konspektsayt.kvn.kiev.ua/<KONSPEKT_KEY>/
+      # У корені — заглушка «Сторінку не знайдено», robots.txt і заборона індексації.
+      # Без секрету конспект кладемо в корінь (як раніше) і попереджаємо.
       - name: Build
+        env:
+          KONSPEKT_KEY: ${{ secrets.KONSPEKT_KEY }}
         run: |
-          mkdir -p _deploy/files _deploy/img
-          cp konspekt/index.html _deploy/
-          cp -r konspekt/files/. _deploy/files/
-          cp -r konspekt/img/. _deploy/img/ 2>/dev/null || true
-          rm -f _deploy/files/sait-pid-tovar.zip
-          (cd konspekt/skill && zip -rq -X ../../_deploy/files/sait-pid-tovar.zip sait-pid-tovar)
+          key=$(printf '%s' "$KONSPEKT_KEY" | tr -cd 'A-Za-z0-9_-')
+          mkdir -p _deploy
+          if [ -n "$key" ]; then
+            cp -r konspekt/root/. _deploy/
+            dest="_deploy/$key"
+            echo "Конспект: https://konspektsayt.kvn.kiev.ua/<KONSPEKT_KEY>/"
+          else
+            dest="_deploy"
+            cp konspekt/root/robots.txt konspekt/root/.htaccess _deploy/
+            echo "::warning::Секрет KONSPEKT_KEY не задано — конспект відкривається за адресою піддомену без секретної частини"
+          fi
+          mkdir -p "$dest/files" "$dest/img"
+          cp konspekt/index.html "$dest/"
+          cp -r konspekt/files/. "$dest/files/"
+          cp -r konspekt/img/. "$dest/img/" 2>/dev/null || true
+          rm -f "$dest/files/sait-pid-tovar.zip"
+          (cd konspekt/skill && zip -rq -X "$GITHUB_WORKSPACE/$dest/files/sait-pid-tovar.zip" sait-pid-tovar)
           find _deploy -name '.gitkeep' -delete
-          ls -R _deploy
+          if [ -n "$key" ]; then find _deploy -type f | sed "s|$key|<KEY>|" | sort; else find _deploy -type f | sort; fi
 
       - name: Prepare sync state (first deploy)
         env:
