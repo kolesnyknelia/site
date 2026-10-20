@@ -68,7 +68,7 @@ jobs:
             shop/**
             print/**
             rozmalovky/**
-            kurs/**
+            konspekt/**
             .gitignore
 
       # Секретні ключі оплати/Telegram/SendPulse → /kvn.kiev.ua/private/config.php
