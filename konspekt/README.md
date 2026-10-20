@@ -21,5 +21,4 @@
 (подивитися структуру: Actions → Inspect hosting folders).
 
 ## Скріни, які чекають на файли
-`botfather-token.png`, `telegram-stvoryty-hrupu.png`, `idbot-id-hrupy.png`, `lpcrm-klyuch-api.png`,
-`lpcrm-id-tovaru.png`, `hosting-rozpakuvaty.png`
+`lpcrm-sklad-tovary.webp`, `lpcrm-id-tovaru.webp`, `hosting-rozpakuvaty.png`
