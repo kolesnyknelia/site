@@ -21,4 +21,4 @@
 (подивитися структуру: Actions → Inspect hosting folders).
 
 ## Скріни, які чекають на файли
-`lpcrm-sklad-tovary.webp`, `lpcrm-id-tovaru.webp`, `hosting-rozpakuvaty.png`
+`hosting-rozpakuvaty.png`
