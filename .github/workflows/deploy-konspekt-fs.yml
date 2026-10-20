@@ -48,8 +48,9 @@ jobs:
             cp konspekt-fs/root/robots.txt konspekt-fs/root/.htaccess _deploy/
             echo "::warning::Секрет KONSPEKT_FS_KEY не задано — конспект відкривається за адресою піддомену без секретної частини"
           fi
-          mkdir -p "$dest/files" "$dest/img"
+          mkdir -p "$dest/files" "$dest/img" "$dest/js"
           cp konspekt-fs/index.html "$dest/"
+          cp -r konspekt-fs/js/. "$dest/js/"
           cp -r konspekt-fs/files/. "$dest/files/"
           cp -r konspekt-fs/img/. "$dest/img/" 2>/dev/null || true
           find _deploy -name '.gitkeep' -delete
