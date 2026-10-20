@@ -1,0 +1,5 @@
+# Ніхто ззовні не відкриває налаштування й службові файли
+<FilesMatch "^(config\.php|_config\.js|order\.js|.*\.log)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
