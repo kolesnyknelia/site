@@ -1,9 +1,9 @@
 /* Шаблон сайту під товар. Mobile-first: майже всі покупці приходять з телефона.
    Колір під товар міняємо тільки в --accent / --accent-d / --accent-l */
 :root {
-  --accent: #e2552b;
-  --accent-d: #b93e1a;
-  --accent-l: #fde9e1;
+  --accent: #b0476a;
+  --accent-d: #8a3352;
+  --accent-l: #f8e6ec;
   --bg: #fbf8f4;
   --soft: #f3ede5;
   --card: #ffffff;
@@ -56,7 +56,7 @@ p { margin: 0 0 1em; }
   background: var(--card); box-shadow: var(--shadow); scrollbar-width: none;
 }
 .slides::-webkit-scrollbar { display: none; }
-.slides img { flex: 0 0 100%; aspect-ratio: 1; object-fit: cover; scroll-snap-align: center; }
+.slides img { flex: 0 0 100%; aspect-ratio: 1; object-fit: contain; background: #fff; scroll-snap-align: center; }
 .sale-badge {
   position: absolute; z-index: 2; top: 14px; left: 14px; background: var(--accent); color: #fff;
   font: 700 16px var(--head); padding: 7px 12px; border-radius: 12px;
@@ -92,7 +92,7 @@ p { margin: 0 0 1em; }
 /* Фото + текст */
 .split { display: grid; gap: 22px; align-items: center; }
 .split + .split { margin-top: 40px; }
-.split img { border-radius: var(--r); aspect-ratio: 1; object-fit: cover; box-shadow: var(--shadow); }
+.split img { border-radius: var(--r); aspect-ratio: 1; object-fit: contain; background: #fff; box-shadow: var(--shadow); }
 
 /* Характеристики */
 .specs { width: 100%; border-collapse: collapse; background: var(--card); border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); }
