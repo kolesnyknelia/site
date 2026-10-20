@@ -293,6 +293,33 @@ input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 
 @media (min-width: 860px) { .steps { grid-template-columns: 1fr 1fr; } }
 
 /* ---------- Accordion ---------- */
+/* ---------- Конспект курсу (бонус у програмі) ---------- */
+.konspekt-promo { max-width: 980px; margin: 56px auto 0; display: grid; gap: 32px; align-items: center; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 30px 22px; box-shadow: var(--shadow-s); }
+.kp-text h3 { font-family: var(--serif); font-size: clamp(28px, 5vw, 40px); font-weight: 600; line-height: 1.1; margin: 10px 0 12px; }
+.kp-text h3 em { color: var(--sage-d); }
+.kp-text p { color: var(--ink-2); margin: 0 0 14px; }
+.kp-list { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 8px; }
+.kp-list li { background: var(--bg); border-radius: var(--radius-s); padding: 10px 14px; font-size: 15px; color: var(--ink-2); }
+.kp-list b { color: var(--ink); }
+.kp-text .kp-note { font-size: 14px; color: var(--muted); margin: 0; }
+.kp-mock { background: var(--bg); border: 1px solid var(--line); border-radius: 22px; padding: 14px; display: grid; gap: 10px; max-width: 380px; width: 100%; justify-self: center; transform: rotate(-1.5deg); box-shadow: var(--shadow); }
+.kp-bar { display: flex; gap: 6px; }
+.kp-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+.kp-cards { display: flex; gap: 6px; overflow: hidden; }
+.kp-cards span { flex: none; font-size: 12px; font-weight: 700; padding: 7px 10px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); }
+.kp-cards span.on { background: var(--sage-l); border-color: var(--sage-d); }
+.kp-step { display: flex; gap: 10px; align-items: center; background: var(--bg-2); border-radius: 14px; padding: 10px 12px; }
+.kp-step b { display: block; font-size: 14px; }
+.kp-step small { color: var(--muted); font-size: 12px; }
+.kp-ring { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 800; background: radial-gradient(var(--bg-2) 60%, transparent 61%), conic-gradient(var(--sage-d) 60%, var(--line) 0); }
+.kp-prompt { display: flex; justify-content: space-between; align-items: center; background: #2c3a33; color: #f4efe6; border-radius: 12px; padding: 12px; font-size: 12px; font-weight: 700; }
+.kp-prompt em { font-style: normal; background: var(--sage); color: #1c2a23; border-radius: 8px; padding: 5px 9px; }
+.kp-task { display: flex; gap: 9px; align-items: center; background: var(--sage-l); border-radius: 12px; padding: 9px 12px; font-size: 13px; font-weight: 600; }
+.kp-task span { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--sage-d); display: grid; place-items: center; }
+.kp-task.done { color: var(--muted); text-decoration: line-through; }
+.kp-task.done span { background: var(--sage-d); }
+.kp-task.done span::after { content: "✓"; color: #fff; font-size: 11px; font-weight: 800; text-decoration: none; }
+@media (min-width: 860px) { .konspekt-promo { grid-template-columns: 1.15fr 1fr; padding: 44px; gap: 44px; } }
 .acc { max-width: 840px; margin: 0 auto; }
 .acc details { border-bottom: 1px solid var(--line); }
 .acc details:first-child { border-top: 1px solid var(--line); }
