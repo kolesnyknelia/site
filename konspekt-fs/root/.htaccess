@@ -1,0 +1,6 @@
+# Конспект тільки за посиланням: пошуковики не індексують, список файлів не показуємо
+Options -Indexes
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header set Referrer-Policy "no-referrer"
+</IfModule>

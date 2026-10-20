@@ -1,0 +1,82 @@
+# Автодеплой конспекту курсу «Формула свободи» на https://konspektfs.kvn.kiev.ua
+# Після змін у konspekt-fs/ в гілці main вміст konspekt-fs/
+# завантажується в папку піддомену.
+# Секрети ті самі, що й для основного сайту: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
+# + KONSPEKT_FS_KEY — секретна частина посилання на конспект (лише латиниця, цифри, - і _).
+name: Deploy konspekt FS (konspektfs.kvn.kiev.ua)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "konspekt-fs/**"
+      - ".github/workflows/deploy-konspekt-fs.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ftp-deploy-konspekt-fs
+  cancel-in-progress: false
+
+env:
+  # Папка піддомену на хостингу (відносно кореня FTP-користувача)
+  DEPLOY_DIR: /kvn.kiev.ua/konspektfs/
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+
+      # Збираємо сайт. Конспект лежить у секретній папці (секрет KONSPEKT_FS_KEY),
+      # тож відкривається лише за повним посиланням з SendPulse:
+      #   https://konspektfs.kvn.kiev.ua/<KONSPEKT_FS_KEY>/
+      # У корені — заглушка «Сторінку не знайдено», robots.txt і заборона індексації.
+      # Без секрету конспект кладемо в корінь і попереджаємо.
+      - name: Build
+        env:
+          KONSPEKT_FS_KEY: ${{ secrets.KONSPEKT_FS_KEY }}
+        run: |
+          key=$(printf '%s' "$KONSPEKT_FS_KEY" | tr -cd 'A-Za-z0-9_-')
+          mkdir -p _deploy
+          if [ -n "$key" ]; then
+            cp -r konspekt-fs/root/. _deploy/
+            dest="_deploy/$key"
+            echo "Конспект: https://konspektfs.kvn.kiev.ua/<KONSPEKT_FS_KEY>/"
+          else
+            dest="_deploy"
+            cp konspekt-fs/root/robots.txt konspekt-fs/root/.htaccess _deploy/
+            echo "::warning::Секрет KONSPEKT_FS_KEY не задано — конспект відкривається за адресою піддомену без секретної частини"
+          fi
+          mkdir -p "$dest/files" "$dest/img" "$dest/js"
+          cp konspekt-fs/index.html "$dest/"
+          cp -r konspekt-fs/js/. "$dest/js/"
+          cp -r konspekt-fs/files/. "$dest/files/"
+          cp -r konspekt-fs/img/. "$dest/img/" 2>/dev/null || true
+          find _deploy -name '.gitkeep' -delete
+          if [ -n "$key" ]; then find _deploy -type f | sed "s|$key|<KEY>|" | sort; else find _deploy -type f | sort; fi
+
+      - name: Prepare sync state (first deploy)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          url="ftp://${FTP_SERVER}${DEPLOY_DIR}.ftp-deploy-sync-state.json"
+          if curl -sS --ssl-reqd -u "${FTP_USERNAME}:${FTP_PASSWORD}" -o /dev/null "$url" 2>/dev/null; then
+            echo "Sync state exists - regular deploy"
+          else
+            echo '{"description":"DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment.","version":"1.0.0","generatedTime":0,"data":[]}' > /tmp/state.json
+            curl -sS --ssl-reqd --ftp-create-dirs -u "${FTP_USERNAME}:${FTP_PASSWORD}" -T /tmp/state.json "$url"
+            echo "Empty sync state uploaded - first deploy"
+          fi
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./_deploy/
+          server-dir: ${{ env.DEPLOY_DIR }}
