@@ -15,6 +15,9 @@ on:
       - "api/rozmalovky-order.php"
       - "api/rozmalovky-data.php"
       - "api/tg-sales-bot.php"
+      - "api/viber-sales-bot.php"
+      - "api/viber.php"
+      - "api/rozmalovky-shop.php"
       - "api/lib.php"
       - ".github/workflows/deploy-rozmalovky.yml"
   workflow_dispatch:
@@ -37,11 +40,12 @@ jobs:
       - name: Build
         env:
           TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
+          VIBER_BOT_TOKEN: ${{ secrets.VIBER_BOT_TOKEN }}
         run: |
           mkdir -p _deploy/api
           cp -r rozmalovky/. _deploy/
           rm -f _deploy/*.md
-          cp api/rozmalovky-order.php api/rozmalovky-data.php api/tg-sales-bot.php api/lib.php api/settings.php api/.htaccess _deploy/api/
+          cp api/rozmalovky-order.php api/rozmalovky-data.php api/rozmalovky-shop.php api/tg-sales-bot.php api/viber-sales-bot.php api/viber.php api/lib.php api/settings.php api/.htaccess _deploy/api/
           # Ім'я бота-продавця → кнопка «Отримати все в Telegram» на сторінці «Дякуємо» і кнопка «Допомога» на сайті
           if [ -n "$TG_SALES_BOT_TOKEN" ]; then
             bot=$(curl -sS "https://api.telegram.org/bot${TG_SALES_BOT_TOKEN}/getMe" | jq -r '.result.username // empty')
@@ -51,6 +55,16 @@ jobs:
               echo "Sales bot: @${bot}"
             else
               echo "::warning::TG_SALES_BOT_TOKEN не підходить (getMe не відповів) — перевірте токен"
+            fi
+          fi
+          # Viber-бот → кнопка «Отримати все у Viber» на сторінці «Дякуємо»
+          if [ -n "$VIBER_BOT_TOKEN" ]; then
+            vuri=$(curl -sS -X POST -H "X-Viber-Auth-Token: ${VIBER_BOT_TOKEN}" -d '{}' https://chatapi.viber.com/pa/get_account_info | jq -r 'select(.status == 0) | .uri // empty')
+            if [ -n "$vuri" ]; then
+              sed -i "s/var VIBER_BOT = \"\";/var VIBER_BOT = \"${vuri}\";/" _deploy/thanks.html
+              echo "Viber bot: ${vuri}"
+            else
+              echo "::warning::VIBER_BOT_TOKEN не підходить (get_account_info не відповів) — перевірте токен"
             fi
           fi
 
@@ -87,6 +101,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
           TG_SALES_OWNER_ID: ${{ secrets.TG_SALES_OWNER_ID }}
+          VIBER_BOT_TOKEN: ${{ secrets.VIBER_BOT_TOKEN }}
         shell: python
         run: |
           import os, io, re, json, base64, hashlib, ftplib, urllib.request, urllib.parse
@@ -106,6 +121,9 @@ jobs:
           except ftplib.all_errors as e:
               print("Конфігу ще немає:", e)
           keys["TG_SALES_BOT_TOKEN"] = token
+          vtoken = os.environ.get("VIBER_BOT_TOKEN", "").strip()
+          if vtoken:
+              keys["VIBER_BOT_TOKEN"] = vtoken
           owner = os.environ.get("TG_SALES_OWNER_ID", "").strip()
           if owner:
               keys["TG_SALES_OWNER_ID"] = owner
@@ -138,3 +156,13 @@ jobs:
           ], ensure_ascii=False)}).encode()
           r = json.load(urllib.request.urlopen(f"https://api.telegram.org/bot{token}/setMyCommands", cmds, timeout=20))
           print("setMyCommands:", r.get("ok"))
+
+          # Viber-бот: webhook на api/viber-sales-bot.php (Viber одразу перевіряє адресу запитом)
+          if vtoken:
+              req = urllib.request.Request("https://chatapi.viber.com/pa/set_webhook", method="POST",
+                  headers={"X-Viber-Auth-Token": vtoken, "Content-Type": "application/json"},
+                  data=json.dumps({"url": "https://rozmalovky.noosal.shop/api/viber-sales-bot.php",
+                                   "event_types": ["conversation_started", "message", "subscribed", "unsubscribed"],
+                                   "send_name": True}).encode())
+              r = json.load(urllib.request.urlopen(req, timeout=20))
+              print("Viber set_webhook:", r.get("status_message", r))

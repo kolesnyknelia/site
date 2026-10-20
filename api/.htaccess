@@ -1,4 +1,4 @@
 # Службові файли не відкриваються напряму з браузера
-<FilesMatch "^(lib|settings|rozmalovky-data)\.php$">
+<FilesMatch "^(lib|settings|rozmalovky-data|rozmalovky-shop|viber)\.php$">
   Require all denied
 </FilesMatch>

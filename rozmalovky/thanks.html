@@ -25,6 +25,8 @@
     .mbtn { display: block; padding: 15px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 17px; text-decoration: none; }
     .nocall { font: 700 20px/1.2 var(--head); text-transform: uppercase; color: var(--ink); margin-bottom: 8px; }
     .mbtn.tg { background: #229ed9; box-shadow: 0 5px 0 #1679a8; }
+    .mbtn.vb { background: #7360f2; box-shadow: 0 5px 0 #5443c4; }
+    .mbtn[hidden] { display: none; }
     .copy { margin-top: 12px; border: 0; background: none; color: var(--ink-2); font: 700 14px var(--font); text-decoration: underline; cursor: pointer; }
   </style>
 </head>
@@ -38,9 +40,10 @@
         <p class="sumline" id="sumline" hidden>Розмальовок: <b id="n"></b> · До сплати: <b id="total"></b> + доставка</p>
         <div class="msg-box">
           <div class="nocall">📵 Не хочете, щоб вас турбували дзвінками?</div>
-          Натисніть кнопку — відкриється наш Telegram з вашим замовленням. Натисніть «Почати» (або надішліть повідомлення), і <b>вся інформація про доставку й оплату буде там</b>. Дзвонити не будемо 🙂
+          Натисніть кнопку — відкриється наш Telegram (або Viber) з вашим замовленням. Натисніть «Почати» (або надішліть повідомлення), і <b>вся інформація про доставку й оплату буде там</b>. Дзвонити не будемо 🙂
           <div class="msg-btns">
             <a class="mbtn tg" id="tgBtn" href="#" target="_blank" rel="noopener">✈️ Отримати все в Telegram</a>
+            <a class="mbtn vb" id="vbBtn" href="#" hidden>💜 Отримати все у Viber</a>
           </div>
           <button type="button" class="copy" id="copyBtn">📋 Скопіювати текст замовлення</button>
         </div>
@@ -62,6 +65,8 @@
       // Бот-продавець (ім'я підставляє deploy-rozmalovky.yml із секрету TG_SALES_BOT_TOKEN). Якщо задано — кнопка
       // відкриває бота з номером замовлення, і він сам веде клієнта за скриптом продажу
       var SALES_BOT = "";
+      // Viber-бот (його URI підставляє deploy-rozmalovky.yml із секрету VIBER_BOT_TOKEN). Порожньо — кнопки Viber немає
+      var VIBER_BOT = "";
       var q = new URLSearchParams(location.search), esc = function (s) { return String(s).replace(/[&<>"]/g, ""); };
       var ref = q.get("ref"), total = +q.get("total") || 0, n = +q.get("n") || 0, name = q.get("name");
       if (ref) document.getElementById("ref").textContent = esc(ref);
@@ -82,6 +87,11 @@
       document.getElementById("tgBtn").href = SALES_BOT && ref && /^RM\d+$/.test(ref)
         ? "https://t.me/" + SALES_BOT + "?start=" + ref
         : "https://t.me/" + TELEGRAM + "?text=" + encodeURIComponent(text);
+      if (VIBER_BOT && ref && /^RM\d+$/.test(ref)) {
+        var vb = document.getElementById("vbBtn");
+        vb.href = "viber://pa?chatURI=" + encodeURIComponent(VIBER_BOT) + "&context=" + ref;
+        vb.hidden = false;
+      }
       if (SALES_BOT) document.getElementById("helpLink").href = "https://t.me/" + SALES_BOT + "?start=help";
       document.getElementById("copyBtn").addEventListener("click", function () {
         var b = this; (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { b.textContent = "✅ Скопійовано — вставте в чат"; }, function () { prompt("Скопіюйте текст:", text); });

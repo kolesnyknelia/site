@@ -5,6 +5,7 @@
    Команди власниці: /ttn RM… 20450000000000 — надіслати клієнту номер ТТН. */
 define('APP', 1);
 require __DIR__ . '/lib.php';
+require __DIR__ . '/viber.php';
 
 $TOKEN = secret('TG_SALES_BOT_TOKEN');
 $OWNER = secret('TG_SALES_OWNER_ID') ?: secret('TG_CHAT_ID');
@@ -43,57 +44,20 @@ function say($chat, $html, $buttons = null) {
     return api('sendMessage', $p);
 }
 
-/* ---------- Сховище: стан розмови й замовлення (у /noosal.shop/private, поза сайтами) ---------- */
-function store_path($kind, $id) {
-    $d = private_dir() . '/' . $kind;
-    if (!is_dir($d)) @mkdir($d, 0750, true);
-    return $d . '/' . preg_replace('/[^A-Za-z0-9_\-]/', '', (string)$id) . '.json';
-}
-function load($kind, $id) { $f = store_path($kind, $id); return is_file($f) ? (array)json_decode((string)file_get_contents($f), true) : []; }
-function save($kind, $id, $data) { @file_put_contents(store_path($kind, $id), json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX); }
+require __DIR__ . '/rozmalovky-shop.php';
 
-/* ---------- Тексти ---------- */
-function first_name($full) { $w = preg_split('/\s+/u', trim((string)$full)); return count($w) > 1 ? $w[1] : $w[0]; }
-function surname($full) { $w = preg_split('/\s+/u', trim((string)$full)); return $w[0]; }
-function titles($o) {
-    global $D; $names = [];
-    foreach ((array)g($o, 'items', []) as $i) if (isset($D['products'][$i[0]])) $names[$D['products'][$i[0]][0]] = 1;
-    $names = array_keys($names);
-    if (!$names) return 'розмальовку';
-    return (count($names) === 1 ? 'розмальовку «' : 'розмальовки «') . implode('», «', $names) . '»';
-}
-function order_lines($o, $withVariant = true) {
-    global $D; $out = [];
-    foreach ((array)g($o, 'items', []) as $i) if (isset($D['products'][$i[0]]))
-        $out[] = '• ' . h($D['products'][$i[0]][0]) . ($withVariant ? ' — ' . $D['variants'][$i[1]] : '') . ($i[2] > 1 ? " × {$i[2]}" : '');
-    return implode("\n", $out);
-}
-function order_count($o) { $n = 0; foreach ((array)g($o, 'items', []) as $i) $n += $i[2]; return $n; }
+/* ---------- Telegram-специфічне ---------- */
 /** Підсумок після вибору варіанту: кількість, знижка, сума + кнопки «ще одна» / «оформити» */
 function step_summary($chat, $o, $v) {
     global $D;
     $n = order_count($o); $full = $n * $D['price'][$v][1]; $total = (int)$o['total'];
-    $more = $o['items']; $more[] = ['x', $v, 1];
-    $next = order_total($more) - $total;
+    $next = next_price($o, $v);
     say($chat, "🧾 <b>Ваше замовлення</b> (" . mb_strtolower($D['variants'][$v], 'UTF-8') . ")\n" . order_lines($o, false)
         . "\n\nРазом: {$n} шт." . ($full > $total ? "\nЗвичайна ціна: <s>{$full} грн</s>\n🎉 Ваша знижка: <b>" . ($full - $total) . " грн</b>" : '')
         . "\n💰 До сплати: <b>{$total} грн</b> + доставка"
         . "\n\n🎁 Додайте ще одну розмальовку всього за <b>+{$next} грн</b>" . ($n < 3 ? ' — що більше, то вигідніше!' : ''),
         [[['➕ Додати ще одну (+' . $next . ' грн)', 'more']], [['🔁 Інший варіант', 'vq'], ['✅ Оформити', 'go']]]);
 }
-function help_text() {
-    return "👋 Вітаємо! Це підтримка «Розмалюй момент».\n\nНапишіть сюди ваше питання — про розмальовки, доставку чи оплату — і менеджер відповість у цьому чаті 💬";
-}
-/** Сума за варіантами — та сама формула, що в rozmalovky-order.php */
-function order_total($items) {
-    global $D; $c = ['classic' => 0, 'premium' => 0];
-    foreach ($items as $i) if (isset($c[$i[1]])) $c[$i[1]] += $i[2];
-    $n = $c['classic'] + $c['premium'];
-    if (!$n) return 0;
-    $t = function ($v) use ($D, $n) { $p = $D['price'][$v]; return isset($p[$n]) ? $p[$n] : $p[3] + ($n - 3) * $D['extra'][$v]; };
-    return (int)round(($c['classic'] * $t('classic') + $c['premium'] * $t('premium')) / $n);
-}
-function purpose($o) { return 'Оплата за товар' . (g($o, 'ref') ? ', замовлення № ' . $o['ref'] : '') . ', ' . (g($o, 'name') ? surname($o['name']) : '[ваше прізвище]'); }
 function who($o, $chat, $from) {
     $n = g($o, 'name') ?: trim(g($from, 'first_name') . ' ' . g($from, 'last_name'));
     $un = g($from, 'username') ? ' @' . $from['username'] : '';
@@ -155,12 +119,21 @@ function owner_update($msg) {
     $text = trim((string)g($msg, 'text'));
     if (preg_match('/^\/ttn\s+(RM\d+)\s+(\d{10,20})/i', $text, $m)) {
         $o = load('rm-orders', strtoupper($m[1]));
-        if (!g($o, 'chat')) { say($OWNER, "⚠️ Замовлення {$m[1]} не знайдено або клієнт ще не відкривав бота."); return; }
-        say($o['chat'], "📦 Ваше замовлення відправлено!\nНомер ТТН Нової пошти: <code>{$m[2]}</code>\n\nВідстежити: https://novaposhta.ua/tracking/?cargo_number={$m[2]}\n\nГарного розмальовування! 🖍️❤️");
+        if (!g($o, 'chat') && !g($o, 'vchat')) { say($OWNER, "⚠️ Замовлення {$m[1]} не знайдено або клієнт ще не відкривав бота."); return; }
+        $ttn = "📦 Ваше замовлення відправлено!\nНомер ТТН Нової пошти: {$m[2]}\n\nВідстежити: https://novaposhta.ua/tracking/?cargo_number={$m[2]}\n\nГарного розмальовування! 🖍️❤️";
+        if (g($o, 'chat')) say($o['chat'], str_replace("пошти: {$m[2]}", "пошти: <code>{$m[2]}</code>", $ttn));
+        if (g($o, 'vchat')) viber_text($o['vchat'], $ttn);
         say($OWNER, "✅ ТТН {$m[2]} надіслано клієнту ({$m[1]}).");
         return;
     }
     $rep = g($msg, 'reply_to_message', []);
+    // Відповідь клієнту з Viber (позначка #v<id>): Viber приймає лише текст
+    if ($rep && preg_match('/#v([A-Za-z0-9+\/=]+)/', g($rep, 'text') . ' ' . g($rep, 'caption'), $m)) {
+        if ($text === '') { say($OWNER, '⚠️ Клієнту у Viber можна відповісти лише текстом'); return; }
+        $r = viber_text($m[1], $text);
+        say($OWNER, $r && (int)g($r, 'status', -1) === 0 ? '✅ Надіслано клієнту у Viber' : '⚠️ Не вдалося надіслати у Viber');
+        return;
+    }
     if ($rep && preg_match('/#c(-?\d+)/', g($rep, 'text') . ' ' . g($rep, 'caption'), $m)) {
         $r = api('copyMessage', ['chat_id' => $m[1], 'from_chat_id' => $OWNER, 'message_id' => $msg['message_id']]);
         say($OWNER, $r ? '✅ Надіслано клієнту' : '⚠️ Не вдалося надіслати (клієнт міг заблокувати бота)');
@@ -180,6 +153,12 @@ if (isset($u['callback_query'])) {
     // прибираємо кнопки з повідомлення, щоб не натискали двічі
     api('editMessageReplyMarkup', ['chat_id' => $chat, 'message_id' => $cq['message']['message_id'], 'reply_markup' => ['inline_keyboard' => []]]);
 
+    if ((string)$chat === (string)$OWNER && preg_match('/^vpaid:([a-f0-9]{32})$/', $data, $m)) {
+        $vs = load('rm-vbot', $m[1]);
+        if (g($vs, 'vid')) viber_text($vs['vid'], 'Оплату отримали, дякуємо! ❤️ Відправляємо сьогодні — номер ТТН надішлю сюди. А розмальовка-сюрприз уже чекає у вашій посилці 🎁✨');
+        say($OWNER, g($vs, 'vid') ? '✅ Клієнту у Viber надіслано підтвердження оплати' : '⚠️ Клієнта у Viber не знайдено');
+        exit;
+    }
     if ((string)$chat === (string)$OWNER && preg_match('/^paid:(-?\d+)$/', $data, $m)) {
         say($m[1], 'Оплату отримали, дякуємо! ❤️ Відправляємо сьогодні — номер ТТН надішлю сюди. А розмальовка-сюрприз уже чекає у вашій посилці 🎁✨');
         say($OWNER, '✅ Клієнту надіслано підтвердження оплати');
