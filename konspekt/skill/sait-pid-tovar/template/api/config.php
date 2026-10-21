@@ -5,10 +5,10 @@
 if (!defined('APP')) { http_response_code(404); exit; }
 
 return [
-    'shop'       => 'Знахідки',
+    'shop'       => 'Посуд',
     'product'    => 'Назва товару',
-    'price'      => 599,      // ціна за 1 шт, грн
-    'discount2'  => 100,      // знижка на 2 шт, грн
+    'price'      => 499,      // ціна за 1 шт, грн
+    'discount2'  => 0,        // знижка на 2 шт, грн
 
     // Telegram: токен від @BotFather і ID групи (число з мінусом)
     'tg_token'   => '',

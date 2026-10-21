@@ -296,8 +296,8 @@
     <section class="step" id="b1-2" data-title="Перший екран">
       <div class="step-head"><span class="step-n">02</span><div><h3>Як виглядає сильний перший екран</h3><span class="chip">2 хвилини</span></div></div>
       <p>Заголовок з вигодою, фото товару, ціна і кнопка. Наприклад:</p>
-      <div class="note"><div><b>«Масажний пістолет: м'язи розслаблені за 10 хвилин»</b><p>+ фото товару + ціна + кнопка «Замовити зі знижкою»</p></div></div>
-      <div class="link-row"><span>Живий приклад сайту для товарки<small>відкрийте з телефона</small></span><a class="btn" href="https://kvn.kiev.ua/examples/tovar.html" target="_blank" rel="noopener">Відкрити</a></div>
+      <div class="note"><div><b>«Емальований чайник 2,5 л: затишок на вашій кухні»</b><p>+ фото чайника + ціна 499 грн замість 998 + кнопка «Замовити зі знижкою»</p></div></div>
+      <div class="link-row"><span>Живий приклад сайту для товарки<small>емальований чайник · відкрийте з телефона</small></span><a class="btn" href="https://kvn.kiev.ua/chainyk/" target="_blank" rel="noopener">Відкрити</a></div>
       <div class="note warn"><div><b>Типова помилка</b><p>Робити сайт «про себе» замість сайту «про вигоду клієнта».</p></div></div>
     </section>
 
@@ -378,16 +378,16 @@
       <div class="step-head"><span class="step-n">05</span><div><h3>📦 Сайт для товарки: приклад і промпт</h3><span class="chip">10 хвилин</span></div></div>
       <p>Спершу подивіться, який сайт вийде: один товар, фото, вигода, стара й нова ціна, таймер, форма «ім'я + телефон». Погортайте приклад прямо тут.</p>
       <div class="example">
-        <div class="phone"><iframe src="https://kvn.kiev.ua/examples/tovar.html" title="Приклад сайту для товарки" loading="lazy"></iframe></div>
+        <div class="phone"><iframe src="https://kvn.kiev.ua/chainyk/" title="Приклад сайту для товарки: емальований чайник" loading="lazy"></iframe></div>
         <div class="example-info">
-          <b>Приклад: масажний пістолет</b>
+          <b>Приклад: емальований чайник</b>
           <ul>
             <li>перший екран: фото + вигода + ціна + кнопка;</li>
             <li>біль клієнта і переваги;</li>
-            <li>відгуки, акція з таймером;</li>
+            <li>характеристики, акція з таймером;</li>
             <li>форма заявки, доставка, питання.</li>
           </ul>
-          <a class="btn" href="https://kvn.kiev.ua/examples/tovar.html" target="_blank" rel="noopener">Відкрити на весь екран</a>
+          <a class="btn" href="https://kvn.kiev.ua/chainyk/" target="_blank" rel="noopener">Відкрити на весь екран</a>
         </div>
       </div>
       <h4>Промпт для товарки — копіюйте і підставляйте своє</h4>
@@ -509,8 +509,8 @@
       <p>У новому чаті надсилаємо Claude завдання. Те, що виділено, змінюємо під себе. Можна надиктувати голосом.</p>
       <div class="prompt"><div class="prompt-bar"><span>Промпт · скіл «Сайт під товар»</span><button class="btn" type="button" data-copy="p-sait">Скопіювати</button></div>
 <pre id="p-sait">Зроби сайт під товар: <span class="ph">[посилання на товар на Prom]</span>
-Ціна: <span class="ph">[599]</span> грн, стара ціна: <span class="ph">[1198]</span> грн. Якщо замовляють 2 шт — знижка <span class="ph">[100]</span> грн.
-Назва магазину: <span class="ph">[Знахідки]</span>
+Ціна: <span class="ph">[499]</span> грн, стара ціна: <span class="ph">[998]</span> грн. Знижка за 2 шт: <span class="ph">[немає]</span>
+Назва магазину: <span class="ph">[Посуд]</span>
 ID пікселя: <span class="ph">[довге число з Events Manager]</span>
 Токен бота: <span class="ph">[токен від BotFather]</span>
 ID групи для заявок: <span class="ph">[-4839201764]</span>
@@ -518,16 +518,16 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
 Якщо є LP-CRM:
 Адреса кабінету: <span class="ph">[назва.lp-crm.biz]</span>
 Ключ API: <span class="ph">[вхідний ключ API]</span>
-ID товару в CRM: <span class="ph">[7]</span></pre></div>
+ID товару в CRM: <span class="ph">[77]</span></pre></div>
       <div class="note skip"><div><b>Ще немає бота чи пікселя?</b><p>Нічого страшного — пишіть без цих рядків. Бота створимо в Блоці 6 і підключимо одним повідомленням: «Підключи Telegram: токен …, група …».</p></div></div>
       <h4>Що робить Claude</h4>
       <ul>
         <li>Забирає фото й характеристики зі сторінки товару. Замало якісних фото — шукає ще, але саме цієї моделі.</li>
-        <li>Пише текст українською, ставить ціни і знижку за 2 шт.</li>
+        <li>Пише текст українською, ставить ціни і знижку за 2 шт, якщо вона є (немає — блок «Беріть 2» не показується).</li>
         <li>Підключає піксель і бота та надсилає у вашу групу тестове повідомлення.</li>
         <li>Показує готовий сайт — правимо словами:</li>
       </ul>
-      <div class="say"><span>прибери повтори</span><span>зміни довжину на 20 см</span><span>зроби заголовок коротшим</span></div>
+      <div class="say"><span>прибери повтори</span><span>зміни об'єм на 2,5 л</span><span>зроби заголовок коротшим</span></div>
       <div class="note"><div><b>Посилання краще давати з Prom</b><p>Temu й AliExpress без входу в акаунт часто не показують сторінку товару. Тоді Claude знайде ту саму модель на Prom і візьме фото звідти — перевірте, що це точно ваш товар.</p></div></div>
       <div class="note warn"><div><b>Цифри перевіряємо самі</b><p>Розміри, комплектацію, колір звіряємо з постачальником. Відгуки Claude не вигадує: блок відгуків вмикаємо лише тоді, коли є справжні.</p></div></div>
       <div class="tasks">
@@ -716,7 +716,7 @@ ID товару в CRM: <span class="ph">[7]</span></pre></div>
       <ol>
         <li>Відкриваємо в Telegram @BotFather і тиснемо «Старт».</li>
         <li>Надсилаємо команду <code>/newbot</code>.</li>
-        <li>Назва бота — будь-яка, наприклад «Заявки магазину».</li>
+        <li>Назва бота — будь-яка, наприклад «Посуд — заявки».</li>
         <li>Адреса — латиницею, обов'язково з <code>bot</code> у кінці: <code>tm_teapot_bot</code>. Зайнято — вигадуємо іншу.</li>
         <li>У відповіді беремо дві речі: <b>посилання на бота</b> <code>t.me/назва_bot</code> (на скріні — <code>t.me/tm_teapot_bot</code>) і <b>токен</b> — довгий рядок під «Use this token to access the HTTP API».</li>
       </ol>
@@ -731,7 +731,7 @@ ID товару в CRM: <span class="ph">[7]</span></pre></div>
     <section class="step" id="b6-2" data-title="Група і її ID">
       <div class="step-head"><span class="step-n">02</span><div><h3>Група для заявок і її ID</h3><span class="chip">5 хвилин</span></div></div>
       <ol>
-        <li>Створюємо групу «Заявки»: олівець над списком чатів → «Створити групу».</li>
+        <li>Створюємо групу для заявок, наприклад «Чайник — замовлення»: олівець над списком чатів → «Створити групу».</li>
         <li>Додаємо свого бота (шукаємо за адресою) і одну реальну людину — себе з другого акаунта або менеджера.</li>
         <li>Додаємо бота <code>@username_to_id_bot</code> — він одразу напише ID групи: число з мінусом, наприклад <code>-4839201764</code>. Зберігаємо разом із токеном.</li>
         <li>Після цього <code>@username_to_id_bot</code> можна видалити з групи.</li>
