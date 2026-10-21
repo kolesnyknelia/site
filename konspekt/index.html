@@ -431,6 +431,14 @@
         <span>Заголовок на першому екрані зроби коротшим і сильнішим</span>
         <span>Перевір, щоб на телефоні нічого не виходило за край екрана</span>
       </div>
+      <h4>Формула правки: де змінити → що саме → як має виглядати → як перевірити</h4>
+      <p>Прикріпіть актуальні файли сайту і скріншот, якщо потрібно. Приклади:</p>
+      <div class="prompt"><div class="prompt-bar"><span>Правка · кнопка</span><button class="btn" type="button" data-copy="p-pravka-1">Скопіювати</button></div>
+<pre id="p-pravka-1">У першому екрані зміни фон кнопки «Замовити» на темно-зелений, а текст — на білий. Посилання кнопки залиш тим самим. Надішли оновлений файл.</pre></div>
+      <div class="prompt"><div class="prompt-bar"><span>Правка · відгуки</span><button class="btn" type="button" data-copy="p-pravka-2">Скопіювати</button></div>
+<pre id="p-pravka-2">Додай блок відгуків після переваг. Використай лише ці справжні тексти: <span class="ph">[тексти з дозволом на публікацію]</span></pre></div>
+      <div class="prompt"><div class="prompt-bar"><span>Правка · телефон</span><button class="btn" type="button" data-copy="p-pravka-3">Скопіювати</button></div>
+<pre id="p-pravka-3">На телефоні кнопка виходить за межі екрана. Виправ адаптацію для ширини 360–430 px. Перевір, щоб не було горизонтального прокручування.</pre></div>
       <div class="note warn"><div><b>Типові помилки</b><p>Запит в одне речення («зроби сайт») — результат виходить загальним. 10 правок одним повідомленням — ШІ щось пропускає. Не вказана мова — частина тексту виходить російською чи англійською.</p></div></div>
       <div class="tasks">
         <label class="task"><input type="checkbox" id="b2-t7"><span class="box"></span><span>Заповнила шаблон промпту під свій товар чи послугу</span></label>
@@ -635,6 +643,15 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
         <li><b>🌐 Своя адреса</b>Наприклад <code>tovar.vash-domen.shop</code> — сайт на піддомені вашого домену.</li>
         <li><b>📤 Як ставимо</b>Вручну (крок 02) або Claude у Chrome сам (Урок 2).</li>
       </ul>
+      <h4>Офіційні інструкції Хостинг Україна</h4>
+      <ul>
+        <li><b>Акаунт:</b> <a href="https://www.ukraine.com.ua/wiki/account/registration/" target="_blank" rel="noopener">реєстрація</a> · <a href="https://www.ukraine.com.ua/wiki/account/auth/" target="_blank" rel="noopener">вхід у кабінет</a></li>
+        <li><b>Домен:</b> <a href="https://www.ukraine.com.ua/wiki/domain/registration/order/" target="_blank" rel="noopener">замовити домен</a> · <a href="https://www.ukraine.com.ua/wiki/domain/management/point/to-our-hosting/" target="_blank" rel="noopener">направити домен на хостинг</a></li>
+        <li><b>Хостинг:</b> <a href="https://www.ukraine.com.ua/wiki/hosting/account/order/" target="_blank" rel="noopener">замовити хостинг</a></li>
+        <li><b>Сайти:</b> <a href="https://www.ukraine.com.ua/wiki/hosting/sites/my-sites/site-add/" target="_blank" rel="noopener">додати сайт</a> · <a href="https://www.ukraine.com.ua/wiki/hosting/sites/my-sites/subdomain-add/" target="_blank" rel="noopener">додати піддомен</a> · <a href="https://www.ukraine.com.ua/wiki/hosting/sites/my-sites/site-settings/root-dir/" target="_blank" rel="noopener">коренева папка сайту</a></li>
+        <li><b>Файли:</b> <a href="https://www.ukraine.com.ua/wiki/hosting/files/file-manager/upload/" target="_blank" rel="noopener">завантажити файли</a> · <a href="https://www.ukraine.com.ua/wiki/hosting/files/file-manager/archive/" target="_blank" rel="noopener">розпакувати архів</a></li>
+      </ul>
+      <div class="note warn"><div><b>Після реєстрації домену — до 24 годин</b><p>Іноді після реєстрації або налаштування домену потрібно почекати до 24 годин, поки оновиться DNS.</p></div></div>
       <div class="note"><div><b>Один домен — скільки завгодно сайтів</b><p>Через піддомени (<code>tovar1.vash-domen</code>, <code>kurs.vash-domen</code>) — тож за кожен новий сайт окремо платити не треба.</p></div></div>
     </section>
 
@@ -791,6 +808,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
 
     <section class="step" id="b5-6" data-title="Якщо щось не так">
       <div class="step-head"><span class="step-n">?</span><div><h3>Якщо щось не так</h3></div></div>
+      <details><summary>Новий домен не відкривається</summary><div><p>Після реєстрації або налаштування домену DNS оновлюється до 24 годин. Перевірте, що домен <a href="https://www.ukraine.com.ua/wiki/domain/management/point/to-our-hosting/" target="_blank" rel="noopener">направлено на хостинг</a>, і зачекайте.</p></div></details>
       <details><summary>Замість сайту — заглушка хостингу</summary><div><p>Зачекайте 5–10 хвилин. Не минуло — перевірте, що файли лежать прямо в папці сайту, а не у вкладеній (<code>www/site/index.html</code>). Перенесіть їх на рівень вище і видаліть стару заглушку <code>index.html</code>.</p></div></details>
       <details><summary>Сайт без https або з попередженням</summary><div><p>Сертифікат видається автоматично, іноді до години. Зачекайте й оновіть сторінку. Не з'явився — в adm.tools увімкніть SSL Let's Encrypt для свого сайту.</p></div></details>
       <details><summary>Бачу стару версію сайту</summary><div><p>Натисніть Ctrl+F5 (на Mac — ⌘+Shift+R) або відкрийте сайт у режимі інкогніто.</p></div></details>
@@ -890,7 +908,7 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
     <h2 class="lesson-title"><small>Урок 2</small>Приймаємо оплату на сайті</h2>
 
     <section class="step" id="b6-6" data-title="Способи оплати">
-      <div class="step-head"><span class="step-n">06</span><div><h3>Обираємо спосіб оплати</h3><span class="chip">10 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">06</span><div><h3>Обираємо спосіб оплати і ставимо кнопку</h3><span class="chip">20 хвилин</span></div></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Спосіб</th><th>Коли підходить</th></tr></thead>
@@ -901,10 +919,24 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
           </tbody>
         </table>
       </div>
-      <ol>
-        <li>Створюємо платіжне посилання в сервісі оплати.</li>
-        <li>Пишемо Claude: «Постав на кнопку "Купити" посилання <span class="ph">[посилання]</span> і зроби сторінку подяки після оплати».</li>
-      </ol>
+      <h4>Приклад із WayForPay</h4>
+      <p>Підготуйте й активуйте магазин у своєму кабінеті відповідно до вимог сервісу. Відкрийте «Платіжні інструменти» → «Платіжна кнопка». Створіть кнопку для потрібного товару або послуги, перевірте назву, суму та валюту. Скопіюйте отримане платіжне посилання. Не підставляйте випадкове посилання з прикладу.</p>
+      <h4>Ставимо посилання на кнопку сайту</h4>
+      <p>Надішліть ШІ актуальний файл сайту та завдання:</p>
+      <div class="prompt"><div class="prompt-bar"><span>Промпт · кнопка оплати</span><button class="btn" type="button" data-copy="p-oplata">Скопіювати</button></div>
+<pre id="p-oplata">Кнопка «Купити» має вести на моє платіжне посилання <span class="ph">[вставте посилання]</span>. Зміни всі кнопки оплати цього продукту, збережи решту сторінки та поверни оновлений файл.</pre></div>
+      <p>Завантажте файл на хостинг. Перевірте кнопки на комп'ютері та телефоні: відкривається саме ваш продукт із правильною сумою й валютою.</p>
+      <h4>Якщо обрали mono або LiqPay</h4>
+      <p>Створіть посилання в бізнес-кабінеті відповідного сервісу та додайте його на кнопку за тією самою логікою.</p>
+      <div class="note warn"><div><b>Перевірте строк дії посилання</b><p>Стандартне платіжне посилання mono може мати обмежений термін, тому воно не завжди підходить як постійна кнопка лендингу. Для постійного продажу оберіть відповідний інструмент сервісу.</p></div></div>
+      <h4>Сторінка подяки</h4>
+      <p>Це сторінка з поясненням наступного кроку: де шукати лист, як отримати доступ, куди написати. Приклад: «Дякуємо за замовлення! Після підтвердження оплати перевірте пошту, яку вказали під час покупки, включно зі “Спамом”». Якщо сервіс підтримує повернення на сайт, вкажіть адресу цієї сторінки в налаштуваннях платежу.</p>
+      <div class="note secret"><div><b>Оплата та видача доступу — два окремі налаштування</b><p>Саме відкриття сторінки подяки не підтверджує оплату й не надає доступ автоматично. Для автоматичного доступу сервер має отримати й перевірити підтвердження успішної оплати від платіжного сервісу, зв'язати покупку з email і записати покупця на потрібний курс. Не видавайте доступ за натискання кнопки чи лише за переходом на сторінку подяки. Секретні ключі зберігаються на сервері, не у відкритому HTML або JS.</p></div></div>
+      <h4>Практика</h4>
+      <p>Створіть посилання, додайте його до сайту та перевірте правильність платіжної сторінки. Перевірку успішного й невдалого платежу виконуйте в тестовому режимі, якщо він доступний у вашому сервісі. Окремо перевірте лист і видачу доступу.</p>
+      <div class="link-row"><span>WayForPay<small>офіційна інструкція</small></span><a class="btn" href="https://help.wayforpay.com/view/3342550" target="_blank" rel="noopener">Відкрити</a></div>
+      <div class="link-row"><span>mono<small>як створити платіжне посилання</small></span><a class="btn" href="https://monobank.ua/knowledge-base/acquiring/online/links/create" target="_blank" rel="noopener">Відкрити</a></div>
+      <div class="link-row"><span>LiqPay<small>офіційний сайт</small></span><a class="btn" href="https://www.liqpay.ua/" target="_blank" rel="noopener">Відкрити</a></div>
       <div class="note warn"><div><b>Обов'язково на сайті для онлайн-оплати</b><p>Контакти, оферта, умови повернення, політика конфіденційності, реквізити ФОП.</p></div></div>
       <div class="tasks">
         <label class="task"><input type="checkbox" id="b6-t5"><span class="box"></span><span>Обрала спосіб оплати і поставила його на сайт</span></label>
@@ -926,16 +958,29 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
     <h2 class="lesson-title"><small>Урок 1</small>Як змінювати сайт за 5 хвилин</h2>
 
     <section class="step" id="b7-1" data-title="Змінюємо сайт">
-      <div class="step-head"><span class="step-n">01</span><div><h3>Ціна, фото, тексти — за 5 хвилин</h3><span class="chip">5 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">01</span><div><h3>Змінюємо ціну, фото чи текст</h3><span class="chip">15 хвилин</span></div></div>
       <ol>
-        <li>Відкриваємо чат, де робили сайт (або завантажуємо в Claude свій <code>index.html</code>).</li>
-        <li>Просимо одну зміну за раз:</li>
+        <li><b>Збережіть попередню версію.</b> Скопіюйте робочі файли сайту та папку з фото в окрему папку з датою. Зміни спочатку перевіряємо на копії.</li>
+        <li><b>Прикріпіть ШІ актуальний файл.</b> Надішліть саме той HTML та пов'язані файли, які зараз працюють на хостингу. Вкажіть одну конкретну зміну.</li>
       </ol>
-      <div class="say"><span>Зміни ціну на 999 грн</span><span>Заміни фото в першому блоці на foto-new.jpg</span><span>Додай питання про доставку</span></div>
+      <div class="prompt"><div class="prompt-bar"><span>Шаблон · ціна</span><button class="btn" type="button" data-copy="p-zmina-cina">Скопіювати</button></div>
+<pre id="p-zmina-cina">У цьому сайті зміни ціну товару з <span class="ph">[стара]</span> на <span class="ph">[нова]</span> <span class="ph">[валюта]</span> в усіх видимих блоках. Перевір, чи є ціна у формі замовлення та передаванні даних. Не змінюй дизайн і посилання оплати. Поверни повний оновлений файл і перелік змін.</pre></div>
+      <div class="note warn"><div><b>Ціна на платіжній сторінці — окремо</b><p>Її змінюють у платіжному сервісі. Якщо змінити лише HTML, сума списання може лишитися старою.</p></div></div>
+      <div class="prompt"><div class="prompt-bar"><span>Шаблон · фото</span><button class="btn" type="button" data-copy="p-zmina-foto">Скопіювати</button></div>
+<pre id="p-zmina-foto">Заміни головне фото на <span class="ph">[назва файлу]</span>. Збережи пропорції, перевір шлях до Images та вигляд на телефоні. Інші зображення не змінюй.</pre></div>
+      <p>Назва файлу й розширення мають точно збігатися з посиланням у сайті.</p>
+      <div class="prompt"><div class="prompt-bar"><span>Шаблон · текст</span><button class="btn" type="button" data-copy="p-zmina-tekst">Скопіювати</button></div>
+<pre id="p-zmina-tekst">У блоці <span class="ph">[назва]</span> заміни текст <span class="ph">[старий]</span> на <span class="ph">[новий]</span>. Не змінюй інші блоки та роботу форми. Поверни оновлений файл.</pre></div>
       <ol start="3">
-        <li><b>Хостинг:</b> просимо Claude зібрати новий архів і ставимо його замість старого — вручну або через Claude у Chrome.</li>
-        <li>Оновлюємо сторінку. Змін не видно — Ctrl+F5 або очистіть кеш.</li>
+        <li><b>Перевірте результат.</b> Відкрийте оновлену версію: ціна й текст правильні, фото завантажуються, немає обрізаних блоків. Порівняйте з попередньою версією.</li>
+        <li><b>Поставте на хостинг</b> — вручну або через Claude у Chrome (Блок 5).</li>
+        <li><b>Перевірте живий сайт.</b> Відкрийте адресу на телефоні та комп'ютері. За потреби оновіть сторінку без кешу (Ctrl+F5) або перевірте в приватному вікні. Надішліть тестову заявку; перевірте її отримання. Для зміни ціни також звірте суму на платіжній сторінці. Якщо щось зламалося, поверніть резервну копію.</li>
       </ol>
+      <h4>Практика</h4>
+      <p>Змініть один текст або фото, оновіть сайт і перевірте форму. Збережіть обидві версії.</p>
+      <div class="tasks">
+        <label class="task"><input type="checkbox" id="b7-t0"><span class="box"></span><span>Змінила текст або фото, оновила сайт і перевірила форму</span></label>
+      </div>
     </section>
 
     <h2 class="lesson-title"><small>Шпаргалка</small>Чек-лист перед запуском</h2>
