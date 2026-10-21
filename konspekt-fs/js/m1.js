@@ -111,10 +111,8 @@
           H("🎁 Instagram-магазини для ідей") +
           P("Дивіться, як показують товар, що видно в першу секунду відео, які проблеми підсвічують і які товари повторюються.") +
           LINK("Hamechi Hichi Gallery", "", "https://www.instagram.com/hamechi_hichi_gallery") +
-          LINK("Petibopet", "", "https://www.instagram.com/petibopet.co") +
           LINK("Life Dream Factory", "", "https://www.instagram.com/life_dream_factory") +
           LINK("Lightsbetter", "", "https://www.instagram.com/lightsbetter") +
-          LINK("Kidyou", "", "https://www.instagram.com/kidyouu") +
           H("AliExpress: вчимося бачити те, чого не бачать інші") +
           P("Покупець бачить плед і думає «вдома є». Товарник бачить великий незвичний плед, який ефектно виглядає у відео. Дивіться відео до уроку як майстер-клас мислення: на чому Неля зупиняється, що пролистує і чому.") +
           TABLE(["Приклад", "Що насправді продається"], [
