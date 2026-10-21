@@ -44,10 +44,11 @@
       if (!px) return;
       !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); }; if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s); }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
       fbq("init", px); fbq("track", "PageView");
-      // Покупка — один раз на заявку, навіть якщо сторінку оновили
+      // Заявка (Lead) і покупка (Purchase) — один раз на заявку, навіть якщо сторінку оновили
       var key = "px_purchase_" + ref, done = false;
       try { done = !!localStorage.getItem(key); } catch (e) {}
       if (ref && !done) {
+        fbq("track", "Lead", { value: sum, currency: "UAH", content_name: S.product }, { eventID: "lead_" + ref });
         fbq("track", "Purchase", { value: sum, currency: "UAH", content_name: S.product, num_items: +q.get("qty") || 1 }, { eventID: ref });
         try { localStorage.setItem(key, "1"); } catch (e) {}
       }
