@@ -21,4 +21,4 @@
 (подивитися структуру: Actions → Inspect hosting folders).
 
 ## Скріни, які чекають на файли
-`hosting-rozpakuvaty.png`, `chrome-03-zakripyty.png`, `chrome-06-chat-saytu.png`, `chrome-07-dostup.png`, `chrome-10-perevirka.png` (урок «Claude in Chrome», Блок 5)
+`hosting-rozpakuvaty.png`, `chrome-06-chat-saytu.png`, `chrome-07-dostup.png`, `chrome-10-perevirka.png` (урок «Claude in Chrome», Блок 5)
