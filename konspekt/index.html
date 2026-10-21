@@ -323,6 +323,8 @@
 
     <h2 class="lesson-title"><small>Урок 1</small>Референс — сайт, на який рівнятися</h2>
 
+    <div class="note"><div><b>Кому цей урок</b><p>🎓 <b>Експерт, курс, послуга</b> — проходите обов'язково: за референсом ви зробите свій сайт у Блоці 3.</p><p>📦 <b>Товарка</b> — у вас два способи зробити сайт (детально — <a href="#b3-0">Блок 3, Урок 1</a>):</p><p><b>Спосіб А — готовий скіл «Сайт під товар».</b> Референс не потрібен: скіл сам бере фото й характеристики і будує сайт. Цей урок можна переглянути для натхнення і йти далі.</p><p><b>Спосіб Б — за референсом.</b> Знаходите сайт, який подобається (Pinterest або бібліотека реклами Facebook), і Claude робить ваш сайт у такому стилі. Сайти виходять унікальні, не «як у всіх». Для цього способу урок проходите повністю.</p></div></div>
+
     <section class="step" id="b2-1" data-title="Де шукати референс">
       <div class="step-head"><span class="step-n">01</span><div><h3>Де шукати референс</h3><span class="chip">15 хвилин</span></div></div>
       <p>Референс — це чужий сайт, який вам подобається і який можна взяти за основу. Не копіюємо, а надихаємося структурою.</p>
@@ -350,7 +352,7 @@
         <li>Як подана ціна (стара і нова, акція, таймер).</li>
         <li>Які поля у формі.</li>
       </ol>
-      <div class="note"><div><b>Ця «карта блоків» і буде основою вашого сайту</b><p>Її можна одразу вставити в завдання для ШІ.</p></div></div>
+      <div class="note"><div><b>Ця «карта блоків» і буде основою вашого сайту</b><p>Карту блоків зберігаємо — вставимо її в промпт у наступному уроці.</p></div></div>
       <div class="tasks">
         <label class="task"><input type="checkbox" id="b2-t2"><span class="box"></span><span>Склала «карту блоків» свого референсу</span></label>
       </div>
@@ -373,8 +375,8 @@
       <div class="note"><div><b>Хто ти + що створити + для кого + структура + вимоги</b><p>Чим конкретніше завдання, тим менше правок потім.</p></div></div>
     </section>
 
-    <section class="step" id="b2-5" data-title="Сайт для товарки">
-      <div class="step-head"><span class="step-n">05</span><div><h3>📦 Сайт для товарки: приклад і промпт</h3><span class="chip">10 хвилин</span></div></div>
+    <section class="step" id="b2-5" data-title="Товарка — Спосіб Б">
+      <div class="step-head"><span class="step-n">05</span><div><h3>📦 Сайт для товарки — Спосіб Б: за референсом</h3><span class="chip">10 хвилин</span></div></div>
       <p>Спершу подивіться, який сайт вийде: один товар, фото, вигода, стара й нова ціна, таймер, форма «ім'я + телефон». Погортайте приклад прямо тут.</p>
       <div class="example">
         <div class="phone"><iframe src="https://kvn.kiev.ua/chainyk/" title="Приклад сайту для товарки: емальований чайник" loading="lazy"></iframe></div>
@@ -389,18 +391,19 @@
           <a class="btn" href="https://kvn.kiev.ua/chainyk/" target="_blank" rel="noopener">Відкрити на весь екран</a>
         </div>
       </div>
-      <h4>Промпт для товарки — копіюйте і підставляйте своє</h4>
-      <div class="prompt"><div class="prompt-bar"><span>Промпт · сайт для товару</span><button class="btn" type="button" data-copy="p-tovarka">Скопіювати</button></div>
+      <div class="note"><div><b>Це промпт для Способу Б</b><p>Коли ви робите сайт за референсом. Якщо обрали готовий скіл (Спосіб А) — цей промпт не потрібен, свій промпт для скіла ви візьмете в <a href="#b3-3">Блоці 3</a>.</p></div></div>
+      <h4>Промпт для товарки (Спосіб Б) — копіюйте і підставляйте своє</h4>
+      <div class="prompt"><div class="prompt-bar"><span>Промпт · сайт для товару за референсом</span><button class="btn" type="button" data-copy="p-tovarka">Скопіювати</button></div>
 <pre id="p-tovarka">Ти — досвідчений маркетолог і веб-дизайнер.
 Створи односторінковий сайт для продажу товару: <span class="ph">[назва товару]</span>.
+Референс — візьми за основу його структуру і стиль, але не копіюй тексти й фото: <span class="ph">[посилання на сайт або скрін з Pinterest]</span>.
+Карта блоків референсу: <span class="ph">[вставте карту блоків з попереднього уроку]</span>.
 Ціна: <span class="ph">[ціна]</span> грн, стара ціна: <span class="ph">[стара ціна]</span> грн.
 Аудиторія: <span class="ph">[хто купує]</span>, заходять з Instagram з телефона.
 Мова сайту: українська.
-Структура: перший екран з фото і кнопкою «Замовити»; біль клієнта;
-5 переваг; фото товару; відгуки; акція з таймером; форма «ім'я + телефон»;
-доставка Новою поштою; питання та відповіді.
-Вимоги: один файл index.html, адаптивний під телефон, сучасний дизайн,
-кнопки з анімацією.</pre></div>
+Фото товару: <span class="ph">[прикріплюю фото / посилання на товар]</span>.
+Структура: перший екран з фото і кнопкою «Замовити»; біль клієнта; 5 переваг; фото товару; відгуки; акція з таймером; форма «ім'я + телефон»; доставка Новою поштою; питання та відповіді.
+Вимоги: один файл index.html, адаптивний під телефон, сучасний дизайн, кнопки з анімацією.</pre></div>
     </section>
 
     <section class="step" id="b2-6" data-title="Сайт для експерта">
@@ -455,11 +458,20 @@
     <div class="intro" data-icon="🛠">
       <span class="eyebrow">Блок 3</span>
       <h1>Створюємо <em>сайт</em> з ШІ</h1>
-      <p class="lead">Збираємо свій сайт. Для товарки — найшвидший шлях через готовий скіл «Сайт під товар»: Claude сам бере фото й характеристики, пише текст, ставить ціни й підключає заявки. Для експерта — за шаблоном з Блоку 2.</p>
+      <p class="lead">Збираємо свій сайт. Для товарки — два способи: готовий скіл «Сайт під товар» (швидко) або за референсом (свій стиль). Для експерта — за шаблоном з Блоку 2.</p>
       <div class="meta"><span class="chip">⏱ близько години</span><span class="chip">📌 2 уроки</span><span class="chip">🧰 Claude</span></div>
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Сайт для товарки</h2>
+
+    <section class="step" id="b3-0" data-title="Два способи">
+      <div class="step-head"><span class="step-n">⇄</span><div><h3>Два способи зробити сайт для товару</h3><span class="chip">2 хвилини</span></div></div>
+      <ul class="rules">
+        <li><b>⚡ Спосіб А — готовий скіл «Сайт під товар» · ~20 хвилин</b>Даєте посилання на товар з Prom, ціну і назву магазину. Claude сам бере фото й характеристики, пише тексти, ставить ціни, робить форму заявки, підключає піксель і Telegram. Підходить для першого сайту і щоб швидко тестувати товари. → <a href="#b3-2">кроки 02–03</a></li>
+        <li><b>🎨 Спосіб Б — за референсом · ~40–60 хвилин</b>Берете сайт-референс (Pinterest або бібліотека реклами Facebook), карту блоків і промпт з Блоку 2. Сайт виходить у вашому стилі, унікальний. Фото, ціни й тексти даєте самі, заявки в Telegram підключаєте в Блоці 6. → <a href="#b3-6">крок 04</a></li>
+      </ul>
+      <div class="note"><div><b>Не знаєте, що обрати?</b><p>Перший сайт — Спосіб А. Хочеться свій стиль і «вау»-дизайн — Спосіб Б. Можна спробувати обидва на одному товарі й порівняти.</p></div></div>
+    </section>
 
     <section class="step" id="b3-1" data-title="Головне про сайт для товару">
       <div class="step-head"><span class="step-n">01</span><div><h3>Головне про сайт для товару</h3><span class="chip">3 хвилини</span></div></div>
@@ -472,8 +484,8 @@
       </ul>
     </section>
 
-    <section class="step" id="b3-2" data-title="Скіл «Сайт під товар»">
-      <div class="step-head"><span class="step-n">02</span><div><h3>Встановлюємо скіл «Сайт під товар»</h3><span class="chip">5 хвилин</span></div></div>
+    <section class="step" id="b3-2" data-title="Спосіб А: скіл">
+      <div class="step-head"><span class="step-n">02</span><div><h3>Спосіб А: встановлюємо скіл «Сайт під товар»</h3><span class="chip">5 хвилин</span></div></div>
       <p>Скіл — це готова інструкція для Claude. Усередині — дизайн сайту і покроковий план: що в нас запитати, де взяти фото, як підключити бота й піксель, як залити сайт. Встановлюємо один раз, кожен новий сайт — у новому чаті.</p>
       <h4>Ось такий сайт ви отримаєте за цим скілом</h4>
       <p>Приклад: сайт для емальованого чайника, повністю зібраний скілом «Сайт під товар» — за одним промптом з кроку 03. Claude сам поставив фото, написав тексти, характеристики, ціну зі знижкою, таймер і форму заявки. У вас буде такий самий сайт — з вашим товаром, фото й цінами.</p>
@@ -503,8 +515,8 @@
       </div>
     </section>
 
-    <section class="step" id="b3-3" data-title="Збираємо сайт за промптом">
-      <div class="step-head"><span class="step-n">03</span><div><h3>Збираємо сайт за промптом</h3><span class="chip">20 хвилин</span></div></div>
+    <section class="step" id="b3-3" data-title="Спосіб А: сайт за промптом">
+      <div class="step-head"><span class="step-n">03</span><div><h3>Спосіб А: збираємо сайт за промптом</h3><span class="chip">20 хвилин</span></div></div>
       <p>У новому чаті надсилаємо Claude завдання. Те, що виділено, змінюємо під себе. Можна надиктувати голосом.</p>
       <div class="prompt"><div class="prompt-bar"><span>Промпт · скіл «Сайт під товар»</span><button class="btn" type="button" data-copy="p-sait">Скопіювати</button></div>
 <pre id="p-sait">Зроби сайт під товар: <span class="ph">[посилання на товар на Prom]</span>
@@ -534,10 +546,25 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
       </div>
     </section>
 
+    <section class="step" id="b3-6" data-title="Спосіб Б: за референсом">
+      <div class="step-head"><span class="step-n">04</span><div><h3>Спосіб Б: збираємо сайт за референсом</h3><span class="chip">40–60 хвилин</span></div></div>
+      <ol>
+        <li>Відкрийте новий чат з Claude.</li>
+        <li>Візьміть <a href="#b2-5">промпт «Сайт для товарки — Спосіб Б»</a> з Блоку 2 і підставте своє: посилання на референс, карту блоків, назву товару, ціну.</li>
+        <li>Прикріпіть 3–6 фото товару.</li>
+        <li>Отримали сайт — вносимо щонайменше 3 правки, <b>по одній за повідомлення</b>:</li>
+      </ol>
+      <div class="say"><span>зроби заголовок коротшим</span><span>заміни фото на першому екрані</span><span>додай блок доставки</span></div>
+      <p>Заявки в Telegram підключимо в Блоці 6.</p>
+      <div class="tasks">
+        <label class="task"><input type="checkbox" id="b3-t5"><span class="box"></span><span>Спосіб Б: зробила сайт за референсом і внесла 3 правки</span></label>
+      </div>
+    </section>
+
     <h2 class="lesson-title"><small>Урок 2</small>Сайт для експерта, курсу чи послуги</h2>
 
     <section class="step" id="b3-4" data-title="Головне про сайт експерта">
-      <div class="step-head"><span class="step-n">04</span><div><h3>Головне про сайт експерта</h3><span class="chip">3 хвилини</span></div></div>
+      <div class="step-head"><span class="step-n">05</span><div><h3>Головне про сайт експерта</h3><span class="chip">3 хвилини</span></div></div>
       <ul class="rules">
         <li><b>🎯 Продаємо результат, а не процес.</b>«Перші продажі за 30 днів», а не «6 модулів відео».</li>
         <li><b>👤 Блок «Про автора».</b>Фото, цифри досвіду, ваша історія.</li>
@@ -549,7 +576,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b3-5" data-title="Генеруємо і правимо">
-      <div class="step-head"><span class="step-n">05</span><div><h3>Генеруємо сайт і вносимо 3 правки</h3><span class="chip">30 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">06</span><div><h3>Генеруємо сайт і вносимо 3 правки</h3><span class="chip">30 хвилин</span></div></div>
       <ol>
         <li>Беремо промпт для експерта з <a href="#b2-6" data-go="2">Блоку 2</a> і підставляємо своє.</li>
         <li>Надсилаємо в Claude, отримуємо файл <code>index.html</code>.</li>
@@ -617,6 +644,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Розміщуємо сайт</h2>
 
+    <div class="note"><div><b>Два способи поставити сайт на хостинг</b><p><b>🖐 Вручну — цей урок.</b> Claude готує ZIP-архів сайту, а ви самі завантажуєте його у файл-менеджер хостингу і розпаковуєте. Так ви розумієте, як влаштований сайт на хостингу, і зможете все перевірити й виправити самі.</p><p><b>🤖 Автоматично — <a href="#b5-c0">урок «Claude у Chrome»</a>.</b> Claude сам заходить у файл-менеджер, завантажує і розпаковує сайт, а ви лише дозволяєте й перевіряєте.</p><p>Результат однаковий — сайт відкривається за вашою адресою. Раджу спершу один раз зробити вручну, а далі — як зручніше.</p></div></div>
+
     <section class="step" id="b5-1" data-title="Обираємо варіант">
       <div class="step-head"><span class="step-n">01</span><div><h3>Обираємо, де житиме сайт</h3><span class="chip">2 хвилини</span></div></div>
       <div class="table-wrap">
@@ -625,28 +654,17 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
           <tbody>
             <tr><td>Вартість</td><td>хостинг ≈ $3–5 / міс, домен ≈ $10–15 / рік</td><td>безкоштовно</td></tr>
             <tr><td>Адреса</td><td>своя: <code>tovar.vash-domen.shop</code></td><td><code>nazva.vercel.app</code>, свій домен — пізніше</td></tr>
-            <tr><td>Як заливаємо</td><td>Claude сам через розширення в Chrome або вручну</td><td>однією командою, Claude підкаже</td></tr>
+            <tr><td>Як заливаємо</td><td>вручну (крок 02) або Claude у Chrome сам (Урок 2)</td><td>однією командою, Claude підкаже</td></tr>
           </tbody>
         </table>
       </div>
       <div class="note"><div><b>Один домен — скільки завгодно сайтів</b><p>Через піддомени (<code>tovar1.vash-domen</code>, <code>kurs.vash-domen</code>) — тож за кожен новий сайт окремо платити не треба.</p></div></div>
     </section>
 
-    <section class="step" id="b5-2" data-title="Хостинг Україна: заливає Claude">
-      <div class="step-head"><span class="step-n">02</span><div><h3>Варіант А — хостинг Україна: заливає Claude</h3><span class="chip">10 хвилин</span></div></div>
-      <div class="link-row"><span>Хостинг Україна<small>ukraine.com.ua · панель керування — adm.tools</small></span><a class="btn" href="https://www.ukraine.com.ua/" target="_blank" rel="noopener">Хостинг</a><a class="btn soft" href="https://adm.tools/" target="_blank" rel="noopener">Панель adm.tools</a></div>
-      <ol>
-        <li>У звичайному Chrome відкриваємо хостинг і входимо в кабінет. Пароль вводимо самі — Claude його не даємо.</li>
-        <li>Відкриваємо панель Claude: значок пазла → Claude.</li>
-        <li>У чаті, де робили сайт, пишемо: «Створи піддомен <code>tovar.vash-domen.shop</code> і завантаж на нього сайт».</li>
-        <li>Claude сам створить піддомен, завантажить і розпакує файли, видалить архів і надішле посилання.</li>
-        <li>Чекаємо 5–10 хвилин: спершу висить заглушка хостингу, потім відкривається сайт і вмикається https.</li>
-      </ol>
-      <div class="note"><div><b>Покроково з картинками і готовими промптами</b><p>Урок 2 цього блоку: <a href="#b5-c0">Claude у Chrome: завантажуємо готовий сайт на хостинг</a>.</p></div></div>
-    </section>
-
     <section class="step" id="b5-3" data-title="Хостинг Україна: вручну">
-      <div class="step-head"><span class="step-n">03</span><div><h3>Варіант А — хостинг Україна: заливаємо самі (ZIP)</h3><span class="chip">10 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">02</span><div><h3>Хостинг Україна: ставимо вручну (ZIP)</h3><span class="chip">10 хвилин</span></div></div>
+      <p>Claude дає архів — ми самі ставимо його на хостинг.</p>
+      <div class="link-row"><span>Хостинг Україна<small>ukraine.com.ua · панель керування — adm.tools</small></span><a class="btn" href="https://www.ukraine.com.ua/" target="_blank" rel="noopener">Хостинг</a><a class="btn soft" href="https://adm.tools/" target="_blank" rel="noopener">Панель adm.tools</a></div>
       <ol>
         <li>Збираємо всі файли сайту в одну папку, де лежить <code>index.html</code>, і пакуємо в <b>ZIP</b>. Для сайту зі скілом просимо Claude: «Збери архів для хостингу».</li>
         <li>В adm.tools: «Мої сайти» → «Додати сайт/піддомен» → вписуємо адресу.</li>
@@ -660,7 +678,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b5-4" data-title="Vercel безкоштовно">
-      <div class="step-head"><span class="step-n">04</span><div><h3>Варіант Б — Vercel, безкоштовно</h3><span class="chip">10 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">03</span><div><h3>Vercel, безкоштовно</h3><span class="chip">10 хвилин</span></div></div>
       <div class="link-row"><span>Реєстрація на Vercel<small>безкоштовний тариф Hobby</small></span><a class="btn" href="https://vercel.com/signup" target="_blank" rel="noopener">Реєстрація</a></div>
       <ol>
         <li>Реєструємося на Vercel — тариф Hobby.</li>
@@ -679,15 +697,16 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     <section class="step" id="b5-c0" data-title="Перед початком">
       <div class="step-head"><span class="step-n">✓</span><div><h3>Перед початком</h3><span class="chip">1 хвилина</span></div></div>
       <p>Відкриваємо Claude у бічній панелі Google Chrome і доручаємо йому розмістити готовий сайт на хостингу.</p>
+      <div class="note"><div><b>Це автоматичний спосіб</b><p>Тут сайт на хостинг ставить сам Claude. Якщо хочете поставити вручну — <a href="#b5-3">попередній урок</a>.</p></div></div>
       <ul class="rules">
         <li><b>🖥 Сайт уже готовий у Claude.</b>Той, що робили в Блоці 3.</li>
-        <li><b>🔑 Є доступ до хостингу</b>і вже створений домен або піддомен (як створити — Урок 1, крок 03).</li>
+        <li><b>🔑 Є доступ до хостингу</b>і вже створений домен або піддомен (як створити — Урок 1, крок 02).</li>
         <li><b>💻 Працюємо на комп'ютері в Google Chrome.</b>З телефона чи в іншому браузері розширення не працює.</li>
       </ul>
     </section>
 
     <section class="step" id="b5-c1" data-title="Встановлюємо розширення">
-      <div class="step-head"><span class="step-n">05</span><div><h3>Встановлюємо офіційне розширення</h3><span class="chip">3 хвилини</span></div></div>
+      <div class="step-head"><span class="step-n">04</span><div><h3>Встановлюємо офіційне розширення</h3><span class="chip">3 хвилини</span></div></div>
       <ol>
         <li>Відкриваємо Інтернет-магазин Chrome і шукаємо <b>Claude</b>.</li>
         <li>Перевіряємо, що це Claude від Anthropic: верхній результат, під назвою <b>claude.com</b> з галочкою і підпис «Claude in Chrome».</li>
@@ -701,7 +720,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b5-c2" data-title="Пазлик і бічна панель">
-      <div class="step-head"><span class="step-n">06</span><div><h3>Знаходимо значок пазлика і відкриваємо Claude</h3><span class="chip">2 хвилини</span></div></div>
+      <div class="step-head"><span class="step-n">05</span><div><h3>Знаходимо значок пазлика і відкриваємо Claude</h3><span class="chip">2 хвилини</span></div></div>
       <ol>
         <li>У правому верхньому куті Chrome тиснемо значок <b>пазлика</b> — це меню розширень.</li>
         <li>Знаходимо Claude і тиснемо значок <b>шпильки</b> — Claude закріпиться на панелі браузера.</li>
@@ -713,7 +732,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b5-c3" data-title="Хостинг і Claude поруч">
-      <div class="step-head"><span class="step-n">07</span><div><h3>Відкриваємо хостинг і Claude поруч</h3><span class="chip">3 хвилини</span></div></div>
+      <div class="step-head"><span class="step-n">06</span><div><h3>Відкриваємо хостинг і Claude поруч</h3><span class="chip">3 хвилини</span></div></div>
       <ol>
         <li>Відкриваємо сайт хостингу <b>ukraine.com.ua</b>, тиснемо зелену кнопку <b>«Панель керування»</b> і входимо у свій кабінет <b>самі</b> — відкриється панель <b>adm.tools</b>.</li>
         <li>Переходимо до потрібного сайту або піддомену.</li>
@@ -729,7 +748,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b5-c4" data-title="Готуємо ZIP">
-      <div class="step-head"><span class="step-n">08</span><div><h3>Готуємо файли готового сайту</h3><span class="chip">5 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">07</span><div><h3>Готуємо файли готового сайту</h3><span class="chip">5 хвилин</span></div></div>
       <p>Повертаємося до чату, де створювали сайт, і надсилаємо:</p>
       <div class="prompt"><div class="prompt-bar"><span>Промпт · фінальний архів сайту</span><button class="btn" type="button" data-copy="p-chrome-zip">Скопіювати промпт</button></div>
 <pre id="p-chrome-zip">Підготуй фінальну версію мого сайту для завантаження на хостинг.
@@ -745,7 +764,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b5-c5" data-title="Завдання в бічній панелі">
-      <div class="step-head"><span class="step-n">09</span><div><h3>Даємо завдання Claude у бічній панелі</h3><span class="chip">5–10 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">08</span><div><h3>Даємо завдання Claude у бічній панелі</h3><span class="chip">5–10 хвилин</span></div></div>
       <p>Повертаємося на вкладку хостингу. У бічну панель Claude вставляємо текст, замінивши виділене:</p>
       <div class="prompt"><div class="prompt-bar"><span>Промпт · завантажити сайт на хостинг</span><button class="btn" type="button" data-copy="p-chrome-upload">Скопіювати промпт</button></div>
 <pre id="p-chrome-upload">Допоможи завантажити готовий сайт на мій хостинг.
@@ -768,7 +787,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </section>
 
     <section class="step" id="b5-c6" data-title="Перевіряємо результат">
-      <div class="step-head"><span class="step-n">10</span><div><h3>Перевіряємо результат</h3><span class="chip">5 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">09</span><div><h3>Перевіряємо результат</h3><span class="chip">5 хвилин</span></div></div>
       <ol>
         <li>Відкриваємо адресу сайту в новій вкладці і на телефоні.</li>
         <li>Перевіряємо: фото відображаються, тексти читаються, кнопки працюють.</li>
@@ -792,7 +811,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     <h2 class="lesson-title"><small>Урок 3</small>Що підключаємо після хостингу</h2>
 
     <section class="step" id="b5-5" data-title="SSL, домен, піксель, документи">
-      <div class="step-head"><span class="step-n">11</span><div><h3>SSL, домен, піксель і документи</h3><span class="chip">10 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">10</span><div><h3>SSL, домен, піксель і документи</h3><span class="chip">10 хвилин</span></div></div>
       <ul class="rules">
         <li><b>🔒 SSL-сертифікат (Let's Encrypt, безкоштовно).</b>Дає замочок у браузері. Без нього браузер пише «Не захищено». В adm.tools вмикається в налаштуваннях сайту.</li>
         <li><b>🌐 Домен.</b>Коротка й зрозуміла назва, бажано <code>.com.ua</code>, <code>.shop</code> чи <code>.online</code>.</li>
