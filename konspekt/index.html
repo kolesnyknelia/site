@@ -613,7 +613,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
       <span class="eyebrow">Блок 5</span>
       <h1>Ставимо сайт <em>на хостинг</em></h1>
       <p class="lead">Щоб сайт відкривався в усіх за посиланням, його треба розмістити. Два варіанти: хостинг Україна зі своїм доменом або безкоштовний Vercel.</p>
-      <div class="meta"><span class="chip">⏱ 20–30 хвилин</span><span class="chip">📌 2 уроки</span></div>
+      <div class="meta"><span class="chip">⏱ 40–50 хвилин</span><span class="chip">📌 3 уроки</span></div>
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Розміщуємо сайт</h2>
@@ -643,6 +643,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
         <li>Claude сам створить піддомен, завантажить і розпакує файли, видалить архів і надішле посилання.</li>
         <li>Чекаємо 5–10 хвилин: спершу висить заглушка хостингу, потім відкривається сайт і вмикається https.</li>
       </ol>
+      <div class="note"><div><b>Покроково з картинками і готовими промптами</b><p>Урок 2 цього блоку: <a href="#b5-c1">автоматичне завантаження з Claude in Chrome</a>.</p></div></div>
     </section>
 
     <section class="step" id="b5-3" data-title="Хостинг Україна: вручну">
@@ -674,10 +675,135 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
       </div>
     </section>
 
-    <h2 class="lesson-title"><small>Урок 2</small>Що підключаємо після хостингу</h2>
+    <h2 class="lesson-title"><small>Урок 2</small>Автоматичне завантаження сайту з Claude in Chrome</h2>
+
+    <section class="step" id="b5-c1" data-title="Встановлюємо розширення">
+      <div class="step-head"><span class="step-n">05</span><div><h3>Встановлюємо розширення Claude in Chrome</h3><span class="chip">3 хвилини</span></div></div>
+      <p>Claude in Chrome — офіційне розширення Anthropic: Claude бачить відкриту вкладку і сам натискає кнопки на сайті. Так він зможе зайти у файл-менеджер хостингу й завантажити сайт за вас.</p>
+      <ol>
+        <li>Відкриваємо <b>Google Chrome</b> (у Safari чи Firefox розширення не працює).</li>
+        <li>Заходимо в Інтернет-магазин Chrome і знаходимо розширення <b>Claude</b>. Перевіряємо, що розробник — <b>Anthropic</b>.</li>
+        <li>Тиснемо «Додати в Chrome» і підтверджуємо встановлення.</li>
+      </ol>
+      <div class="link-row"><span>Інтернет-магазин Chrome<small>шукаємо «Claude», розробник — Anthropic</small></span><a class="btn" href="https://chromewebstore.google.com/search/Claude" target="_blank" rel="noopener">Відкрити</a></div>
+      <figure><img src="img/chrome-01-vstanovyty.png" alt="Сторінка розширення Claude в Інтернет-магазині Chrome з кнопкою встановлення" loading="lazy"><figcaption>Сторінка розширення Claude: розробник Anthropic, кнопка «Додати в Chrome».</figcaption></figure>
+      <div class="note warn"><div><b>Тільки офіційне розширення</b><p>Під схожими назвами бувають підробки. Ставимо лише те, де розробник — Anthropic.</p></div></div>
+    </section>
+
+    <section class="step" id="b5-c2" data-title="Значок пазлика">
+      <div class="step-head"><span class="step-n">06</span><div><h3>Знаходимо значок пазлика</h3><span class="chip">1 хвилина</span></div></div>
+      <p>Усі розширення Chrome ховаються під значком <b>пазлика</b> — він праворуч від адресного рядка, біля значка вашого профілю.</p>
+      <figure><img src="img/chrome-02-pazlyk.png" alt="Панель Chrome праворуч від адресного рядка, обведено значок пазлика «Розширення»" loading="lazy"><figcaption>Значок пазлика праворуч від адресного рядка.</figcaption></figure>
+    </section>
+
+    <section class="step" id="b5-c3" data-title="Закріплюємо Claude">
+      <div class="step-head"><span class="step-n">07</span><div><h3>Закріплюємо Claude на панелі браузера</h3><span class="chip">1 хвилина</span></div></div>
+      <ol>
+        <li>Тиснемо на пазлик — відкривається список розширень.</li>
+        <li>Біля Claude тиснемо значок <b>шпильки</b>.</li>
+        <li>Значок Claude з'являється на панелі поруч із пазликом — тепер він завжди під рукою.</li>
+      </ol>
+      <figure><img src="img/chrome-03-zakripyty.png" alt="Список розширень Chrome, обведено значок шпильки біля Claude" loading="lazy"><figcaption>Шпилька біля Claude — закріпити на панелі.</figcaption></figure>
+    </section>
+
+    <section class="step" id="b5-c4" data-title="Бічна панель Claude">
+      <div class="step-head"><span class="step-n">08</span><div><h3>Відкриваємо бічну панель Claude</h3><span class="chip">2 хвилини</span></div></div>
+      <ol>
+        <li>Тиснемо на значок Claude на панелі браузера.</li>
+        <li>Праворуч відкривається бічна панель Claude.</li>
+        <li>Перший раз — входимо в той самий акаунт Claude, у якому створювали сайт.</li>
+      </ol>
+      <figure><img src="img/chrome-04-bichna-panel.png" alt="Вікно Chrome з відкритою праворуч бічною панеллю Claude" loading="lazy"><figcaption>Бічна панель Claude праворуч від сторінки.</figcaption></figure>
+    </section>
+
+    <section class="step" id="b5-c5" data-title="Вхід на хостинг">
+      <div class="step-head"><span class="step-n">09</span><div><h3>Входимо в кабінет хостингу</h3><span class="chip">2 хвилини</span></div></div>
+      <ol>
+        <li>У звичайній вкладці Chrome відкриваємо панель хостингу <b>adm.tools</b>.</li>
+        <li>Вводимо логін і пароль <b>самі</b> і входимо в кабінет.</li>
+      </ol>
+      <div class="link-row"><span>Панель хостингу<small>adm.tools · Хостинг Україна</small></span><a class="btn" href="https://adm.tools/" target="_blank" rel="noopener">adm.tools</a></div>
+      <figure><img src="img/chrome-05-vhid-hosting.png" alt="Кабінет adm.tools після входу, праворуч бічна панель Claude" loading="lazy"><figcaption>Ми в кабінеті хостингу, панель Claude відкрита.</figcaption></figure>
+      <div class="note secret"><div><b>Пароль — тільки ви</b><p>Не пишемо Claude пароль від хостингу і не просимо його ввести. Входимо самі — Claude працює вже у відкритому кабінеті.</p></div></div>
+    </section>
+
+    <section class="step" id="b5-c6" data-title="Чат із сайтом">
+      <div class="step-head"><span class="step-n">10</span><div><h3>Відкриваємо чат, у якому створювали сайт</h3><span class="chip">2 хвилини</span></div></div>
+      <p>Claude має знати, який саме сайт завантажувати. Тому продовжуємо в <b>тому чаті, де він створював сайт</b> — там лежать усі файли.</p>
+      <ol>
+        <li>Знаходимо в історії чатів розмову, у якій робили сайт.</li>
+        <li>Відкриваємо її і переконуємося, що це остання версія сайту (з усіма правками).</li>
+      </ol>
+      <figure><img src="img/chrome-06-chat-saytu.png" alt="Чат Claude, у якому створювали сайт, з файлами сайту" loading="lazy"><figcaption>Чат, у якому Claude створив сайт.</figcaption></figure>
+    </section>
+
+    <section class="step" id="b5-c7" data-title="Доступ до вкладок">
+      <div class="step-head"><span class="step-n">11</span><div><h3>Даємо Claude доступ до вкладок</h3><span class="chip">1 хвилина</span></div></div>
+      <ol>
+        <li>Коли Claude вперше захоче працювати з вкладкою хостингу, він попросить дозвіл.</li>
+        <li>Дозволяємо доступ <b>для adm.tools</b> — сайту, з яким він працюватиме.</li>
+        <li>Далі Claude показує, що робить, і питає підтвердження на важливих кроках. Читаємо і підтверджуємо.</li>
+      </ol>
+      <figure><img src="img/chrome-07-dostup.png" alt="Запит Claude на доступ до вкладки з сайтом хостингу" loading="lazy"><figcaption>Запит дозволу — дозволяємо для сайту хостингу.</figcaption></figure>
+      <div class="note warn"><div><b>Доступ — лише туди, де треба</b><p>Під час роботи Claude тримаємо відкритими тільки потрібні вкладки. Банкінг, пошту й особисті кабінети закриваємо.</p></div></div>
+    </section>
+
+    <section class="step" id="b5-c8" data-title="Піддомен shop">
+      <div class="step-head"><span class="step-n">12</span><div><h3>Просимо створити піддомен shop</h3><span class="chip">3 хвилини</span></div></div>
+      <p>Сайт житиме за адресою <code>shop.ваш-домен</code>. Пишемо Claude (свій домен підставляємо замість виділеного):</p>
+      <div class="prompt"><div class="prompt-bar"><span>Промпт · створити піддомен</span><button class="btn" type="button" data-copy="p-chrome-shop">Скопіювати промпт</button></div>
+<pre id="p-chrome-shop">У вкладці adm.tools я вже увійшла в кабінет.
+Створи піддомен shop для домену <span class="ph">[ваш-домен.com.ua]</span>.
+Коли створиш — скажи, як називається папка цього піддомену у файл-менеджері.</pre></div>
+      <figure><img src="img/chrome-08-piddomen.png" alt="adm.tools: створений піддомен shop у списку сайтів" loading="lazy"><figcaption>Піддомен shop створено.</figcaption></figure>
+    </section>
+
+    <section class="step" id="b5-c9" data-title="Завантаження сайту">
+      <div class="step-head"><span class="step-n">13</span><div><h3>Доручаємо Claude завантажити сайт</h3><span class="chip">5–10 хвилин</span></div></div>
+      <p>Тепер просимо Claude закинути файли сайту в папку піддомену:</p>
+      <div class="prompt"><div class="prompt-bar"><span>Промпт · завантажити сайт</span><button class="btn" type="button" data-copy="p-chrome-upload">Скопіювати промпт</button></div>
+<pre id="p-chrome-upload">Завантаж сайт, який ти створив у цьому чаті, на піддомен shop.<span class="ph">[ваш-домен.com.ua]</span>.
+1. Збери всі файли сайту в ZIP-архів.
+2. У файл-менеджері adm.tools відкрий папку піддомену shop і завантаж туди архів.
+3. Розпакуй архів прямо в цю папку: index.html має лежати одразу в ній, а не у вкладеній папці.
+4. Видали архів і стандартну заглушку хостингу, якщо вона є.
+5. Надішли мені посилання на сайт.</pre></div>
+      <figure><img src="img/chrome-09-zavantazhennya.png" alt="Файл-менеджер adm.tools: файли сайту в папці піддомену shop" loading="lazy"><figcaption>Файли сайту в папці піддомену: index.html — одразу в ній.</figcaption></figure>
+      <div class="note"><div><b>Claude спитав, куди саме класти файли?</b><p>Відповідаємо: у папку піддомену shop. Якщо бачите поруч папку <code>www</code> — це основний сайт, туди не кладемо.</p></div></div>
+    </section>
+
+    <section class="step" id="b5-c10" data-title="Перевірка сайту">
+      <div class="step-head"><span class="step-n">14</span><div><h3>Перевіряємо опублікований сайт</h3><span class="chip">5 хвилин</span></div></div>
+      <ol>
+        <li>Відкриваємо <code>https://shop.ваш-домен</code>. Висить заглушка хостингу — чекаємо 5–10 хвилин і оновлюємо.</li>
+        <li>Відкриваємо сайт <b>з телефона</b>: фото, ціна, кнопки — усе на місці.</li>
+        <li>Залишаємо тестову заявку з ім'ям «ТЕСТ, не дзвонити» — вона має прийти в Telegram-групу (Блок 6).</li>
+        <li>У браузері є замочок 🔒. Немає — дивимось «Якщо щось не так» нижче.</li>
+      </ol>
+      <figure><img src="img/chrome-10-perevirka.png" alt="Опублікований сайт на піддомені shop, відкритий у браузері із замочком https" loading="lazy"><figcaption>Сайт відкривається за адресою shop.ваш-домен із замочком.</figcaption></figure>
+      <h4>Усе одним повідомленням</h4>
+      <p>Коли вже впевнено працюєте з Claude in Chrome — кроки 12–14 можна дати одним промптом:</p>
+      <div class="prompt"><div class="prompt-bar"><span>Промпт · піддомен + завантаження + перевірка</span><button class="btn" type="button" data-copy="p-chrome-all">Скопіювати промпт</button></div>
+<pre id="p-chrome-all">У вкладці adm.tools я вже увійшла в кабінет хостингу.
+Опублікуй сайт, який ти створив у цьому чаті:
+1. Створи піддомен shop для домену <span class="ph">[ваш-домен.com.ua]</span>.
+2. Знайди у файл-менеджері папку цього піддомену (не www основного сайту).
+3. Збери файли сайту в ZIP, завантаж у цю папку і розпакуй так, щоб index.html лежав одразу в ній.
+4. Видали архів і стандартну заглушку хостингу.
+5. Відкрий https://shop.<span class="ph">[ваш-домен.com.ua]</span> у новій вкладці і перевір, що відкривається саме мій сайт, а не заглушка. Якщо заглушка — зачекай кілька хвилин і перевір ще раз.
+6. Напиши мені посилання і що ти перевірив.
+Пароль від хостингу не питай — я вже увійшла сама.</pre></div>
+      <div class="tasks">
+        <label class="task"><input type="checkbox" id="b5-t4"><span class="box"></span><span>Встановила Claude in Chrome і закріпила його на панелі</span></label>
+        <label class="task"><input type="checkbox" id="b5-t5"><span class="box"></span><span>Claude створив піддомен shop і завантажив сайт</span></label>
+        <label class="task"><input type="checkbox" id="b5-t6"><span class="box"></span><span>Сайт відкривається з телефона, тестова заявка прийшла</span></label>
+      </div>
+    </section>
+
+    <h2 class="lesson-title"><small>Урок 3</small>Що підключаємо після хостингу</h2>
 
     <section class="step" id="b5-5" data-title="SSL, домен, піксель, документи">
-      <div class="step-head"><span class="step-n">05</span><div><h3>SSL, домен, піксель і документи</h3><span class="chip">10 хвилин</span></div></div>
+      <div class="step-head"><span class="step-n">15</span><div><h3>SSL, домен, піксель і документи</h3><span class="chip">10 хвилин</span></div></div>
       <ul class="rules">
         <li><b>🔒 SSL-сертифікат (Let's Encrypt, безкоштовно).</b>Дає замочок у браузері. Без нього браузер пише «Не захищено». В adm.tools вмикається в налаштуваннях сайту.</li>
         <li><b>🌐 Домен.</b>Коротка й зрозуміла назва, бажано <code>.com.ua</code>, <code>.shop</code> чи <code>.online</code>.</li>
