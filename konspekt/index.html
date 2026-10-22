@@ -320,7 +320,7 @@
       <ol>
         <li>Заходимо на <b>claude.ai</b> і реєструємося — через Google або пошту.</li>
         <li>Ставимо застосунок Claude на телефон: зручно надиктовувати завдання голосом і дивитися сайт так, як його побачать клієнти.</li>
-        <li>Для скілу «Сайт під товар» і Claude у Chrome потрібен <b>платний тариф</b>. Найпростіший — Pro. Актуальні ціни — на сторінці тарифів.</li>
+        <li>Скіл «Сайт під товар» працює і на безкоштовному тарифі — треба лише ввімкнути <b>«Code execution and file creation»</b> (Налаштування → Capabilities). Для <b>Claude у Chrome</b> потрібен платний тариф — найпростіший Pro. Актуальні ціни — на сторінці тарифів.</li>
       </ol>
       <div class="link-row"><span>Claude<small>claude.ai · тарифи — claude.com/pricing</small></span><a class="btn" href="https://claude.ai/" target="_blank" rel="noopener">Відкрити</a><a class="btn soft" href="https://claude.com/pricing" target="_blank" rel="noopener">Тарифи</a></div>
       <div class="tasks">
@@ -724,7 +724,9 @@
       <div class="file"><span class="ico">🧰</span><div><b>Скіл «Сайт під товар»</b><small>sait-pid-tovar.zip · встановлюється в Claude один раз</small></div><a class="btn" href="files/sait-pid-tovar.zip" download>Завантажити</a></div>
       <ol>
         <li>Завантажуємо архів. Розпаковувати не потрібно.</li>
-        <li>Перетягуємо його в чат Claude і пишемо: «Встанови цей скіл».</li>
+        <li>У Claude: <b>Налаштування → Capabilities</b> → вмикаємо «Code execution and file creation».</li>
+        <li><b>Customize → Skills</b> → «+» → «Create skill» → «Upload a skill» → обираємо архів.</li>
+        <li>Перевіряємо, що скіл «Сайт під товар» з'явився у списку і ввімкнений.</li>
         <li>Відкриваємо новий чат — далі працюємо в ньому.</li>
       </ol>
       <div class="tasks">
@@ -1154,6 +1156,7 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
 <pre id="p-tg">Підключи форму сайту до Telegram-бота.
 Токен бота: <span class="ph">[токен від BotFather]</span>
 ID групи для заявок: <span class="ph">[-4839201764]</span>
+Токен і ID групи збережи лише на сервері — у файлі api/config.php, форму надсилай через PHP-обробник api/order.php. Ніколи не пиши токен в index.html чи JavaScript.
 Надішли тестове повідомлення в групу.</pre></div>
     </section>
 
