@@ -3,6 +3,7 @@
 # завантажується в папку піддомену. Архів скіла збирається тут же зі свіжих файлів.
 # Секрети ті самі, що й для основного сайту: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 # + KONSPEKT_KEY — секретна частина посилання на конспект (лише латиниця, цифри, - і _).
+# + KONSPEKT_ADMIN_PASS — пароль кабінету admin.php (учні, пристрої, захист).
 name: Deploy konspekt (konspektsayt.kvn.kiev.ua)
 
 on:
@@ -36,6 +37,7 @@ jobs:
       - name: Build
         env:
           KONSPEKT_KEY: ${{ secrets.KONSPEKT_KEY }}
+          ADMIN_PASS: ${{ secrets.KONSPEKT_ADMIN_PASS }}
         run: |
           key=$(printf '%s' "$KONSPEKT_KEY" | tr -cd 'A-Za-z0-9_-')
           mkdir -p _deploy
@@ -48,12 +50,27 @@ jobs:
             cp konspekt/root/robots.txt konspekt/root/.htaccess _deploy/
             echo "::warning::Секрет KONSPEKT_KEY не задано — конспект відкривається за адресою піддомену без секретної частини"
           fi
-          mkdir -p "$dest/files" "$dest/img"
-          cp konspekt/index.html "$dest/"
-          cp -r konspekt/files/. "$dest/files/"
-          cp -r konspekt/img/. "$dest/img/" 2>/dev/null || true
-          rm -f "$dest/files/sait-pid-tovar.zip"
-          (cd konspekt/skill && zip -rq -X "$GITHUB_WORKSPACE/$dest/files/sait-pid-tovar.zip" sait-pid-tovar)
+          # Вхід за кодом з пошти (konspekt/gate): сам конспект, скріни й файли — у private/,
+          # з браузера напряму недоступні, віддаються лише через index.php після входу.
+          # Поки в кабінеті (admin.php) захист вимкнено — конспект відкривається як раніше.
+          priv="$dest/private"
+          mkdir -p "$priv/files" "$priv/img"
+          cp konspekt/gate/index.php konspekt/gate/admin.php konspekt/gate/lib.php "$dest/"
+          cp konspekt/gate/htaccess "$dest/.htaccess"
+          cp konspekt/gate/private-htaccess "$priv/.htaccess"
+          cp konspekt/index.html "$priv/konspekt.html"
+          cp -r konspekt/files/. "$priv/files/"
+          cp -r konspekt/img/. "$priv/img/" 2>/dev/null || true
+          rm -f "$priv/files/sait-pid-tovar.zip"
+          (cd konspekt/skill && zip -rq -X "$GITHUB_WORKSPACE/$priv/files/sait-pid-tovar.zip" sait-pid-tovar)
+          # Кожен файл → «назва.php» з «<?php exit; ?>» на початку: напряму не відкривається навіть в обхід .htaccess
+          for f in "$priv/konspekt.html" "$priv"/img/* "$priv"/files/*; do
+            [ -f "$f" ] || continue
+            { printf '<?php exit; ?>\n'; cat "$f"; } > "$f.php" && rm "$f"
+          done
+          # Пароль кабінету — із секрету KONSPEKT_ADMIN_PASS, лише в private/config.php на хостингу
+          KONSPEKT_ADMIN_PASS="$ADMIN_PASS" php -r 'echo "<?php return " . var_export(["admin_pass" => (string)getenv("KONSPEKT_ADMIN_PASS")], true) . ";\n";' > "$priv/config.php"
+          if [ -z "$ADMIN_PASS" ]; then echo "::warning::Секрет KONSPEKT_ADMIN_PASS не задано — кабінет admin.php недоступний, захист не ввімкнути"; fi
           find _deploy -name '.gitkeep' -delete
           if [ -n "$key" ]; then find _deploy -type f | sed "s|$key|<KEY>|" | sort; else find _deploy -type f | sort; fi
 
