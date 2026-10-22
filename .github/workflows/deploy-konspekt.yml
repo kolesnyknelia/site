@@ -89,7 +89,25 @@ jobs:
             echo "Empty sync state uploaded - first deploy"
           fi
 
+      # Хостинг іноді обриває FTP-з'єднання посеред завантаження — тоді пробуємо ще раз
       - name: Upload via FTP
+        id: upload
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./_deploy/
+          server-dir: ${{ env.DEPLOY_DIR }}
+
+      - name: Wait before retry
+        if: steps.upload.outcome == 'failure'
+        run: sleep 30
+
+      - name: Upload via FTP (retry)
+        if: steps.upload.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
