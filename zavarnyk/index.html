@@ -234,6 +234,20 @@
         </label>
       </div>
 
+      <!-- ДОПРОДАЖ: назва й ціна — у js/config.js (upsellName, upsellPrice) -->
+      <label class="upsell" id="upsell">
+        <input type="checkbox" name="upsell" value="1">
+        <span class="upsell-body">
+          <img src="img/upsell.webp" alt="Чай-концентрат «Обліпиха» Monik 50 г" width="400" height="400" loading="lazy">
+          <span class="upsell-text">
+            <span class="upsell-tag">Додати до чайника</span>
+            <b data-upsell-name>Чай-концентрат «Обліпиха» Monik 50 г</b>
+            <small>Пакетик + 200 мл окропу — і ягідний чай готовий</small>
+            <span class="upsell-price">+<span data-upsell-price>49</span> грн</span>
+          </span>
+        </span>
+      </label>
+
       <label class="field"><span>Ваше ім'я</span>
         <input name="name" autocomplete="name" placeholder="Олена" required minlength="2" maxlength="60"></label>
       <label class="field"><span>Телефон</span>

@@ -30,6 +30,10 @@ if ((function_exists('mb_strlen') ? mb_strlen($name, 'UTF-8') : strlen($name)) <
 
 $price = (int)$C['price'];
 $total = $qty === 2 ? 2 * $price - (int)$C['discount2'] : $price;
+$upPrice = (int)($C['upsell_price'] ?? 0);
+$upsell  = $upPrice > 0 && !empty($C['upsell_name']) && !empty($in['upsell']);
+$main    = $total;
+if ($upsell) $total += $upPrice;
 $ref   = date('ymd-His') . '-' . mt_rand(10, 99);
 $host  = preg_replace('/[^a-z0-9.\-]/i', '', (string)($_SERVER['HTTP_HOST'] ?? ''));
 
@@ -39,11 +43,15 @@ foreach ($utm as $k => $v) $utmText[] = preg_replace('/[^\w]/', '', (string)$k) 
 /* ---------- LP-CRM ---------- */
 $crm = '';
 if (!empty($C['lpcrm_domain']) && !empty($C['lpcrm_key'])) {
-    $products = urlencode(serialize([[
+    $products = [[
         'product_id' => (string)$C['lpcrm_product_id'],
-        'price'      => (string)round($total / $qty, 2),
+        'price'      => (string)round($main / $qty, 2),
         'count'      => (string)$qty,
-    ]]));
+    ]];
+    if ($upsell && !empty($C['lpcrm_upsell_id'])) {
+        $products[] = ['product_id' => (string)$C['lpcrm_upsell_id'], 'price' => (string)$upPrice, 'count' => '1'];
+    }
+    $products = urlencode(serialize($products));
     $data = [
         'key'        => $C['lpcrm_key'],
         'order_id'   => number_format(round(microtime(true) * 10), 0, '.', ''),
@@ -51,7 +59,7 @@ if (!empty($C['lpcrm_domain']) && !empty($C['lpcrm_key'])) {
         'products'   => $products,
         'bayer_name' => $name,
         'phone'      => $phone,
-        'comment'    => $C['product'] . ' × ' . $qty . ' = ' . $total . ' грн · ' . $ref,
+        'comment'    => $C['product'] . ' × ' . $qty . ($upsell ? ' + ' . $C['upsell_name'] . ' (' . $upPrice . ' грн)' : '') . ' = ' . $total . ' грн · ' . $ref,
         'site'       => $host,
         'ip'         => (string)($_SERVER['REMOTE_ADDR'] ?? ''),
     ];
@@ -71,6 +79,7 @@ if (!empty($C['lpcrm_domain']) && !empty($C['lpcrm_key'])) {
 $text = "🛒 <b>НОВА ЗАЯВКА — " . h($C['shop']) . "</b>\n\n"
       . "📦 " . h($C['product']) . "\n"
       . "🔢 Кількість: <b>{$qty} шт</b>\n"
+      . ($upsell ? "➕ Допродаж: <b>" . h($C['upsell_name']) . "</b> — {$upPrice} грн\n" : '')
       . "💰 Сума: <b>{$total} грн</b> + доставка\n\n"
       . "👤 " . h($name) . "\n"
       . "📞 " . h($phone) . "\n\n"
