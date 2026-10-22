@@ -14,7 +14,7 @@ window.SITE = {
   discount2: 0,                  // знижка на замовлення 2 шт, грн (0 — без знижки)
   upsellName: "Чай-концентрат «Обліпиха» Monik 50 г", // допродаж: галочка у формі (порожньо — блок сховається)
   upsellPrice: 49,               // ціна допродажу, грн
-  pixelId: "",                   // ID Meta Pixel з Events Manager (лише цифри)
+  pixelId: "969676696190528",    // ID Meta Pixel з Events Manager (лише цифри)
   endpoint: "api/order.php"      // обробник заявок на хостингу Україна
 };
 
