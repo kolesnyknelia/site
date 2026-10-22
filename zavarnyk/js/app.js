@@ -131,7 +131,7 @@
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (r) {
         if (!r || !r.ok) throw new Error(r && r.error || "fail");
-        location.href = "thanks.html?ref=" + encodeURIComponent(r.ref) + "&sum=" + r.total + "&qty=" + q;
+        location.href = "thanks.html?ref=" + encodeURIComponent(r.ref) + "&sum=" + r.total + "&qty=" + q + (withUp() ? "&up=1" : "");
       })
       .catch(function () {
         btn.disabled = false; btn.textContent = "Оформити замовлення";

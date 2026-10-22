@@ -18,6 +18,32 @@ if (!is_array($in)) $in = $_POST;
 // Пастка для ботів: поле website людина не бачить і не заповнює
 if (!empty($in['website'])) out(200, ['ok' => true, 'ref' => 'X' . time(), 'total' => 0]);
 
+function tg($C, $text) {
+    if (empty($C['tg_token']) || empty($C['tg_chat'])) return false;
+    $ch = curl_init('https://api.telegram.org/bot' . $C['tg_token'] . '/sendMessage');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10,
+        CURLOPT_POSTFIELDS => ['chat_id' => $C['tg_chat'], 'text' => $text, 'parse_mode' => 'HTML', 'disable_web_page_preview' => 'true'],
+    ]);
+    $ok = curl_exec($ch) !== false && curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200;
+    curl_close($ch);
+    return $ok;
+}
+
+/* ---------- Допродаж зі сторінки «Дякуємо»: доповнення до вже надісланої заявки ---------- */
+if (!empty($in['addon'])) {
+    $ref = (string)($in['ref'] ?? '');
+    $upPrice = (int)($C['upsell_price'] ?? 0);
+    if ($upPrice <= 0 || empty($C['upsell_name']) || !preg_match('/^\d{6}-\d{6}-\d{2}$/', $ref)) out(400, ['ok' => false, 'error' => 'invalid']);
+    $text = "➕ <b>ДОПОВНЕННЯ ДО ЗАЯВКИ {$ref}</b> — " . h($C['shop']) . "\n\n"
+          . "Покупець додав на сторінці «Дякуємо»:\n"
+          . "📦 <b>" . h($C['upsell_name']) . "</b> — {$upPrice} грн\n"
+          . "💰 Додайте {$upPrice} грн до суми замовлення"
+          . (!empty($C['lpcrm_domain']) ? "\n⚠️ У LP-CRM додайте вручну" : '');
+    if (!tg($C, $text)) out(502, ['ok' => false, 'error' => 'send']);
+    out(200, ['ok' => true, 'add' => $upPrice]);
+}
+
 $name  = trim(cut(strip_tags((string)($in['name'] ?? '')), 60));
 $phone = '+' . preg_replace('/\D/', '', (string)($in['phone'] ?? ''));
 $qty   = (int)($in['qty'] ?? 1) === 2 ? 2 : 1;
@@ -87,16 +113,7 @@ $text = "🛒 <b>НОВА ЗАЯВКА — " . h($C['shop']) . "</b>\n\n"
       . "🌐 " . h($host) . " · 🧾 {$ref}"
       . ($crm ? "\n" . $crm : '');
 
-$tgOk = false;
-if (!empty($C['tg_token']) && !empty($C['tg_chat'])) {
-    $ch = curl_init('https://api.telegram.org/bot' . $C['tg_token'] . '/sendMessage');
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 10,
-        CURLOPT_POSTFIELDS => ['chat_id' => $C['tg_chat'], 'text' => $text, 'parse_mode' => 'HTML', 'disable_web_page_preview' => 'true'],
-    ]);
-    $tgOk = curl_exec($ch) !== false && curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200;
-    curl_close($ch);
-}
+$tgOk = tg($C, $text);
 
 if (!$tgOk && strpos($crm, '✅') !== 0) out(502, ['ok' => false, 'error' => 'send']);
 out(200, ['ok' => true, 'ref' => $ref, 'total' => $total]);
