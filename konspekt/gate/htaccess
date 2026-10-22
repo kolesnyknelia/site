@@ -1,0 +1,22 @@
+# Конспект відкривається лише через index.php (вхід за кодом з пошти).
+DirectoryIndex index.php
+Options -Indexes
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Скріни й файли уроків — тільки після входу
+  RewriteRule ^(img|files)/([A-Za-z0-9._-]+)$ index.php?asset=$1/$2 [L,QSA]
+  RewriteRule ^index\.html$ index.php [L]
+</IfModule>
+<FilesMatch "^lib\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header set Referrer-Policy "no-referrer"
+</IfModule>
