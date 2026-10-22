@@ -30,7 +30,11 @@ function kg_serve($asset) {
     header('Cache-Control: no-store');
     header('X-Robots-Tag: noindex, nofollow, noarchive');
     header('Referrer-Policy: no-referrer');
-    kg_passthru(KG_PRIV . '/konspekt.html.php'); exit;
+    if (is_file(KG_PRIV . '/konspekt.html.php')) { kg_passthru(KG_PRIV . '/konspekt.html.php'); exit; }
+    // Публікацію перервано на півдорозі — віддаємо попередню версію, якщо вона ще лежить поруч
+    if (is_file(__DIR__ . '/index.html')) { readfile(__DIR__ . '/index.html'); exit; }
+    http_response_code(503); header('Retry-After: 120');
+    echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><p style="font:18px system-ui;max-width:420px;margin:60px auto;padding:0 16px">Конспект оновлюється. Спробуйте відкрити його за 2–3 хвилини.</p>'; exit;
 }
 
 $asset = (string)($_GET['asset'] ?? '');
