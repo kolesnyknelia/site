@@ -55,7 +55,7 @@ jobs:
           # Поки в кабінеті (admin.php) захист вимкнено — конспект відкривається як раніше.
           priv="$dest/private"
           mkdir -p "$priv/files" "$priv/img"
-          cp konspekt/gate/index.php konspekt/gate/admin.php konspekt/gate/lib.php "$dest/"
+          cp konspekt/gate/index.php konspekt/gate/admin.php konspekt/gate/hook.php konspekt/gate/lib.php "$dest/"
           cp konspekt/gate/htaccess "$dest/.htaccess"
           cp konspekt/gate/private-htaccess "$priv/.htaccess"
           cp konspekt/index.html "$priv/konspekt.html"
