@@ -24,6 +24,7 @@
       --line: #e6dfd3; --sage: #9db3a6; --sage-l: #dfe8e1; --sage-d: #4f6e60; --sage-dd: #3b5548;
       --peach: #f1d6b8; --peach-l: #faeee0; --peach-d: #c98f55; --rose-l: #f6e3df; --rose-d: #b8675d;
       --code-bg: #2c3a33; --code-ink: #f4efe6;
+      --goal: #4a72b0; --goal-l: #e6eef9; --goal-d: #2f5089; --ok: #3d8b5c; --ok-l: #e2f2e8; --ok-d: #2a6b44;
       --radius: 24px; --radius-s: 16px;
       --shadow: 0 20px 50px -26px rgba(45, 62, 54, .32);
       --serif: "Cormorant Garamond", Georgia, serif; --sans: "Manrope", system-ui, sans-serif;
@@ -35,6 +36,7 @@
         --line: #303b35; --sage: #8fae9d; --sage-l: #26362e; --sage-d: #a9cdb9; --sage-dd: #c7e2d3;
         --peach: #6b5236; --peach-l: #2d261c; --peach-d: #e0b07c; --rose-l: #2f2120; --rose-d: #e29a90;
         --code-bg: #0f1412; --code-ink: #e9efe9; color-scheme: dark;
+        --goal: #86a9e0; --goal-l: #1f2a3a; --goal-d: #b6cdf2; --ok: #7cc79a; --ok-l: #1b2f23; --ok-d: #a9e0bf;
       }
     }
     :root[data-theme="dark"] {
@@ -42,6 +44,7 @@
       --line: #303b35; --sage: #8fae9d; --sage-l: #26362e; --sage-d: #a9cdb9; --sage-dd: #c7e2d3;
       --peach: #6b5236; --peach-l: #2d261c; --peach-d: #e0b07c; --rose-l: #2f2120; --rose-d: #e29a90;
       --code-bg: #0f1412; --code-ink: #e9efe9; color-scheme: dark;
+        --goal: #86a9e0; --goal-l: #1f2a3a; --goal-d: #b6cdf2; --ok: #7cc79a; --ok-l: #1b2f23; --ok-d: #a9e0bf;
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
@@ -131,6 +134,13 @@
     .note.skip { background: var(--sand); } .note.skip::before { content: "🌿"; }
     .note b { display: block; margin-bottom: 2px; }
     .note p { margin: 0; }
+    .goal, .check { max-width: 72ch; margin: 22px 0; padding: 14px 18px; border-radius: var(--radius-s); border-left: 5px solid; }
+    .goal { background: var(--goal-l); border-color: var(--goal); }
+    .check { background: var(--ok-l); border-color: var(--ok); }
+    .goal b, .check b { display: block; margin-bottom: 4px; font-weight: 800; letter-spacing: .02em; }
+    .goal b { color: var(--goal-d); } .check b { color: var(--ok-d); }
+    .goal p { margin: 0; font-weight: 600; }
+    .check ul { margin: 0; padding-left: 20px; } .check li { margin: 3px 0; }
 
     /* ---------- посилання, файли, промпти ---------- */
     .link-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border: 1.5px dashed var(--line); border-radius: var(--radius-s); padding: 10px 12px 10px 16px; margin: 12px 0; max-width: 72ch; }
@@ -282,6 +292,8 @@
 
     <h2 class="lesson-title"><small>Урок 1</small>Що таке лендінг і чому він продає</h2>
 
+    <div class="goal"><b>🎯 Результат уроку</b><p>Ви знаєте, що робить сайт продаючим, і маєте одне речення: що ви продаєте і кому.</p></div>
+
     <section class="step" id="b1-1" data-title="Головні правила">
       <div class="step-head"><span class="step-n">01</span><div><h3>Головні правила лендінгу</h3><span class="chip">3 хвилини</span></div></div>
       <ul class="rules">
@@ -310,6 +322,8 @@
         <label class="task"><input type="checkbox" id="b1-t1"><span class="box"></span><span>Написала одним реченням, що продаю і кому</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Можете одним реченням сказати, що продаєте і кому.</li><li>Знаєте, що буде на вашому першому екрані: заголовок з вигодою, фото, ціна і кнопка.</li><li>Сайт — про вигоду клієнта, а не «про себе».</li></ul></div>
   </article>
 
   <!-- =====================================================================
@@ -324,6 +338,8 @@
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Референс — сайт, на який рівнятися</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>У вас є 1–3 референси і карта блоків — основа вашого сайту.</p></div>
 
     <div class="note"><div><b>Кому цей урок</b><p>🎓 <b>Експерт, курс, послуга</b> — проходите обов'язково: за референсом ви зробите свій сайт у Блоці 3.</p><p>📦 <b>Товарка</b> — у вас два способи зробити сайт (детально — <a href="#b3-0">Блок 3, Урок 1</a>):</p><p><b>Спосіб А — готовий скіл «Сайт під товар».</b> Референс не потрібен: скіл сам бере фото й характеристики і будує сайт. Цей урок можна переглянути для натхнення і йти далі.</p><p><b>Спосіб Б — за референсом.</b> Знаходите сайт, який подобається (Pinterest або бібліотека реклами Facebook), і Claude робить ваш сайт у такому стилі. Сайти виходять унікальні, не «як у всіх». Для цього способу урок проходите повністю.</p></div></div>
 
@@ -443,7 +459,11 @@
       <div class="note"><div><b>Промпти — у наступному уроці</b><p>Усе це ви вставите в промпт: <a href="#b2-5">для товару</a> або <a href="#b2-6">для експерта</a>.</p></div></div>
     </section>
 
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Посилання або скріни референсів збережені.</li><li>Карта блоків записана в тому порядку, як на референсі.</li><li>Фото, ціна, відгуки (якщо є) і контакти зібрані в одному місці.</li></ul></div>
+
     <h2 class="lesson-title"><small>Урок 2</small>Як писати завдання для ШІ і просити правки</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>У вас заповнений промпт під ваш товар чи послугу, і ви знаєте, як просити правки.</p></div>
 
     <div class="note"><div><b>Формула хорошого запиту: хто ти + що створити + для кого + структура + вимоги</b><p>Так побудовані обидва промпти нижче. Чим конкретніше завдання, тим менше правок потім.</p></div></div>
 
@@ -545,6 +565,8 @@
         <label class="task"><input type="checkbox" id="b2-t7"><span class="box"></span><span>Заповнила шаблон промпту під свій товар чи послугу</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>У промпті не лишилося квадратних дужок — усе підставлено своє.</li><li>Карта блоків вставлена в промпт.</li><li>Правки пишете по одній: де змінити → що саме → як має виглядати → як перевірити.</li></ul></div>
   </article>
 
   <!-- =====================================================================
@@ -559,6 +581,8 @@
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Сайт для товарки</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>У вас готовий сайт для товару — зроблений скілом (Спосіб А) або за референсом (Спосіб Б).</p></div>
 
     <section class="step" id="b3-0" data-title="Два способи">
       <div class="step-head"><span class="step-n">⇄</span><div><h3>Два способи зробити сайт для товару</h3><span class="chip">2 хвилини</span></div></div>
@@ -662,7 +686,11 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
       </div>
     </section>
 
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Claude надіслав готовий сайт, і ви його переглянули.</li><li>На першому екрані — фото, назва, ціна і кнопка «Замовити».</li><li>Ціна і стара ціна правильні, усі тексти українською.</li><li>ID пікселя збережено.</li><li>Для Способу Б внесено щонайменше 3 правки.</li></ul></div>
+
     <h2 class="lesson-title"><small>Урок 2</small>Сайт для експерта, курсу чи послуги</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>У вас готовий сайт для експерта, курсу чи послуги.</p></div>
 
     <div class="note skip"><div><b>Яким має бути сайт експерта</b><p>Головне — результат для клієнта, про автора, програма, відгуки, ціна і запис. Детально і з прикладом — у <a href="#b2-6">Блоці 2, крок 05</a>.</p></div></div>
 
@@ -678,6 +706,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
         <label class="task"><input type="checkbox" id="b3-t4"><span class="box"></span><span>Внесла 3 правки</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>На першому екрані — заголовок, фото і кнопка.</li><li>Є блоки: для кого, опис, про вас, ціна і що входить, питання.</li><li>Основна кнопка веде на ваш Telegram, форму запису або оплату.</li><li>Немає вигаданих відгуків, сертифікатів чи результатів.</li><li>Внесено щонайменше 3 правки.</li></ul></div>
   </article>
 
   <!-- =====================================================================
@@ -693,6 +723,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     <div class="note skip"><div><b>Цей блок можна пропустити</b><p>Сайт працюватиме і без цих знань.</p></div></div>
 
     <h2 class="lesson-title"><small>Урок 1</small>HTML, CSS, JS і зображення</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>Ви розумієте, з яких файлів складається сайт і де лежать фото.</p></div>
 
     <section class="step" id="b4-1" data-title="З чого складається сайт">
       <div class="step-head"><span class="step-n">01</span><div><h3>З чого складається сайт</h3><span class="chip">5 хвилин</span></div></div>
@@ -720,6 +752,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
         <label class="task"><input type="checkbox" id="b4-t1"><span class="box"></span><span>Розумію, що таке index.html і де лежать фото</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Знаєте, що головний файл сайту — <code>index.html</code>.</li><li>Фото лежать в окремій папці, назви файлів — латиницею без пробілів.</li></ul></div>
   </article>
 
   <!-- =====================================================================
@@ -734,6 +768,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Розміщуємо сайт</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>Ваш сайт відкривається в інтернеті за вашою адресою.</p></div>
 
     <div class="note"><div><b>Два способи поставити сайт на хостинг</b><p><b>🖐 Вручну — цей урок.</b> Claude готує ZIP-архів сайту, а ви самі завантажуєте його у файл-менеджер хостингу і розпаковуєте. Так ви розумієте, як влаштований сайт на хостингу, і зможете все перевірити й виправити самі.</p><p><b>🤖 Автоматично — <a href="#b5-c0">урок «Claude у Chrome»</a>.</b> Claude сам заходить у файл-менеджер, завантажує і розпаковує сайт, а ви лише дозволяєте й перевіряєте.</p><p>Результат однаковий — сайт відкривається за вашою адресою. Раджу спершу один раз зробити вручну, а далі — як зручніше.</p></div></div>
 
@@ -776,7 +812,11 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
       </div>
     </section>
 
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Сайт відкривається за адресою домену або піддомену — на комп'ютері й на телефоні.</li><li><code>index.html</code> лежить одразу в папці сайту, а не у вкладеній.</li><li>Архів з хостингу видалено.</li></ul></div>
+
     <h2 class="lesson-title"><small>Урок 2</small>Claude у Chrome: завантажуємо готовий сайт на хостинг</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>Claude у Chrome сам завантажив ваш сайт на хостинг.</p></div>
 
     <section class="step" id="b5-c0" data-title="Перед початком">
       <div class="step-head"><span class="step-n">✓</span><div><h3>Перед початком</h3><span class="chip">1 хвилина</span></div></div>
@@ -892,7 +932,11 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
       </div>
     </section>
 
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Сайт відкривається за адресою домену або піддомену.</li><li>Фото відображаються, тексти читаються, кнопки працюють.</li><li>Перевірили і на комп'ютері, і на телефоні.</li></ul></div>
+
     <h2 class="lesson-title"><small>Урок 3</small>Що підключаємо після хостингу</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>На сайті є замочок 🔒, оферта й політика конфіденційності.</p></div>
 
     <section class="step" id="b5-5" data-title="SSL, домен, піксель, документи">
       <div class="step-head"><span class="step-n">09</span><div><h3>SSL, домен, піксель і документи</h3><span class="chip">10 хвилин</span></div></div>
@@ -907,6 +951,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
         <label class="task"><input type="checkbox" id="b5-t3"><span class="box"></span><span>На сайті є оферта й політика конфіденційності</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>В адресному рядку замочок 🔒, сайт відкривається з <code>https</code>.</li><li>На сайті є оферта й політика конфіденційності з вашими даними ФОП і контактами.</li></ul></div>
 
     <section class="step" id="b5-6" data-title="Якщо щось не так">
       <div class="step-head"><span class="step-n">?</span><div><h3>Якщо щось не так</h3></div></div>
@@ -929,6 +975,8 @@ ID товару в CRM: <span class="ph">[77]</span></pre></div>
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Заявка з сайту в Telegram</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>Заявка з сайту приходить у вашу Telegram-групу.</p></div>
 
     <section class="step" id="b6-1" data-title="Створюємо бота">
       <div class="step-head"><span class="step-n">01</span><div><h3>Створюємо бота в @BotFather</h3><span class="chip">5 хвилин</span></div></div>
@@ -1008,7 +1056,11 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
       </div>
     </section>
 
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Тестова заявка «ТЕСТ, не дзвонити» прийшла в групу.</li><li>Після заявки відкрилася сторінка «Дякуємо».</li><li>Через 20–30 хвилин в Events Manager видно PageView, Lead і Purchase.</li><li>Якщо є LP-CRM — заявка з'явилася і там.</li></ul></div>
+
     <h2 class="lesson-title"><small>Урок 2</small>Приймаємо оплату на сайті</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>Кнопка оплати на сайті веде на ваше платіжне посилання.</p></div>
 
     <section class="step" id="b6-6" data-title="Способи оплати">
       <div class="step-head"><span class="step-n">06</span><div><h3>Обираємо спосіб оплати і ставимо кнопку</h3><span class="chip">20 хвилин</span></div></div>
@@ -1045,6 +1097,8 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
         <label class="task"><input type="checkbox" id="b6-t5"><span class="box"></span><span>Обрала спосіб оплати і поставила його на сайт</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>На комп'ютері й телефоні кнопка відкриває саме ваш продукт з правильною сумою і валютою.</li><li>Усі кнопки оплати ведуть на одне правильне посилання.</li><li>Є сторінка подяки з поясненням, що робити далі.</li></ul></div>
   </article>
 
   <!-- =====================================================================
@@ -1059,6 +1113,8 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
     </div>
 
     <h2 class="lesson-title"><small>Урок 1</small>Як змінювати сайт за 5 хвилин</h2>
+
+    <div class="goal"><b>🎯 Результат уроку</b><p>Ви вмієте за 5 хвилин змінити ціну, фото чи текст і поставити нову версію.</p></div>
 
     <section class="step" id="b7-1" data-title="Змінюємо сайт">
       <div class="step-head"><span class="step-n">01</span><div><h3>Змінюємо ціну, фото чи текст</h3><span class="chip">15 хвилин</span></div></div>
@@ -1085,6 +1141,8 @@ ID групи для заявок: <span class="ph">[-4839201764]</span>
         <label class="task"><input type="checkbox" id="b7-t0"><span class="box"></span><span>Змінила текст або фото, оновила сайт і перевірила форму</span></label>
       </div>
     </section>
+
+    <div class="check"><b>✅ Як перевірити, що вийшло</b><ul><li>Попередню версію збережено в папку з датою.</li><li>Зміна видна на сайті (не видно — Ctrl+F5).</li><li>Інші блоки, форма і кнопки оплати працюють як раніше.</li><li>Змінювали ціну — у платіжному сервісі вона теж нова.</li></ul></div>
 
     <h2 class="lesson-title"><small>Шпаргалка</small>Чек-лист перед запуском</h2>
 
