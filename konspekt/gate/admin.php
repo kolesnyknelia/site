@@ -39,6 +39,11 @@ if (!kg_admin_ok($d)) {
         . '<form method="post"><label for="p">Пароль</label><input id="p" type="password" name="pass" autocomplete="current-password" required autofocus><button class="full">Увійти</button></form></div>');
 }
 
+if (empty($d['settings']['hook_key'])) {
+    kg_db_tx(function (&$d) { if (empty($d['settings']['hook_key'])) $d['settings']['hook_key'] = bin2hex(random_bytes(16)); });
+    $d = kg_db();
+}
+
 /* ---------- дії ---------- */
 $flash = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -105,6 +110,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $s['tg_chat'] = trim((string)($_POST['tg_chat'] ?? ''));
             return 'Налаштування збережено.';
         });
+    } elseif ($a === 'new_hook') {
+        $flash = kg_db_tx(function (&$d) {
+            $d['settings']['hook_key'] = bin2hex(random_bytes(16));
+            kg_log($d, '🔑 Новий ключ для SendPulse');
+            return 'Створено нове посилання для SendPulse. Замініть його у вебхуку SendPulse — старе більше не працює.';
+        });
     } elseif ($a === 'test_tg') {
         $d = kg_db();
         $flash = kg_tg($d, '✅ Тест: сповіщення з конспекту «Сайт за 1 вечір» працюють.') ? 'Повідомлення в Telegram надіслано — перевірте групу.' : 'Не вдалося надіслати в Telegram. Перевірте токен бота і ID групи, і що бот доданий у групу.';
@@ -143,7 +154,7 @@ foreach ($users as $e => $u) {
         ? $f('unblock', '🔓 Розблокувати', $e, 'small')
         : ($u['devices'] ? $f('reset', '♻️ Скинути пристрої', $e) : '') . $f('block', '⛔ Заблокувати', $e, 'soft small', 'Заблокувати ' . $e . '?');
     $act .= $f('delete', '🗑', $e, 'bad small', 'Видалити ' . $e . ' зі списку учнів?');
-    $rows .= '<tr><td><b>' . h($e) . '</b></td><td>' . $st . '</td><td>' . count($u['devices']) . '/' . $max . $devs . '</td><td>' . $dt($u['last']) . '</td><td>' . $act . '</td></tr>';
+    $rows .= '<tr><td><b>' . h($e) . '</b>' . (($u['source'] ?? '') === 'sendpulse' ? ' <span class="tag">SendPulse</span>' : '') . '</td><td>' . $st . '</td><td>' . count($u['devices']) . '/' . $max . $devs . '</td><td>' . $dt($u['last']) . '</td><td>' . $act . '</td></tr>';
 }
 if ($rows === '') $rows = '<tr><td colspan="5" class="muted">' . ($q !== '' ? 'Нічого не знайдено.' : 'Ще немає жодного учня — додайте пошти вище.') . '</td></tr>';
 
@@ -163,6 +174,12 @@ $body = '<div class="row" style="margin-bottom:14px"><div><h1>Кабінет к�
 
     . '<div class="card"><h2>Додати учнів</h2><form method="post"><input type="hidden" name="csrf" value="' . $csrf . '"><input type="hidden" name="a" value="add">'
     . '<textarea name="list" rows="5" placeholder="Вставте пошти — кожну з нового рядка або через кому. Можна вставити цілу колонку з таблиці SendPulse."></textarea><button>Додати</button></form></div>'
+
+    . '<div class="card"><h2>Автоматично з SendPulse</h2>'
+    . '<p>Щоб покупці самі потрапляли в список: у SendPulse → Automation 360 → ваш сценарій після покупки → додайте дію <b>«Відправити вебхук»</b> і вставте це посилання:</p>'
+    . '<input readonly onclick="this.select()" value="' . h(kg_site_url() . 'hook.php?key=' . $S['hook_key'] . '&email={{email}}') . '">'
+    . '<p class="muted" style="margin-top:10px">Хто купив — з\'являється в списку з позначкою «SendPulse». Нікому, крім SendPulse, це посилання не давайте. Якщо воно потрапило не туди — створіть нове.</p>'
+    . $f('new_hook', 'Створити нове посилання', '', 'soft small', 'Старе посилання перестане працювати. Створити нове?') . '</div>'
 
     . '<div class="card"><div class="row"><h2 style="margin:0">Учні</h2><form method="get" style="flex:2 1 260px"><input name="q" value="' . h($q) . '" placeholder="Пошук за поштою"></form></div>'
     . '<div class="scroll"><table><tr><th>Пошта</th><th>Статус</th><th>Пристрої</th><th>Останній вхід</th><th></th></tr>' . $rows . '</table></div>'
