@@ -1,0 +1,82 @@
+# Тільки ПЕРЕГЛЯД: стан воронки «оплата → SendPulse → конспект». Нічого не змінює.
+# Показує: які ключі є на сервері, останні замовлення (без пошт), чи ввімкнено захист конспекту,
+# чи налаштовано автододавання з SendPulse і скільки учнів. Пошти в лозі приховані (ol***@gmail.com).
+# Запуск: Actions → Funnel check → Run workflow
+name: Funnel check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          KONSPEKT_KEY: ${{ secrets.KONSPEKT_KEY }}
+        shell: python
+        run: |
+          import os, io, re, json, base64, ftplib, datetime
+          def mask(s):
+              return re.sub(r"([A-Za-z0-9._%+-]{1,2})[A-Za-z0-9._%+-]*@", r"\1***@", str(s))
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"]); ftp.prot_p()
+          def get(path):
+              buf = io.BytesIO()
+              try:
+                  ftp.retrbinary("RETR " + path, buf.write); return buf.getvalue().decode("utf-8", "replace")
+              except Exception as e:
+                  return None
+          def ls(path):
+              try:
+                  return [(n, f) for n, f in ftp.mlsd(path, facts=["type", "modify"]) if n not in (".", "..")]
+              except Exception:
+                  return []
+
+          print("===== 1. Сайт продажу: ключі на сервері")
+          cfg = get("/kvn.kiev.ua/private/config.php") or ""
+          keys = {k: bool(base64.b64decode(v)) for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", cfg)}
+          print("  є:", ", ".join(k for k, v in keys.items() if v) or "—")
+          print("  порожні:", ", ".join(k for k, v in keys.items() if not v) or "—")
+
+          print("\n===== 2. Останні замовлення (з форми сайту)")
+          orders = [(f.get("modify", ""), n) for n, f in ls("/kvn.kiev.ua/private/orders") if n.endswith(".json")]
+          print("  усього замовлень:", len(orders))
+          paid = 0
+          for m, n in sorted(orders)[-10:]:
+              o = json.loads(get("/kvn.kiev.ua/private/orders/" + n) or "{}")
+              paid += bool(o.get("paid"))
+              print(f"  {o.get('created', '')[:16]}  {n[:-5]}  {mask(o.get('email', ''))}  "
+                    f"оплачено: {'так' if o.get('paid') else 'ні'}  SendPulse: {o.get('sendpulse', '—')}")
+          cb = (get("/kvn.kiev.ua/private/callbacks.log") or "").strip().splitlines()
+          print("\n  останні відповіді WayForPay:")
+          for line in cb[-8:]:
+              print("   ", mask(line))
+          if not cb: print("    — жодної (тестової оплати ще не було або serviceUrl не викликався)")
+
+          print("\n===== 3. Конспект: вхід за поштою")
+          key = re.sub(r"[^A-Za-z0-9_-]", "", os.environ.get("KONSPEKT_KEY", ""))
+          base = "/kvn.kiev.ua/konspektsayt/" + (key + "/" if key else "")
+          raw = get(base + "private/data/db.php")
+          if raw is None:
+              print("  база ще не створена (ніхто не відкривав конспект / кабінет)")
+          else:
+              d = json.loads(raw.split("\n", 1)[1])
+              s = d.get("settings", {})
+              users = d.get("users", {})
+              print("  захист увімкнено:", "✅ так" if s.get("enabled") else "❌ НІ — конспект відкривається без входу")
+              print("  пристроїв на учня:", s.get("max_devices"))
+              print("  автододавання з SendPulse (ключ вебхука):", "✅ налаштовано" if s.get("hook_key") else "❌ не налаштовано")
+              print("  Telegram-сповіщення конспекту:", "✅" if s.get("tg_token") and s.get("tg_chat") else "❌ не налаштовано")
+              src = {}
+              for e, u in users.items():
+                  src[u.get("source", "вручну")] = src.get(u.get("source", "вручну"), 0) + 1
+              print("  учнів:", len(users), "| звідки:", src or "—",
+                    "| заблоковано:", sum(1 for u in users.values() if u.get("status") != "active"))
+              print("  останні події:")
+              for ts, msg in d.get("log", [])[:10]:
+                  print("   ", datetime.datetime.fromtimestamp(ts).strftime("%d.%m %H:%M"), mask(msg))
+          ftp.quit()
