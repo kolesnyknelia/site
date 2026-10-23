@@ -18,7 +18,7 @@
   var y = document.getElementById("year"); if (y) y.textContent = new Date().getFullYear();
   var upP = Math.max(0, +S.upsellPrice || 0);
   if (upP && S.upsellName) { set("data-upsell-price", upP); set("data-upsell-name", S.upsellName); }
-  else { var up = document.getElementById("upsell"); if (up) up.remove(); }
+  else { ["upsell", "upsellCard"].forEach(function (id) { var el = document.getElementById(id); if (el) el.remove(); }); }
   if (!d2) {
     var deal = document.getElementById("deal2"); if (deal) deal.hidden = true;
     var tag = document.querySelector("#qty2 .qty-tag"); if (tag) tag.remove();
@@ -74,6 +74,12 @@
     a.addEventListener("click", function () {
       var r = document.querySelector('input[name="qty"][value="' + a.getAttribute("data-pick") + '"]');
       if (r) { r.checked = true; r.dispatchEvent(new Event("change", { bubbles: true })); }
+    });
+  });
+  document.querySelectorAll("[data-check]").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var c = document.querySelector('input[name="' + a.getAttribute("data-check") + '"]');
+      if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event("change", { bubbles: true })); }
     });
   });
   var sticky = document.getElementById("sticky"), order = document.getElementById("order");
