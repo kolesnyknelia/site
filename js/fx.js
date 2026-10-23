@@ -115,48 +115,6 @@
     setBA(false); addEventListener("resize", function () { setBA(card.classList.contains("flipped")); });
   }
 
-  /* ---------- Міні-тест «Який сайт вам потрібен» ---------- */
-  var Q = [
-    { q: "Що ви хочете продавати?", o: [["📦", "Товари", "tovar"], ["🎓", "Своє навчання / курс", "expert"], ["💪", "Тренування", "sport"], ["🧠", "Консультації", "psy"]] },
-    { q: "Звідки прийдуть клієнти?", o: [["📸", "Instagram", "ig"], ["🎯", "Таргетована реклама", "ads"], ["💬", "Telegram / Viber", "tg"], ["🤷‍♀️", "Ще не знаю", "idk"]] },
-    { q: "Скільки зараз платите за сайти?", o: [["🙈", "Сайту ще немає", "0"], ["💸", "До 200 €", "200"], ["💰", "200–500 €", "500"], ["🏦", "Понад 500 €", "800"]] }
-  ];
-  var RES = {
-    tovar: ["Односторінковий сайт для товару", "Фото товару, переваги, акція і кнопка «Замовити» з формою «ім'я + телефон». Саме такі сайти я роблю для своєї товарки щодня."],
-    expert: ["Лендінг експерта з тарифами", "Програма курсу, блок «про автора», відгуки і оплата карткою через WayForPay. Як цей сайт, який ви зараз гортаєте."],
-    sport: ["Сайт тренера з результатами", "Фото «до/після», формати тренувань, ціни і запис у Telegram в один клік."],
-    psy: ["Спокійний сайт психолога", "Запити, з якими працюєте, освіта, як проходить сесія і проста форма запису. Головне — довіра."]
-  };
-  var ans = [], qs = $("#quizStep"), qr = $("#quizResult"), dots = $$(".quiz-dots i");
-  function renderQ(i) {
-    dots.forEach(function (d, k) { d.classList.toggle("on", k <= i); });
-    var x = Q[i];
-    qs.innerHTML = '<div class="quiz-q">' + x.q + '</div><div class="quiz-opts">' + x.o.map(function (o) {
-      return '<button class="quiz-opt" type="button" data-v="' + o[2] + '"><span class="e">' + o[0] + "</span>" + o[1] + "</button>";
-    }).join("") + "</div>";
-    $$(".quiz-opt", qs).forEach(function (b) {
-      b.addEventListener("click", function () {
-        b.classList.add("picked"); play("check"); ans[i] = b.dataset.v;
-        setTimeout(function () { i + 1 < Q.length ? renderQ(i + 1) : result(); }, 380);
-      });
-    });
-  }
-  function result() {
-    var r = RES[ans[0]] || RES.tovar, spend = +ans[2] || 0;
-    qs.style.display = "none";
-    qr.innerHTML = '<div class="card"><span class="eyebrow">Ваш результат</span><h3>' + r[0] + "</h3><p>" + r[1] + "</p>" +
-      (spend ? "<p><b>Економія:</b> до " + spend + " € на кожному сайті — ви робите його самі.</p>" : "<p><b>Плюс:</b> перший сайт — уже цього вечора, без витрат на програміста.</p>") +
-      '<div class="hero-cta" style="margin:16px 0 0"><button class="btn" type="button" data-show-niche="' + ans[0] + '">Подивитись приклад</button>' +
-      '<a href="#pricing" class="btn btn-peach">Обрати тариф</a><button class="btn btn-ghost" type="button" id="quizAgain">Ще раз</button></div></div>';
-    qr.style.display = "block"; play("success");
-    $("[data-show-niche]", qr).addEventListener("click", function () {
-      var t = $('.tab[data-niche="' + ans[0] + '"]'); if (t) t.click();
-      $("#examples").scrollIntoView({ behavior: "smooth" });
-    });
-    $("#quizAgain").addEventListener("click", function () { ans = []; qr.style.display = "none"; qs.style.display = ""; renderQ(0); play("pop"); });
-  }
-  if (qs) renderQ(0);
-
   /* ---------- Гортання прикладу в телефоні ---------- */
   var frame = $("#exampleFrame"), hint = $("#scrollHint"), auto = $("#autoScroll"), autoT;
   function frameWin() { try { return frame.contentWindow; } catch (e) { return null; } }
