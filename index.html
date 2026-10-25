@@ -45,6 +45,7 @@
 </header>
 
 <main>
+<div class="promo-bar" id="promoBar" hidden><a href="#pricing" data-sound="coin"><span></span> <em id="promoLeft"></em> →</a></div>
 <!-- ============ 1. ГОЛОВНИЙ ЕКРАН ============ -->
 <section class="hero" id="hero">
   <div class="container">
@@ -384,8 +385,9 @@
     </div>
     <div class="prices single">
       <div class="price hot reveal">
-        <span class="tag">🌿 Повний доступ</span>
+        <span class="tag" data-promo-tag>🌿 Повний доступ</span>
         <h3>Курс «Сайт за 1 вечір з ШІ»</h3>
+        <div class="old" data-promo-old hidden>$29</div>
         <div class="amount" data-plan-price="course">$29</div>
         <p class="price-note">Один платіж · доступ одразу після оплати</p>
         <ul class="list">
@@ -398,7 +400,7 @@
           <li>Доступ до уроків приходить на email автоматично</li>
           <li>Підтримка в Telegram, якщо щось не виходить</li>
         </ul>
-        <button class="btn btn-peach btn-block btn-lg pulse" data-order="course" data-sound="coin">Купити за $29 →</button>
+        <button class="btn btn-peach btn-block btn-lg pulse" data-order="course" data-sound="coin">Купити за <span data-plan-price="course">$29</span> →</button>
         <p class="price-safe">🔒 Безпечна оплата карткою через WayForPay</p>
       </div>
       <div class="buy-steps reveal d1">
@@ -522,7 +524,7 @@
 <!-- Липка кнопка на телефоні -->
 <div class="sticky-cta" id="stickyCta">
   <a class="btn btn-help" data-help data-sound="pop" aria-label="Підтримка в Telegram">💬</a>
-  <button class="btn" data-order="course" data-sound="coin">Купити курс · $29 →</button>
+  <button class="btn" data-order="course" data-sound="coin">Купити курс · <span data-plan-price="course">$29</span> →</button>
 </div>
 
 <!-- Модальне вікно заявки -->

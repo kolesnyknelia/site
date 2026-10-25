@@ -497,3 +497,17 @@ footer a { color: var(--ink-2); }
 .work-cover .e { font-size: 64px; margin-bottom: 10px; }
 .work-cover p { font-weight: 700; max-width: 220px; }
 [hidden] { display: none !important; }
+
+/* Акція на дати (вмикається з js/config.js → promo) */
+.promo-bar { background: #2b1a10; text-align: center; padding: 10px 14px; }
+.promo-bar a { color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; }
+.promo-bar b { color: #ffb347; }
+.promo-bar s { opacity: .7; }
+.promo-bar em { font-style: normal; font-weight: 600; opacity: .85; font-size: 13px; }
+.chip-promo { background: #ff8a1f; color: #fff; border-color: #ff8a1f; }
+.is-promo .price.hot .tag { background: #ff8a1f; color: #fff; }
+.hero { position: relative; }
+.pumpkins { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.pumpkins i { position: absolute; top: -40px; font-style: normal; opacity: .85; animation: pumpkin-fall linear infinite; }
+@keyframes pumpkin-fall { 0% { transform: translateY(-40px) rotate(0); } 50% { transform: translateY(45vh) translateX(18px) rotate(160deg); } 100% { transform: translateY(95vh) rotate(320deg); opacity: 0; } }
+.hero > .container { position: relative; z-index: 1; }

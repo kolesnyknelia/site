@@ -4,7 +4,13 @@
 (function () {
   "use strict";
   var C = window.SITE_CONFIG || {};
-  var CUR = C.currency || { code: "USD", sign: "$" };
+  var CUR = C.currency || { code: "USD", sign: "$" }, USD = CUR;
+  /* ---------- Акція на дати (за київським часом) ---------- */
+  var P = C.promo, today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Kyiv" }).format(new Date());
+  var promoOn = !!(P && C.plans && C.plans.course && today >= P.from && today <= P.to);
+  var basePrice = C.plans && C.plans.course ? C.plans.course.price : 29;
+  if (promoOn) { CUR = P.currency; C.plans.course.price = P.price; }
+  function usd(n) { return USD.sign + Math.round(n).toLocaleString("uk-UA").replace(/,|\u00a0/g, " "); }
   function money(n) { var v = Math.round(n).toLocaleString("uk-UA").replace(/,|\u00a0/g, " "); return CUR.code === "USD" ? CUR.sign + v : v + " " + CUR.sign; }
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
@@ -109,12 +115,12 @@
 
   /* ---------- Калькулятор економії ---------- */
   var cSites = $("#cSites"), cPrice = $("#cPrice"), cEdits = $("#cEdits");
-  function fmt(n) { return money(n); }
+  function fmt(n) { return usd(n); } // калькулятор рахує в доларах
   function calc() {
     if (!cSites) return;
     var sites = +cSites.value, price = +cPrice.value, edits = +cEdits.value;
     var dev = sites * price + sites * edits * 12 * 15; // правка ~15 $ за раз, на рік
-    var course = (C.plans && C.plans.course ? C.plans.course.price : 29);
+    var course = promoOn ? P.usd : basePrice;
     var hosting = C.hostingPerYear || 60; // хостинг ~$3–5/міс + домен ~$10–15/рік; піддомени — без доплат
     var save = dev - course - hosting;
     $("#oSites").textContent = sites;
@@ -283,6 +289,35 @@
   $$("[data-plan-old]").forEach(function (el) {
     var p = C.plans && C.plans[el.dataset.planOld]; if (p && p.old) el.textContent = money(p.old);
   });
+  if (promoOn) {
+    var bar = $("#promoBar"); if (bar) { bar.querySelector("span").innerHTML = P.text; bar.hidden = false; }
+    $$("[data-promo-old]").forEach(function (el) { el.textContent = usd(basePrice); el.hidden = false; });
+    $$("[data-promo-tag]").forEach(function (el) { el.textContent = P.tag; });
+    var badges = $(".hero-badges"); if (badges && P.badge) { var s = document.createElement("span"); s.className = "chip chip-promo"; s.textContent = P.badge; badges.insertBefore(s, badges.firstChild); }
+    document.body.classList.add("is-promo");
+    /* Скільки лишилось до кінця акції (кінець дня P.to за Києвом) */
+    var left = $("#promoLeft");
+    var end = new Date(P.to + "T23:59:59+02:00").getTime(); // кінець P.to у Києві — літній час закінчився 25.10, тож UTC+2
+    (function tick() {
+      var s = Math.max(0, Math.floor((end - Date.now()) / 1000)), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+      if (left) left.textContent = s ? "· залишилось " + (d ? d + " дн " : "") + h + " год " + m + " хв" : "";
+      setTimeout(tick, 30000);
+    })();
+    /* Гарбузики на першому екрані */
+    var hero = $("#hero");
+    if (hero && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      var box = document.createElement("div"); box.className = "pumpkins"; box.setAttribute("aria-hidden", "true");
+      for (var i = 0; i < 9; i++) {
+        var pk = document.createElement("i"); pk.textContent = i % 3 === 2 ? "🍂" : "🎃";
+        pk.style.left = (5 + i * 11 + Math.random() * 4) + "%";
+        pk.style.fontSize = (18 + Math.random() * 20) + "px";
+        pk.style.animationDuration = (9 + Math.random() * 7) + "s";
+        pk.style.animationDelay = (-Math.random() * 12) + "s";
+        box.appendChild(pk);
+      }
+      hero.appendChild(box);
+    }
+  }
 
   /* ---------- UTM-мітки з реклами ---------- */
   var utm = {};
