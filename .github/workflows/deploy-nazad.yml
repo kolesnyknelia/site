@@ -1,8 +1,8 @@
-# Лендінг розмальовки «Назад у дитинство» → milenialy.noosal.shop (папка /noosal.shop/milenialy/ на хостингу)
-# Піддомен створюється один раз у adm.tools: «Мої сайти» → noosal.shop → «Додати піддомен» → milenialy.
+# Лендінг розмальовки «Назад у дитинство» → nazad.noosal.shop (папка /noosal.shop/nazad/ на хостингу)
+# Піддомен створюється один раз у adm.tools: «Мої сайти» → noosal.shop → «Додати піддомен» → nazad.
 # Заявки йдуть тим самим шляхом, що й з каталогу rozmalovky.noosal.shop: api/rozmalovky-order.php → Telegram.
 # Ключ Telegram — спільний /noosal.shop/private/config.php (його пише deploy-shop.yml / deploy-rozmalovky.yml).
-name: Deploy milenialy (milenialy.noosal.shop)
+name: Deploy nazad (nazad.noosal.shop)
 
 on:
   push:
@@ -16,15 +16,15 @@ on:
       - "rozmalovky/img/tg/bot-milenialy*"
       - "api/rozmalovky-order.php"
       - "api/lib.php"
-      - ".github/workflows/deploy-milenialy.yml"
+      - ".github/workflows/deploy-nazad.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ftp-deploy-milenialy
+  group: ftp-deploy-nazad
   cancel-in-progress: false
 
 env:
-  DEPLOY_DIR: /noosal.shop/milenialy/
+  DEPLOY_DIR: /noosal.shop/nazad/
 
 jobs:
   deploy:
