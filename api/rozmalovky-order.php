@@ -29,6 +29,7 @@ $name    = trim(str_cut((string)g($_POST, 'name'), 80));
 $phone   = preg_replace('/[^\d+]/', '', (string)g($_POST, 'phone'));
 // Telegram покупця (необов'язково): @нік або номер. Доставку й оплату уточнюють у Telegram-боті або дзвінком
 $tgUser  = trim(str_cut((string)g($_POST, 'telegram'), 64));
+$src     = trim(str_cut(strip_tags((string)g($_POST, 'src')), 60));
 $tgNick  = preg_match('/^@?([A-Za-z][A-Za-z0-9_]{4,31})$/', $tgUser, $m) ? $m[1] : '';
 $cart    = json_decode((string)g($_POST, 'cart', '{}'), true);
 $utm     = json_decode((string)g($_POST, 'utm', '{}'), true);
@@ -74,6 +75,7 @@ tg("🖍️ <b>РОЗМАЛЬОВКИ — нове замовлення</b>\n"
  . "\n\n👤 " . h($name) . "\n📞 " . h($phone)
  . "\n✈️ Telegram: " . ($tgNick ? '<a href="https://t.me/' . $tgNick . '">@' . h($tgNick) . '</a>' : ($tgUser !== '' ? h($tgUser) : 'не вказано'))
  . "\n🚚 Доставку й оплату уточнити в Telegram або дзвінком"
+ . ($src !== '' ? "\n🌐 Сторінка: " . h($src) : '')
  . "\n\n📋 <a href=\"" . h($scriptUrl) . "\">Відкрити скрипт продажу</a>" . "\n📊 " . h(utm_text($utm)) . "\n🧾 {$ref}");
 
 echo json_encode(['ok' => true, 'ref' => $ref, 'total' => $total], JSON_UNESCAPED_UNICODE);
