@@ -70,6 +70,16 @@
     .deal td, .deal th { padding: 6px 4px; border-bottom: 1px solid #eee; font-size: 14px; }
     .deal th { font-size: 12px; text-transform: uppercase; color: #777; }
 
+    /* Додаткові розмальовки */
+    .extra { display: grid; gap: 18px; }
+    .ex { background: #fff; border-radius: 14px; padding: 14px; box-shadow: 0 8px 20px -14px rgba(0,0,0,.4); }
+    .ex b { display: block; text-align: center; font-weight: 900; text-transform: uppercase; font-size: 15px; margin-bottom: 10px; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pair img { border-radius: 8px; aspect-ratio: 3 / 4; object-fit: cover; width: 100%; }
+    .add { display: flex; gap: 10px; align-items: center; border: 2px solid #ddd; border-radius: 12px; padding: 11px 12px; margin-bottom: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+    .add input { width: 20px; height: 20px; accent-color: var(--red); flex: none; }
+    .add:has(input:checked) { border-color: var(--red); background: #fff1f0; }
+
     /* Як замовити */
     .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .step { background: #fff; border-radius: 14px; padding: 16px 12px; text-align: center; box-shadow: 0 8px 20px -14px rgba(0,0,0,.4); }
@@ -126,8 +136,8 @@
   <section class="desc gray">
     <h2>З оформленою сторінкою чи класичний контур? <em>Обирай свій варіант</em></h2>
     <div class="variants">
-      <figure><img src="../img/tg/bot-milenialy-classic.jpg" alt="Класична розмальовка: чорно-білий контур" loading="lazy">Класична<br>349 грн</figure>
-      <figure><img src="../img/tg/bot-milenialy-premium.jpg" alt="Преміальна розмальовка: кольорова рамка і приклад" loading="lazy">Преміальна<br>580 грн</figure>
+      <figure><img src="../img/tg/bot-milenialy-classic.jpg" alt="Класична розмальовка: чорно-білий контур" loading="lazy">Класична</figure>
+      <figure><img src="../img/tg/bot-milenialy-premium.jpg" alt="Преміальна розмальовка: кольорова рамка і приклад" loading="lazy">Преміальна</figure>
     </div>
     <p>❄️ «Зима міленіалів: назад у дитинство» — розмальовка, яка повертає в найтепліші зимові спогади! 🎄 Знайомі з дитинства моменти, новорічна атмосфера й улюблені розваги, які хочеться пережити знову. Розфарбовуйте, ностальгуйте й повертайтеся в часи, коли зима була справжньою казкою! 🤍</p>
   </section>
@@ -156,12 +166,23 @@
       </table>
     </div>
     <div class="gallery">
-      <img src="../img/milenialy-mockup.webp" alt="Розмальовка й олівці на столі" loading="lazy">
+      <img src="../img/milenialy-cola.webp" alt="Сторінка розмальовки: новорічна вантажівка в зимовому лісі" loading="lazy">
       <img src="../img/milenialy-1.webp" alt="Сторінка преміальної розмальовки з каміном" loading="lazy">
       <img src="../img/tg/bot-milenialy-classic.jpg" alt="Класичний контур сторінки" loading="lazy">
       <img src="../img/milenialy-cover.webp" alt="Обкладинка розмальовки" loading="lazy">
     </div>
     <a href="#order" class="btn">Оформити замовлення</a>
+  </section>
+
+  <!-- ===== ДОДАТКОВІ РОЗМАЛЬОВКИ ===== -->
+  <section class="gray">
+    <h2>Знижка на кожну <em>додаткову розмальовку</em></h2>
+    <div class="extra">
+      <div class="ex"><b>Зима в українському селі</b><div class="pair"><img src="../img/selo-cover.webp" alt="Розмальовка «Зима в українському селі» — обкладинка" loading="lazy"><img src="../img/selo-1.webp" alt="Сторінка розмальовки «Зима в українському селі»" loading="lazy"></div></div>
+      <div class="ex"><b>Атмосферна розмальовка Merry Christmas</b><div class="pair"><img src="../img/christmas-cover.webp" alt="Розмальовка Merry Christmas — обкладинка" loading="lazy"><img src="../img/christmas-1.webp" alt="Сторінка розмальовки Merry Christmas" loading="lazy"></div></div>
+      <div class="ex"><b>Розмальовка нашого життя</b><div class="pair"><img src="../img/zhyttya-cover.webp" alt="«Розмальовка нашого життя» — обкладинка" loading="lazy"><img src="../img/zhyttya-1.webp" alt="Сторінка «Розмальовки нашого життя» зі схемою кольорів" loading="lazy"></div></div>
+    </div>
+    <p class="note" style="text-align:center">Додайте їх галочкою у формі замовлення — знижка порахується сама.</p>
   </section>
 
   <!-- ===== ЯК ЗАМОВИТИ ===== -->
@@ -199,6 +220,10 @@
         <label class="opt"><input type="radio" name="qty" value="2"><span>2 шт</span></label>
         <label class="opt"><input type="radio" name="qty" value="3"><span>3 шт</span></label>
       </div>
+      <div class="lbl">Додати до замовлення</div>
+      <label class="add"><input type="checkbox" name="add" value="selo"><span>Зима в українському селі</span></label>
+      <label class="add"><input type="checkbox" name="add" value="christmas"><span>Атмосферна розмальовка Merry Christmas</span></label>
+      <label class="add"><input type="checkbox" name="add" value="zhyttya"><span>Розмальовка нашого життя</span></label>
       <input class="field" name="name" placeholder="Введіть ваше ім'я" autocomplete="name" maxlength="80" required>
       <input class="field" name="phone" type="tel" inputmode="tel" placeholder="Введіть ваш телефон" autocomplete="tel" required>
       <div class="total">До сплати: <b id="total">349 грн</b><br><small style="font-weight:600;color:#666">+ доставка за тарифами Нової пошти</small></div>
@@ -246,7 +271,9 @@
   /* Форма */
   var f = document.getElementById("orderForm"), err = document.getElementById("formErr"), btn = document.getElementById("submitBtn");
   var sel = function (n) { return f.querySelector('input[name="' + n + '"]:checked').value; };
-  var sum = function () { var c = {}; c[sel("variant")] = +sel("qty"); return RM.total(c); };
+  var adds = function () { return [].map.call(f.querySelectorAll('input[name="add"]:checked'), function (i) { return i.value; }); };
+  var count = function () { return +sel("qty") + adds().length; };
+  var sum = function () { var c = {}; c[sel("variant")] = count(); return RM.total(c); };
   var upd = function () { document.getElementById("total").textContent = sum() + " грн"; };
   f.addEventListener("change", upd); upd();
   var started = false;
@@ -261,6 +288,7 @@
     if (name.length < 2) { err.textContent = "Вкажіть, будь ласка, ім'я"; return; }
     if (phone.replace(/\D/g, "").length < 10) { err.textContent = "Перевірте номер телефону"; return; }
     var cart = {}; cart["milenialy:" + sel("variant")] = +sel("qty");
+    adds().forEach(function (id) { cart[id + ":" + sel("variant")] = 1; });
     var data = new FormData();
     data.append("name", name); data.append("phone", phone); 
     data.append("cart", JSON.stringify(cart)); data.append("utm", JSON.stringify(utm)); data.append("src", "лендінг «Назад у дитинство»");
@@ -270,7 +298,7 @@
       .then(function (r) {
         if (!r || !r.ok) throw new Error("fail");
         var first = name.split(/\s+/); first = first.length > 1 ? first[1] : first[0];
-        location.href = "/thanks.html?ref=" + encodeURIComponent(r.ref) + "&total=" + r.total + "&n=" + sel("qty") + "&name=" + encodeURIComponent(first);
+        location.href = "/thanks.html?ref=" + encodeURIComponent(r.ref) + "&total=" + r.total + "&n=" + count() + "&name=" + encodeURIComponent(first);
       })
       .catch(function () { btn.disabled = false; btn.textContent = "Оформити замовлення"; err.textContent = "Не вдалося надіслати заявку. Перевірте інтернет і спробуйте ще раз."; });
   });

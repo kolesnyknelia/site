@@ -13,6 +13,9 @@ on:
       - "rozmalovky/thanks.html"
       - "rozmalovky/style.css"
       - "rozmalovky/img/milenialy*"
+      - "rozmalovky/img/selo-*"
+      - "rozmalovky/img/christmas-*"
+      - "rozmalovky/img/zhyttya-*"
       - "rozmalovky/img/tg/bot-milenialy*"
       - "api/rozmalovky-order.php"
       - "api/lib.php"
@@ -42,6 +45,7 @@ jobs:
           sed -e 's|\.\./img/|img/|g' rozmalovky/milenialy/index.html > _deploy/index.html
           cp rozmalovky/products.js rozmalovky/thanks.html rozmalovky/style.css _deploy/
           cp rozmalovky/img/milenialy* _deploy/img/
+          cp rozmalovky/img/selo-cover.webp rozmalovky/img/selo-1.webp rozmalovky/img/christmas-cover.webp rozmalovky/img/christmas-1.webp rozmalovky/img/zhyttya-cover.webp rozmalovky/img/zhyttya-1.webp _deploy/img/
           cp rozmalovky/img/tg/bot-milenialy* _deploy/img/tg/
           cp api/rozmalovky-order.php api/lib.php api/settings.php api/.htaccess _deploy/api/
           # Ім'я бота-продавця → кнопка «Отримати все в Telegram» на сторінці «Дякуємо» (як у deploy-rozmalovky.yml)
