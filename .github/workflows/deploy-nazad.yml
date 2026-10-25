@@ -39,8 +39,7 @@ jobs:
           TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
         run: |
           mkdir -p _deploy/api _deploy/img/tg
-          sed -e 's|\.\./img/|img/|g' -e 's|<a href="/">Усі розмальовки</a>|<a href="https://rozmalovky.noosal.shop/">Усі розмальовки</a>|' \
-            rozmalovky/milenialy/index.html > _deploy/index.html
+          sed -e 's|\.\./img/|img/|g' rozmalovky/milenialy/index.html > _deploy/index.html
           cp rozmalovky/products.js rozmalovky/thanks.html rozmalovky/style.css _deploy/
           cp rozmalovky/img/milenialy* _deploy/img/
           cp rozmalovky/img/tg/bot-milenialy* _deploy/img/tg/

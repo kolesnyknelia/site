@@ -95,8 +95,7 @@
     .err:empty { display: none; }
     form .btn { width: 100%; }
 
-    .foot { background: #2b2b2b; color: #bbb; text-align: center; font-size: 13px; padding: 24px 18px 90px; }
-    .foot a { color: #ddd; }
+    .page { padding-bottom: 80px; }
     .sticky { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(255,255,255,.95); box-shadow: 0 -6px 20px -10px rgba(0,0,0,.3); transform: translateY(110%); transition: transform .25s; }
     .sticky.show { transform: none; }
     .sticky .btn { margin: 0 auto; max-width: 452px; width: 100%; animation: none; font-size: 17px; padding: 15px; }
@@ -202,7 +201,6 @@
       </div>
       <input class="field" name="name" placeholder="Введіть ваше ім'я" autocomplete="name" maxlength="80" required>
       <input class="field" name="phone" type="tel" inputmode="tel" placeholder="Введіть ваш телефон" autocomplete="tel" required>
-      <input class="field" name="telegram" placeholder="Telegram (необов'язково)" autocomplete="off" maxlength="64">
       <div class="total">До сплати: <b id="total">349 грн</b><br><small style="font-weight:600;color:#666">+ доставка за тарифами Нової пошти</small></div>
       <button class="btn" type="submit" id="submitBtn">Оформити замовлення</button>
       <p class="err" id="formErr" role="alert"></p>
@@ -210,10 +208,6 @@
     <p class="note">🔒 Без передоплати. Менеджер передзвонить і уточнить доставку.</p>
   </section>
 
-  <footer class="foot">
-    <p>© <span id="year">2026</span> Розмалюй момент · ФОП Костенко Ольга Володимирівна</p>
-    <p><a href="/">Усі розмальовки</a></p>
-  </footer>
 </div>
 
 <div class="sticky" id="sticky"><a href="#order" class="btn">Замовити зі знижкою</a></div>
@@ -222,7 +216,6 @@
 <script>
 (function () {
   var RM = window.RM, C = RM.CONFIG;
-  document.getElementById("year").textContent = new Date().getFullYear();
 
   /* Meta Pixel (той самий, що в каталозі розмальовок) */
   if (C.pixelId) {
@@ -269,7 +262,7 @@
     if (phone.replace(/\D/g, "").length < 10) { err.textContent = "Перевірте номер телефону"; return; }
     var cart = {}; cart["milenialy:" + sel("variant")] = +sel("qty");
     var data = new FormData();
-    data.append("name", name); data.append("phone", phone); data.append("telegram", f.elements.telegram.value.trim());
+    data.append("name", name); data.append("phone", phone); 
     data.append("cart", JSON.stringify(cart)); data.append("utm", JSON.stringify(utm)); data.append("src", "лендінг «Назад у дитинство»");
     btn.disabled = true; btn.textContent = "Надсилаємо…";
     fetch(C.orderEndpoint, { method: "POST", body: data })
