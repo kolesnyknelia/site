@@ -1,0 +1,83 @@
+# Лендінг розмальовки «Назад у дитинство» → milenialy.noosal.shop (папка /noosal.shop/milenialy/ на хостингу)
+# Піддомен створюється один раз у adm.tools: «Мої сайти» → noosal.shop → «Додати піддомен» → milenialy.
+# Заявки йдуть тим самим шляхом, що й з каталогу rozmalovky.noosal.shop: api/rozmalovky-order.php → Telegram.
+# Ключ Telegram — спільний /noosal.shop/private/config.php (його пише deploy-shop.yml / deploy-rozmalovky.yml).
+name: Deploy milenialy (milenialy.noosal.shop)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rozmalovky/milenialy/**"
+      - "rozmalovky/products.js"
+      - "rozmalovky/thanks.html"
+      - "rozmalovky/style.css"
+      - "rozmalovky/img/milenialy*"
+      - "rozmalovky/img/tg/bot-milenialy*"
+      - "api/rozmalovky-order.php"
+      - "api/lib.php"
+      - ".github/workflows/deploy-milenialy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ftp-deploy-milenialy
+  cancel-in-progress: false
+
+env:
+  DEPLOY_DIR: /noosal.shop/milenialy/
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+
+      # Лендінг стає головною сторінкою піддомену; поруч — лише потрібні йому файли
+      - name: Build
+        env:
+          TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
+        run: |
+          mkdir -p _deploy/api _deploy/img/tg
+          sed -e 's|\.\./img/|img/|g' -e 's|<a href="/">Усі розмальовки</a>|<a href="https://rozmalovky.noosal.shop/">Усі розмальовки</a>|' \
+            rozmalovky/milenialy/index.html > _deploy/index.html
+          cp rozmalovky/products.js rozmalovky/thanks.html rozmalovky/style.css _deploy/
+          cp rozmalovky/img/milenialy* _deploy/img/
+          cp rozmalovky/img/tg/bot-milenialy* _deploy/img/tg/
+          cp api/rozmalovky-order.php api/lib.php api/settings.php api/.htaccess _deploy/api/
+          # Ім'я бота-продавця → кнопка «Отримати все в Telegram» на сторінці «Дякуємо» (як у deploy-rozmalovky.yml)
+          if [ -n "$TG_SALES_BOT_TOKEN" ]; then
+            bot=$(curl -sS "https://api.telegram.org/bot${TG_SALES_BOT_TOKEN}/getMe" | jq -r '.result.username // empty')
+            if [ -n "$bot" ]; then
+              sed -i "s/var SALES_BOT = \"\";/var SALES_BOT = \"${bot}\";/" _deploy/thanks.html
+              sed -i "s/supportBot: \"\"/supportBot: \"${bot}\"/" _deploy/products.js
+              echo "Sales bot: @${bot}"
+            fi
+          fi
+          grep -c 'img/milenialy' _deploy/index.html
+          find _deploy -type f | sort
+
+      - name: Prepare sync state (first deploy)
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          url="ftp://${FTP_SERVER}${DEPLOY_DIR}.ftp-deploy-sync-state.json"
+          if curl -sS --ssl-reqd -u "${FTP_USERNAME}:${FTP_PASSWORD}" -o /dev/null "$url" 2>/dev/null; then
+            echo "Sync state exists - regular deploy"
+          else
+            echo '{"description":"DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment.","version":"1.0.0","generatedTime":0,"data":[]}' > /tmp/state.json
+            curl -sS --ssl-reqd --ftp-create-dirs -u "${FTP_USERNAME}:${FTP_PASSWORD}" -T /tmp/state.json "$url"
+            echo "Empty sync state uploaded - first deploy"
+          fi
+
+      - name: Upload via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./_deploy/
+          server-dir: ${{ env.DEPLOY_DIR }}
