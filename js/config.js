@@ -32,7 +32,7 @@ window.SITE_CONFIG = {
   clarityId: "",
 
   // Meta Pixel ID (Facebook / Instagram реклама). Порожньо = вимкнено.
-  metaPixelId: "",
+  metaPixelId: "2061289301256373",
 
   // ВІДГУКИ — лише справжні! Блок «Відгуки» на сайті з'являється сам, щойно тут є хоч один.
   // Формат: { name: "Олена", role: "Товарний бізнес", text: "Текст відгуку", result: "Сайт за 1 вечір", image: "img/review1.jpg" }
