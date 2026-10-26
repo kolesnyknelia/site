@@ -1,37 +1,235 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Unbounded:wght@600&display=swap" rel="stylesheet"><link rel="stylesheet" href="demo.css"><title>Курс «Товарка з нуля» — приклад лендінгу експерта</title>
-<style>:root{--a:#4f6e60;--a2:#f1d6b8;--soft:#f3efe7;--bg:#fbf8f3}.photo{border-radius:200px 200px 22px 22px;overflow:hidden;aspect-ratio:4/5}.photo img{width:100%;height:100%;object-fit:cover}.photo.sq{border-radius:22px}</style></head><body>
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Онлайн-курс «Товарний бізнес з нуля» — приклад сайту експерта</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#d9c6bf;--bg2:#e6d8d2;--paper:#f1e8e4;--ink:#2f2622;--ink2:#6d5c55;--brown:#a8714f;--brown-d:#8f5d3f;--sage:#9fb79a;--line:#c7b2aa}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font:300 16px/1.6 Montserrat,system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;letter-spacing:.02em}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-weight:300;letter-spacing:.06em;line-height:1.2}
+h2{font-size:clamp(26px,3.4vw,38px);text-transform:uppercase;margin-bottom:30px}
+.demo-bar{background:var(--ink);color:#fff;font-size:12.5px;text-align:center;padding:8px 12px}
+.demo-bar a{color:#f3c9a9}
+section{position:relative;padding:80px 0}
+section>.wrap{position:relative;z-index:1}
+
+/* кнопка-овал з контуром */
+.oval{position:relative;display:inline-grid;place-items:center;min-width:230px;height:76px;padding:0 34px;border-radius:50%;background:var(--brown);color:#fff;font:400 18px Montserrat;letter-spacing:.03em;border:0;cursor:pointer;transition:background .25s,transform .25s}
+.oval::before{content:"";position:absolute;inset:-14px -22px;border:1px solid var(--ink);border-radius:50%;transform:rotate(-9deg);transition:transform .5s}
+.oval:hover{background:var(--brown-d)}
+.oval:hover::before{transform:rotate(6deg) scale(1.03)}
+
+/* листя */
+.leaf{position:absolute;pointer-events:none;color:var(--sage);opacity:.45}
+.leaf svg{width:100%;height:100%}
+
+/* шапка */
+.top{border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;justify-content:space-between;gap:20px;height:96px;align-items:center;font-size:clamp(14px,1.6vw,19px)}
+.top a{opacity:.85;transition:opacity .2s}.top a:hover{opacity:1}
+
+/* hero */
+.hero{padding:0 0 150px;overflow:hidden}
+.hero .wrap{position:relative}
+.split{position:relative;height:clamp(420px,52vw,600px);margin-top:0}
+.split .pan{position:absolute;top:0;background:url(../img/nelia-laptop.webp) center 30%/cover no-repeat;background-attachment:scroll}
+.split .p1{left:0;width:37%;height:48%}
+.split .p2{left:38%;width:24%;height:80%}
+.split .p3{left:63%;width:37%;height:100%}
+.split .pan{background-size:calc(100%/var(--w)) auto;background-position:calc(var(--x)/(1 - var(--w))) calc(min(1080px,100vw - 40px) * -.5)}
+.split .p1{--w:.37;--x:0%}.split .p2{--w:.24;--x:38%}.split .p3{--w:.37;--x:63%}
+.title-box{position:absolute;left:2%;top:22%;width:min(62%,560px);background:#d9c6bfc7;backdrop-filter:blur(2px);padding:18px 22px;font-size:clamp(20px,2.8vw,34px);text-transform:uppercase;letter-spacing:.05em;line-height:1.25}
+.hero-t{position:absolute;left:0;top:56%;width:36%}
+.hero-t h1{font-size:clamp(26px,3.2vw,40px);letter-spacing:.08em;margin-bottom:28px}
+.hero-t p{font-size:clamp(14px,1.5vw,18px);color:var(--ink2);margin-bottom:46px;letter-spacing:.04em}
+.wave{position:absolute;left:0;right:0;bottom:-2px;height:120px;color:var(--bg2)}
+.wave svg{width:100%;height:100%;display:block}
+.hero .leaf.l1{width:420px;height:420px;right:-60px;bottom:40px;transform:rotate(20deg)}
+.hero .leaf.l2{width:300px;height:300px;left:16%;bottom:-40px;transform:rotate(-30deg);opacity:.3}
+
+/* для кого */
+.who{background:var(--bg2)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--paper);border-radius:160px 160px 26px 26px;padding:56px 28px 34px;text-align:center;transition:transform .35s}
+.card:hover{transform:translateY(-6px)}
+.card .n{font-size:44px;color:var(--brown);font-weight:300;line-height:1;margin-bottom:16px}
+.card b{display:block;font-weight:500;margin-bottom:6px}
+.card p{color:var(--ink2);font-size:14.5px}
+
+/* програма */
+.prog{background:var(--bg)}
+.prog .wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}
+.prog .ph{position:relative}
+.prog .ph img{width:100%;border-radius:26px;filter:saturate(.85)}
+.prog .ph::after{content:"";position:absolute;inset:18px -18px -18px 18px;border:1px solid var(--ink);border-radius:26px;z-index:-1}
+details{border-bottom:1px solid var(--line);padding:20px 0}
+summary{list-style:none;cursor:pointer;display:flex;gap:18px;align-items:baseline;font-weight:400;font-size:17px}
+summary span{color:var(--brown);font-size:14px;min-width:30px}
+summary::after{content:"+";margin-left:auto;font-size:22px;line-height:1;transition:transform .3s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--ink2);padding:10px 0 0 48px;font-size:15px}
+
+/* автор */
+.author{background:var(--bg2);overflow:hidden}
+.author .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+.author p{color:var(--ink2);margin-bottom:16px}
+.facts{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.facts li{border-top:1px solid var(--line);padding-top:12px;font-size:14px;color:var(--ink2)}
+.facts b{display:block;font-size:30px;font-weight:300;color:var(--ink)}
+.author .ph{position:relative}
+.author .ph img{border-radius:26px}
+.author .leaf{width:300px;height:300px;left:-120px;bottom:-80px}
+
+/* тарифи */
+.price .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.tar{background:var(--paper);border-radius:26px;padding:34px 28px;display:flex;flex-direction:column;gap:12px;transition:transform .35s}
+.tar:hover{transform:translateY(-6px)}
+.tar h3{text-transform:uppercase;font-size:18px}
+.tar .sum{font-size:34px;font-weight:300}
+.tar ul{list-style:none;color:var(--ink2);font-size:14.5px;display:grid;gap:6px;margin-bottom:12px}
+.tar li::before{content:"— ";color:var(--brown)}
+.tar a{margin-top:auto;text-align:center;border:1px solid var(--ink);border-radius:999px;padding:13px;transition:background .25s,color .25s}
+.tar a:hover{background:var(--ink);color:#fff}
+.tar.hit{background:var(--brown);color:#fff}
+.tar.hit ul{color:#f6e6dc}.tar.hit li::before{color:#fff}
+.tar.hit a{border-color:#fff}.tar.hit a:hover{background:#fff;color:var(--brown)}
+
+/* форма */
+.form-sec{background:var(--bg2);overflow:hidden;text-align:center}
+.form{max-width:520px;margin:0 auto;display:grid;gap:12px}
+.form input,.form select{width:100%;background:var(--paper);border:1px solid transparent;border-radius:999px;padding:16px 22px;font:300 16px Montserrat;color:var(--ink);outline:0;transition:border-color .2s}
+.form input:focus,.form select:focus{border-color:var(--brown)}
+.form input.bad{border-color:#c0392b}
+.form .oval{margin:24px auto 0}
+.ok{display:none;padding:30px 0}
+.form-sec .leaf{width:360px;height:360px;right:-100px;top:-60px;transform:rotate(140deg)}
+.foot{background:var(--bg);text-align:center;font-size:13px;color:var(--ink2);padding:28px 20px}
+
+.rv{opacity:0;transform:translateY(26px);transition:opacity 1s,transform 1s}.rv.in{opacity:1;transform:none}
+
+@media (max-width:860px){
+  section{padding:56px 0}
+  .top .wrap{height:64px;font-size:12.5px;gap:10px;overflow-x:auto}
+  .hero{padding-bottom:110px}
+  .title-box{position:relative;top:auto;left:auto;width:92%;margin-top:-80px;font-size:19px;background:#e6d8d2e0}
+  .hero .leaf.l1{display:none}
+  .split{height:380px}
+  .hero-t{position:static;width:auto;margin-top:26px}
+  .hero-t p{margin-bottom:40px}
+  .oval{min-width:210px;height:68px;font-size:16px}
+  .cards,.price .grid{grid-template-columns:1fr}
+  .card{border-radius:120px 120px 22px 22px;padding:44px 22px 28px}
+  .prog .wrap,.author .wrap{grid-template-columns:1fr;gap:34px}
+  .prog .ph{max-width:320px;margin:0 auto}
+  .author .ph{order:-1}
+  details p{padding-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
 <div class="demo-bar">👀 Це приклад сайту з курсу «Сайт за 1 вечір з ШІ» · <a href="../index.html">Повернутись</a></div>
-<section class="hero"><div class="wrap">
-  <div><span class="badge">🎓 Старт потоку 1 числа</span>
-    <h1>Товарний бізнес з нуля: перші продажі за 30 днів</h1>
-    <p class="muted">Онлайн-курс для тих, хто хоче запустити продаж товарів через Instagram і лендінги — з України чи з-за кордону.</p>
-    <a href="#tariffs" class="b full">Обрати тариф</a></div>
-  <div class="photo"><img src="../img/nelia-laptop.webp" alt="Автор курсу"></div>
+
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="leaf" viewBox="0 0 200 200"><path fill="currentColor" d="M100 8c40 30 70 70 66 112-3 34-30 62-66 72-36-10-63-38-66-72C30 78 60 38 100 8z"/><path fill="none" stroke="#f1e8e4" stroke-opacity=".5" stroke-width="2" d="M100 20v170M100 70l-30-22M100 100l38-26M100 130l-34-22M100 160l30-20"/></symbol></defs></svg>
+
+<header class="top"><nav class="wrap"><a href="#who">Про курс</a><a href="#prog">Програма</a><a href="#price">Тарифи</a><a href="#author">Автор</a><a href="#form">Записатися</a></nav></header>
+
+<section class="hero">
+  <span class="leaf l1"><svg><use href="#leaf"/></svg></span>
+  <span class="leaf l2"><svg><use href="#leaf"/></svg></span>
+  <div class="wrap">
+    <div class="split" aria-hidden="true"><div class="pan p1"></div><div class="pan p2"></div><div class="pan p3"></div></div>
+    <div class="title-box">Онлайн-курс<br>Товарний бізнес з нуля</div>
+    <div class="hero-t">
+      <h1>Неля<br>Колесник</h1>
+      <p>Запустіть продаж товарів через Instagram і лендінги — з України чи з-за кордону. Перші продажі за 30 днів.</p>
+      <a class="oval" href="#form">Записатися</a>
+    </div>
+  </div>
+  <div class="wave"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path fill="currentColor" d="M0 70C220 10 420 20 620 60s420 70 620 30c90-18 150-40 200-60v100H0z"/></svg></div>
+</section>
+
+<section class="who" id="who"><div class="wrap">
+  <h2 class="rv">Цей курс для вас, якщо…</h2>
+  <div class="cards">
+    <div class="card rv"><div class="n">01</div><b>Ви новачок</b><p>І хочете зрозумілий план без води</p></div>
+    <div class="card rv"><div class="n">02</div><b>Ви в декреті чи за кордоном</b><p>І шукаєте дохід онлайн</p></div>
+    <div class="card rv"><div class="n">03</div><b>Вже пробували</b><p>Але реклама «зливала» бюджет</p></div>
+  </div>
 </div></section>
-<section><div class="wrap"><h2 class="center">Цей курс для вас, якщо…</h2><div class="grid g3">
-  <div class="card"><div class="e">🌱</div><b>Ви новачок</b><p class="muted">І хочете зрозумілий план без води</p></div>
-  <div class="card"><div class="e">🏠</div><b>Ви в декреті / за кордоном</b><p class="muted">І шукаєте дохід онлайн</p></div>
-  <div class="card"><div class="e">📉</div><b>Вже пробували</b><p class="muted">Але реклама «зливала» бюджет</p></div>
-</div></div></section>
-<section style="background:var(--soft)"><div class="wrap"><h2 class="center">Програма</h2>
-  <details open><summary>Тиждень 1 — Вибір товару і постачальника</summary><p>Як знайти товар, який продається. Розрахунок маржі.</p></details>
-  <details><summary>Тиждень 2 — Лендінг і Instagram</summary><p>Робимо сайт з ШІ за вечір, оформлюємо профіль.</p></details>
-  <details><summary>Тиждень 3 — Реклама</summary><p>Креативи, таргет, перші заявки.</p></details>
-  <details><summary>Тиждень 4 — Масштаб</summary><p>Обробка заявок, повторні продажі, наймання менеджера.</p></details>
+
+<section class="prog" id="prog"><div class="wrap">
+  <div class="ph rv"><img src="../img/nelia-phone.webp" alt="Неля з телефоном" loading="lazy" width="962" height="1286"></div>
+  <div class="rv">
+    <h2>Програма</h2>
+    <details open><summary><span>01</span>Вибір товару і постачальника</summary><p>Як знайти товар, який продається. Розрахунок маржі.</p></details>
+    <details><summary><span>02</span>Лендінг і Instagram</summary><p>Робимо сайт з ШІ за вечір, оформлюємо профіль.</p></details>
+    <details><summary><span>03</span>Реклама</summary><p>Креативи, таргет, перші заявки.</p></details>
+    <details><summary><span>04</span>Масштаб</summary><p>Обробка заявок, повторні продажі, наймання менеджера.</p></details>
+  </div>
 </div></section>
-<section><div class="wrap grid g2" style="align-items:center"><div class="photo sq"><img src="../img/nelia-phone.webp" alt="Про автора" loading="lazy"></div>
-  <div><h2>Про автора</h2><p>4 роки в товарному бізнесі, 50+ власних лендінгів. Сама запускаю рекламу і навчаю цьому інших.</p>
-  <ul class="list"><li>2000+ замовлень щомісяця</li><li>Працюю онлайн з будь-якої точки світу</li></ul></div></div></section>
-<section id="tariffs" style="background:var(--soft)"><div class="wrap"><h2 class="center">Тарифи</h2><div class="grid g3">
-  <div class="card center"><h3>Базовий</h3><b style="font:600 30px var(--head)">2 900 грн</b><p class="muted">Уроки в записі</p><a href="#form" class="b alt full">Обрати</a></div>
-  <div class="card center" style="outline:3px solid var(--a)"><h3>Куратор</h3><b style="font:600 30px var(--head)">5 900 грн</b><p class="muted">+ перевірка ДЗ і чат</p><a href="#form" class="b full">Обрати</a></div>
-  <div class="card center"><h3>VIP</h3><b style="font:600 30px var(--head)">12 900 грн</b><p class="muted">+ особисті созвони</p><a href="#form" class="b alt full">Обрати</a></div>
-</div></div></section>
-<section id="form"><div class="wrap"><h2 class="center">Залиште заявку</h2>
-  <form class="f"><input placeholder="Ім'я" required><input type="tel" placeholder="Телефон" required><input placeholder="Telegram @nick">
-  <select><option>Базовий</option><option selected>Куратор</option><option>VIP</option></select><button class="b full">Записатися на курс</button></form>
-  <div class="ok"><div class="big">🎓</div><h2>Ви в списку!</h2><p>Посилання на оплату вже летить вам у Telegram.<br><small class="muted">(демо)</small></p></div>
+
+<section class="author" id="author">
+  <span class="leaf"><svg><use href="#leaf"/></svg></span>
+  <div class="wrap">
+    <div class="rv">
+      <h2>Про автора</h2>
+      <p>Сама запускаю рекламу, роблю лендінги з ШІ і навчаю цьому інших — просто, по кроках, без технічної «води».</p>
+      <p>Працюю онлайн з будь-якої точки світу.</p>
+      <ul class="facts"><li><b>4 роки</b>у товарному бізнесі</li><li><b>50+</b>власних лендінгів</li></ul>
+    </div>
+    <div class="ph rv"><img src="../img/nelia-laptop.webp" alt="Неля Колесник" loading="lazy" width="962" height="1286"></div>
+  </div>
+</section>
+
+<section class="price" id="price"><div class="wrap">
+  <h2 class="rv">Тарифи</h2>
+  <div class="grid">
+    <div class="tar rv"><h3>Базовий</h3><div class="sum">2 900 грн</div><ul><li>Уроки в записі</li><li>Конспекти</li></ul><a href="#form" data-t="Базовий">Обрати</a></div>
+    <div class="tar hit rv"><h3>Куратор</h3><div class="sum">5 900 грн</div><ul><li>Усе з «Базового»</li><li>Перевірка домашніх завдань</li><li>Чат учасників</li></ul><a href="#form" data-t="Куратор">Обрати</a></div>
+    <div class="tar rv"><h3>VIP</h3><div class="sum">12 900 грн</div><ul><li>Усе з «Куратора»</li><li>Особисті созвони</li></ul><a href="#form" data-t="VIP">Обрати</a></div>
+  </div>
 </div></section>
-<footer>© Приклад сайту експерта</footer>
-<div class="sticky"><a href="#tariffs" class="b full">🎓 Обрати тариф</a></div>
-<script src="demo.js"></script></body></html>
+
+<section class="form-sec" id="form">
+  <span class="leaf"><svg><use href="#leaf"/></svg></span>
+  <div class="wrap">
+    <h2 class="rv">Записатися на курс</h2>
+    <form class="form rv" id="f" novalidate>
+      <input name="name" placeholder="Ваше ім'я" autocomplete="name" required>
+      <input name="phone" type="tel" placeholder="Телефон" autocomplete="tel" required>
+      <input name="tg" placeholder="Telegram @nick">
+      <select name="t" id="t"><option>Базовий</option><option selected>Куратор</option><option>VIP</option></select>
+      <button class="oval" type="submit">Записатися</button>
+    </form>
+    <div class="ok" id="ok"><h2>Ви в списку!</h2><p style="color:var(--ink2)">Посилання на оплату прийде в Telegram. (демо)</p></div>
+  </div>
+</section>
+
+<footer class="foot">Демо-приклад сайту експерта з курсу «Сайт за 1 вечір з ШІ» · заявки нікуди не надсилаються</footer>
+
+<script>
+(function(){
+  if(window.top!==window.self){var bar=document.querySelector(".demo-bar");if(bar)bar.style.display="none"}
+  var f=document.getElementById("f");
+  document.querySelectorAll("[data-t]").forEach(function(a){a.addEventListener("click",function(){document.getElementById("t").value=a.dataset.t})});
+  f.addEventListener("submit",function(e){e.preventDefault();var bad=false;
+    ["name","phone"].forEach(function(n){var i=f.elements[n],b=i.value.trim().length<2;i.classList.toggle("bad",b);bad=bad||b});
+    if(bad)return;f.style.display="none";document.getElementById("ok").style.display="block"});
+  var els=document.querySelectorAll(".rv");
+  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
+    els.forEach(function(el,i){el.style.transitionDelay=(i%3)*100+"ms";io.observe(el)})}else els.forEach(function(el){el.classList.add("in")});
+})();
+</script>
+</body>
+</html>
