@@ -1,31 +1,216 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Unbounded:wght@600&display=swap" rel="stylesheet"><link rel="stylesheet" href="demo.css"><title>Психолог онлайн — приклад лендінгу</title>
-<style>:root{--a:#4f7d6b;--a2:#e9d8c4;--bg:#fbf8f3;--soft:#f1ebe2}.pic{background:linear-gradient(135deg,#e9d8c4,#a8c3b5)}.ph{border-radius:200px 200px 22px 22px;overflow:hidden;aspect-ratio:4/5}.ph.sq{border-radius:22px;aspect-ratio:1}.ph img{width:100%;height:100%;object-fit:cover}</style></head><body>
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Психологічна підтримка — приклад сайту психолога</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500&family=Marck+Script&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f3f4;--paper:#fafafa;--ink:#1c1c20;--ink2:#6f7078;--line:#d5d6da;--navy:#363a66;--navy-d:#2a2d52;--dark:#0e0e10}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font:300 16px/1.65 Jost,system-ui,sans-serif;color:var(--ink);background:var(--paper);overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1140px;margin:0 auto;padding:0 18px}
+h1,h2{font-weight:300;text-transform:uppercase;letter-spacing:.06em;line-height:1.05}
+h2{font-size:clamp(26px,3.6vw,40px)}
+.br{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-size:clamp(13px,1.4vw,15px);color:var(--ink2);border-left:1px solid var(--ink);border-right:1px solid var(--ink);padding:4px 14px;line-height:1.5}
+.sign{font-family:"Marck Script",cursive;color:#9a9aa3;opacity:.7;pointer-events:none}
+.btn{display:inline-flex;justify-content:center;align-items:center;background:var(--navy);color:#fff;text-transform:uppercase;letter-spacing:.12em;font:400 13px Jost;padding:17px 34px;border:0;cursor:pointer;transition:background .25s,letter-spacing .25s}
+.btn:hover{background:var(--navy-d);letter-spacing:.16em}
+.btn.block{width:100%}
+.demo-bar{background:#000;color:#fff;font-size:13px;text-align:center;padding:8px 12px;font-weight:400}
+.demo-bar a{color:#b9bcf0}
+
+/* hero */
+.hero{position:relative;background:linear-gradient(100deg,#fbfbfb 0%,#efeff1 55%,#e2e2e5 100%);overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.15fr 1fr;align-items:end;min-height:640px;position:relative}
+.hero-t{padding:90px 0 80px}
+.hero h1{font-size:clamp(30px,4.2vw,50px)}
+.hero h1 b{display:block;font-weight:300;font-size:1.65em;letter-spacing:.03em;margin:-.05em 0 0 .9em}
+.hero .br{margin:22px 0 34px .9em}
+.hero .btn{margin-left:.9em}
+.note{margin-top:60px;max-width:300px;font-size:14px;color:var(--ink2);text-align:justify}
+.hero-p{position:relative;align-self:end}
+.hero-p img{width:100%;max-height:620px;object-fit:cover;object-position:top;mix-blend-mode:multiply;filter:contrast(1.08)}
+.facts{list-style:none;font-size:13px;line-height:1.35;display:flex;flex-wrap:wrap;gap:10px 30px;margin:0 0 16px}
+.facts b{font-weight:500;display:block;font-size:15px}
+.hero .sign{position:absolute;right:6%;bottom:40px;font-size:54px;transform:rotate(-8deg);z-index:2;color:#7c7c86}
+
+/* знайомо */
+.known{background:linear-gradient(180deg,#e9e9ec,#f6f6f7)}
+.known .wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:50px;align-items:center;padding-top:80px;padding-bottom:80px}
+.known img{width:100%;max-height:640px;object-fit:cover;object-position:top;mix-blend-mode:multiply}
+.pains{list-style:none;margin:28px 0 50px}
+.pains li{position:relative;padding:9px 0 9px 46px;border-bottom:1px solid transparent;font-size:16px;transition:padding .3s,color .3s}
+.pains li::before{content:"";position:absolute;left:0;top:50%;width:30px;height:1px;background:var(--ink);transition:width .3s}
+.pains li:hover{padding-left:56px}.pains li:hover::before{width:40px}
+.change{text-align:right}
+.change h2{font-size:clamp(22px,2.6vw,30px)}
+.change .br{margin:12px 0 22px;text-align:left}
+
+/* хто я */
+.who{background:radial-gradient(ellipse at 50% 30%,#2a2a30 0,var(--dark) 65%);color:#eee;position:relative;overflow:hidden}
+.who .wrap{display:grid;grid-template-columns:1fr .9fr 1fr;gap:40px;padding-top:90px;padding-bottom:40px;align-items:center}
+.who h2{color:#6b70b8;letter-spacing:.12em}
+.who p{color:#bdbdc4;font-size:15px;margin-top:16px}
+.who p b{color:#fff;font-weight:400}
+.who img{width:100%;filter:contrast(1.05);-webkit-mask-image:radial-gradient(ellipse 70% 75% at 50% 45%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 70% 75% at 50% 45%,#000 55%,transparent 100%)}
+.who .sign{position:absolute;left:4%;bottom:12%;font-size:90px;color:#55555e;opacity:.4;transform:rotate(-6deg)}
+.who .right{display:grid;gap:22px}
+.who .mission{text-transform:uppercase;letter-spacing:.06em;font-size:14px;color:#fff;border-left:1px solid #fff;padding-left:14px}
+.spec{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:14px 40px;padding-bottom:90px}
+.spec li{font-size:14px;color:#bdbdc4;padding-left:26px;position:relative}
+.spec li::before{content:"";position:absolute;left:0;top:11px;width:16px;height:1px;background:#bdbdc4}
+
+/* як проходить */
+.how{background:linear-gradient(180deg,var(--dark),#2b2b31 60%,#55555c);color:#eee}
+.how .wrap{padding-top:80px;padding-bottom:80px}
+.how-h{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px}
+.steps{list-style:none;margin-top:40px;border-top:1px solid #ffffff2a}
+.steps li{display:grid;grid-template-columns:60px 1fr 1.4fr;gap:20px;padding:22px 0;border-bottom:1px solid #ffffff2a;align-items:baseline}
+.steps span{color:#8f93d8;font-size:13px;letter-spacing:.1em}
+.steps b{font-weight:400;text-transform:uppercase;letter-spacing:.08em;font-size:14px}
+.steps p{color:#bdbdc4;font-size:14.5px}
+
+/* форма */
+.book{background:linear-gradient(180deg,#55555c,#8b8b92 40%,#c9c9ce)}
+.book .wrap{padding-top:70px;padding-bottom:90px;text-align:center;color:#fff}
+.book h2{font-size:clamp(20px,2.6vw,30px);color:#fff}
+.book h2 em{font-style:normal;color:#1c1c20}
+.form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;margin-top:34px}
+.form input{background:#ffffff26;border:1px solid #ffffff66;color:#fff;font:300 15px Jost;padding:16px;outline:0;transition:border-color .2s,background .2s}
+.form input::placeholder{color:#ffffffc0}
+.form input:focus{border-color:#fff;background:#ffffff38}
+.form input.bad{border-color:#ff8a8a}
+.ok{display:none;margin-top:30px;font-size:18px;text-transform:uppercase;letter-spacing:.08em}
+
+.foot{background:#c9c9ce;color:#3a3a40;text-align:center;font-size:13px;padding:24px 18px 30px}
+
+.rv{opacity:0;transform:translateY(22px);transition:opacity 1s,transform 1s}.rv.in{opacity:1;transform:none}
+
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;min-height:0}
+  .hero-t{padding:40px 0 10px}
+  .hero h1 b{margin-left:.4em}.hero .br,.hero .btn{margin-left:0}
+  .hero .btn{width:100%}
+  .note{display:none}
+  .hero-p img{max-height:460px;-webkit-mask-image:linear-gradient(0deg,transparent,#000 15%);mask-image:linear-gradient(0deg,transparent,#000 15%)}
+  .facts{gap:10px 22px;margin:0 0 6px}
+  .hero .sign{font-size:40px;bottom:20px}
+  .known .wrap{grid-template-columns:1fr;gap:20px;padding-top:50px;padding-bottom:50px}
+  .known img{max-height:420px;order:2}
+  .change{text-align:center}.change .btn{width:100%}
+  .who .wrap{grid-template-columns:1fr;gap:20px;padding-top:56px;padding-bottom:30px}
+  .who img{max-width:320px;margin:0 auto}
+  .spec{grid-template-columns:1fr;padding-bottom:56px}
+  .steps li{grid-template-columns:40px 1fr;gap:6px 12px}
+  .steps p{grid-column:2}
+  .form{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
 <div class="demo-bar">👀 Це приклад сайту з курсу «Сайт за 1 вечір з ШІ» · <a href="../index.html">Повернутись</a></div>
+
 <section class="hero"><div class="wrap">
-  <div><span class="badge">🌿 Онлайн-консультації</span>
-    <h1>Психолог для українців в Україні та за кордоном</h1>
-    <p class="muted">Тривога, адаптація після переїзду, стосунки, вигорання. Конфіденційно, українською, у зручний для вас час.</p>
-    <a href="#book" class="b full">Записатися на консультацію</a></div>
-  <div class="ph"><img src="../img/ex-psy-portrait.webp" alt="Психолог"></div>
+  <div class="hero-t">
+    <h1>Психологічна <b>підтримка</b></h1>
+    <div class="br">яка допомагає знайти внутрішню опору</div><br>
+    <a class="btn" href="#book">Записатися на консультацію</a>
+    <p class="note">Індивідуальні консультації для тих, хто хоче подолати тривогу, розібратися в собі та побудувати гармонійні стосунки.</p>
+  </div>
+  <div class="hero-p">
+    <ul class="facts"><li><b>Онлайн</b>з будь-якої країни</li><li><b>Українською</b>мовою</li><li><b>Конфіденційно</b>і без осуду</li></ul>
+    <img src="psy/p1.webp" alt="Психологиня в студії" width="351" height="425">
+    <span class="sign">Опора</span>
+  </div>
 </div></section>
-<section><div class="wrap"><h2 class="center">З якими запитами я працюю</h2><div class="grid g3">
-  <div class="card"><div class="e">🌧</div><b>Тривога і стрес</b></div><div class="card"><div class="e">✈️</div><b>Адаптація в новій країні</b></div>
-  <div class="card"><div class="e">💞</div><b>Стосунки</b></div><div class="card"><div class="e">🔥</div><b>Вигорання</b></div>
-  <div class="card"><div class="e">👪</div><b>Батьківство</b></div><div class="card"><div class="e">🪞</div><b>Самооцінка</b></div>
-</div></div></section>
-<section style="background:var(--soft)"><div class="wrap grid g2" style="align-items:center"><div class="ph sq"><img src="../img/ex-psy-session.webp" alt="Консультація психолога" loading="lazy"></div>
-  <div><h2>Освіта і підхід</h2><ul class="list"><li>[Університет], магістр психології</li><li>Сертифікат КПТ, [рік]</li><li>Регулярна супервізія</li><li>[N]+ годин практики</li></ul></div></div></section>
-<section><div class="wrap"><h2 class="center">Як проходить консультація</h2><div class="grid g3">
-  <div class="card"><b>1. Заявка</b><p class="muted">Залишаєте контакт — я пишу протягом дня</p></div>
-  <div class="card"><b>2. Знайомство</b><p class="muted">15 хв безкоштовно: чи підходимо ми одне одному</p></div>
-  <div class="card"><b>3. Сесія 50 хв</b><p class="muted">Zoom / Google Meet · 1200 грн</p></div>
-</div></div></section>
-<section id="book" style="background:var(--soft)"><div class="wrap"><h2 class="center">Запис на консультацію</h2>
-  <form class="f"><input placeholder="Як до вас звертатися" required><select><option>Telegram</option><option>Viber</option><option>WhatsApp</option></select>
-  <input placeholder="Номер або нік" required><textarea rows="3" placeholder="Коротко про запит (необов'язково)"></textarea><button class="b full">Записатися</button>
-  <p class="muted center" style="font-size:13px">🔒 Усе, що ви пишете, — конфіденційно</p></form>
-  <div class="ok"><div class="big">🌿</div><h2>Дякую за довіру</h2><p>Я напишу вам найближчим часом.<br><small class="muted">(демо)</small></p></div>
+
+<section class="known"><div class="wrap">
+  <img class="rv" src="psy/p4.webp" alt="Психологиня" loading="lazy" width="351" height="421">
+  <div>
+    <h2 class="rv">Вам точно знайомо…</h2>
+    <ul class="pains">
+      <li class="rv">Постійна тривога, напруження, внутрішній неспокій</li>
+      <li class="rv">Складні стосунки, повторювані болючі сценарії</li>
+      <li class="rv">Низька самооцінка, сумніви в собі</li>
+      <li class="rv">Складно сказати «ні», порушені особисті кордони</li>
+      <li class="rv">Почуття провини перед батьками</li>
+      <li class="rv">Залежність від думки інших</li>
+      <li class="rv">Розгубленість, відсутність розуміння «чого я хочу»</li>
+      <li class="rv">Емоційне вигорання, втома від життя</li>
+    </ul>
+    <div class="change rv">
+      <h2>Це можна змінити</h2>
+      <div class="br">я допоможу вам розібратися в собі та знайти внутрішню опору</div><br>
+      <a class="btn" href="#book">Записатися на консультацію</a>
+    </div>
+  </div>
 </div></section>
-<footer>© Приклад сайту психолога</footer>
-<div class="sticky"><a href="#book" class="b full">Записатися</a></div>
-<script src="demo.js"></script></body></html>
+
+<section class="who">
+  <div class="wrap">
+    <div class="rv">
+      <h2>Хто я…</h2>
+      <p><b>Я — психолог-консультант.</b> Працюю з дорослими, парами та сім'ями, які хочуть краще розуміти себе й своїх близьких.</p>
+      <p>Допомагаю розібратися, звідки беруться тривога й образи, і знайти спосіб жити спокійніше — без готових порад «як треба».</p>
+    </div>
+    <img class="rv" src="psy/p6.webp" alt="Психологиня" loading="lazy" width="351" height="426">
+    <div class="right rv">
+      <p>Моя спеціалізація — допомагати людям чути себе й одне одного, будувати стосунки без постійних конфліктів.</p>
+      <div class="mission">Моє завдання — створити безпечний простір, де ви зможете зрозуміти себе й знайти відповіді</div>
+      <a class="btn" href="#book">Записатися на консультацію</a>
+    </div>
+  </div>
+  <span class="sign">Опора</span>
+  <div class="wrap"><ul class="spec rv">
+    <li>Тут — ваша освіта й кваліфікація</li>
+    <li>Методи, з якими ви працюєте</li>
+    <li>Ваші курси, проєкти чи публікації</li>
+    <li>Досвід — тільки справжні факти</li>
+  </ul></div>
+</section>
+
+<section class="how"><div class="wrap">
+  <div class="how-h"><h2>Як проходить</h2><h2>консультація</h2></div>
+  <ol class="steps">
+    <li class="rv"><span>01</span><b>Ви залишаєте заявку</b><p>Я зв'язуюся з вами, щоб узгодити зручний час.</p></li>
+    <li class="rv"><span>02</span><b>Ми знайомимося</b><p>Розповідаєте, що вас турбує, — у вашому темпі.</p></li>
+    <li class="rv"><span>03</span><b>Онлайн-зустріч</b><p>Zoom, Google Meet або Telegram — як вам зручно.</p></li>
+    <li class="rv"><span>04</span><b>Наступні кроки</b><p>Разом визначаємо план і частоту зустрічей.</p></li>
+  </ol>
+</div></section>
+
+<section class="book" id="book"><div class="wrap">
+  <h2 class="rv">Вам не потрібно готуватися <em>чи правильно формулювати свій запит</em></h2>
+  <form class="form rv" id="f" novalidate>
+    <input name="name" placeholder="Ваше ім'я" required>
+    <input name="contact" placeholder="Телефон або Telegram" required>
+    <input name="note" placeholder="Коротко про запит (необов'язково)">
+    <button class="btn" type="submit">Записатися</button>
+  </form>
+  <p class="ok" id="ok">Дякую! Я зв'яжуся з вами найближчим часом (демо)</p>
+</div></section>
+
+<footer class="foot">Демо-приклад сайту з курсу «Сайт за 1 вечір з ШІ» · заявки нікуди не надсилаються</footer>
+
+<script>
+(function(){
+  if(window.top!==window.self){var bar=document.querySelector(".demo-bar");if(bar)bar.style.display="none"}
+  var f=document.getElementById("f");
+  f.addEventListener("submit",function(e){e.preventDefault();var bad=false;
+    ["name","contact"].forEach(function(n){var i=f.elements[n],b=!i.value.trim();i.classList.toggle("bad",b);bad=bad||b});
+    if(bad)return;f.style.display="none";document.getElementById("ok").style.display="block"});
+  var els=document.querySelectorAll(".rv");
+  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
+    els.forEach(function(el,i){el.style.transitionDelay=(i%6)*60+"ms";io.observe(el)})}else els.forEach(function(el){el.classList.add("in")});
+})();
+</script>
+</body>
+</html>
