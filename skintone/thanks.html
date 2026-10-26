@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Дякуємо! | Сяйво</title>
+  <meta name="robots" content="noindex">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 20% 15%,#f5d0fe 0,transparent 45%),radial-gradient(circle at 80% 85%,#ddd6fe 0,transparent 45%),var(--bg)}
+    .box{max-width:440px;background:#fff;border-radius:36px;padding:40px 28px;text-align:center;box-shadow:0 40px 80px -40px #6d28d966}
+    .box .em{font-size:56px}
+    .box h1{font-size:32px;margin:12px 0}
+    .box p{color:var(--ink2);margin-bottom:22px}
+    .sum{background:var(--bg2);border-radius:20px;padding:14px;font-weight:700;color:var(--ink)!important}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="em">✨</div>
+    <h1>Дякуємо!<br><em>Замовлення прийнято</em></h1>
+    <p>Менеджер зателефонує найближчим часом, щоб підтвердити замовлення й уточнити адресу Нової пошти.</p>
+    <p class="sum">Сума: <span id="sum">350</span> грн + доставка</p>
+    <a class="btn" href="./">Повернутися на сайт</a>
+  </div>
+  <script>var s=+new URLSearchParams(location.search).get("sum");if(s)document.getElementById("sum").textContent=s;</script>
+</body>
+</html>
