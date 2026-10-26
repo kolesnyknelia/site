@@ -8,6 +8,7 @@
 <meta property="og:title" content="Формула свободи — онлайн-курс з товарного бізнесу">
 <meta property="og:image" content="img/portrait.webp">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<script>if(/(^|\.)kvn\.kiev\.ua$/.test(location.hostname)&&location.hostname.indexOf("formula.")!==0)location.replace("https://formula.kvn.kiev.ua/"+location.hash);</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -327,7 +328,7 @@ var GIFT = { title: "Подарунок", text: "Тут буде опис под
     if(bad){err.textContent="Заповніть ім'я та Telegram або телефон";return}
     var btn=f.querySelector("button[type=submit]");btn.disabled=true;btn.textContent="Надсилаємо…";
     var fd=new FormData(f);fd.append("utm",JSON.stringify(utm));
-    fetch("../api/formula-lead.php",{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){
+    fetch("api/formula-lead.php",{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){
       if(!r.ok)throw 0;f.style.display="none";$("#ok").style.display="block"})
     .catch(function(){btn.disabled=false;btn.textContent="Надіслати заявку";err.textContent="Не вдалося надіслати. Напишіть, будь ласка, у Telegram."})});
 
