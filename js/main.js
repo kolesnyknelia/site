@@ -295,6 +295,18 @@
     $$("[data-promo-tag]").forEach(function (el) { el.textContent = P.tag; });
     var badges = $(".hero-badges"); if (badges && P.badge) { var s = document.createElement("span"); s.className = "chip chip-promo"; s.textContent = P.badge; badges.insertBefore(s, badges.firstChild); }
     document.body.classList.add("is-promo");
+    var ph = $("#promoHero"); if (ph) ph.hidden = false;
+    /* Хелловін-декор: кажани, павучок, привид, павутина, гарбуз на ціні */
+    var heroEl = $("#hero");
+    if (heroEl) {
+      var deco = document.createElement("div"); deco.className = "hw-deco"; deco.setAttribute("aria-hidden", "true");
+      deco.innerHTML = '<i class="bat b1">🦇</i><i class="bat b2">🦇</i><i class="bat b3">🦇</i>'
+        + '<span class="spider"><i>🕷️</i></span><i class="ghost">👻</i>'
+        + '<svg class="web" viewBox="0 0 100 100"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M0 0L100 100M0 0L100 40M0 0L40 100M0 0L100 0M0 0L0 100"/><path d="M0 22Q14 14 22 0M0 44Q28 30 44 0M0 66Q42 44 66 0M0 88Q55 58 88 0"/></g></svg>';
+      heroEl.appendChild(deco);
+    }
+    var hot = $(".price.hot"); if (hot) { var pk2 = document.createElement("i"); pk2.className = "price-pumpkin"; pk2.setAttribute("aria-hidden", "true"); pk2.textContent = "🎃"; hot.appendChild(pk2); }
+    $$(".sticky-cta [data-order]").forEach(function (b) { b.innerHTML = "🎃 Купити за " + money(P.price) + " →"; });
     /* Скільки лишилось до кінця акції (кінець дня P.to за Києвом) */
     var left = $("#promoLeft");
     var end = new Date(P.to + "T23:59:59+02:00").getTime(); // кінець P.to у Києві — літній час закінчився 25.10, тож UTC+2
