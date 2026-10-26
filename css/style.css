@@ -507,6 +507,7 @@ footer a { color: var(--ink-2); }
 @media (min-width: 760px) { .more-grid { grid-template-columns: 1fr 1fr; } }
 .field-hint { display: block; font-size: 13px; color: var(--muted); margin-top: 6px; transition: color .2s; }
 .field-hint.bad { color: #b4532f; font-weight: 700; }
+.mail-note { background: #fff4e0; border: 1px solid #f1d6b8; border-radius: 14px; padding: 10px 14px; font-size: 13.5px; line-height: 1.45; margin: 4px 0 14px; color: var(--ink); }
 .toast { width: max-content; max-width: calc(100vw - 32px); }
 
 /* ---------- Мої справжні сайти ---------- */
