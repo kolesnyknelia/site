@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Дякуємо за замовлення!</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎉</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=Onest:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+  <style>
+    .thanks { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; }
+    .thanks-box { max-width: 480px; width: 100%; text-align: center; background: var(--card); border-radius: var(--r); padding: 34px 22px; box-shadow: var(--shadow); }
+    .big { font-size: 64px; line-height: 1; margin-bottom: 12px; }
+    .sumline { background: var(--accent-l); border-radius: var(--r-s); padding: 14px; margin: 18px 0; }
+    .sumline b { font-weight: 800; color: var(--accent-d); }
+    .muted { color: var(--ink-2); font-size: 14px; }
+    .offer { text-align: left; border: 2px dashed var(--accent); border-radius: var(--r-s); padding: 16px; margin: 0 0 18px; background: var(--bg); }
+    .offer-row { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; }
+    .offer img { width: 84px; height: 84px; object-fit: contain; border-radius: 12px; background: #fff; }
+    .offer-tag { font-size: 11px; font-weight: 800; color: var(--accent-d); text-transform: uppercase; letter-spacing: .04em; }
+    .offer b { display: block; font-size: 16px; line-height: 1.25; margin: 2px 0; }
+    .offer small { display: block; color: var(--ink-2); font-size: 13px; line-height: 1.35; }
+    .offer .btn { width: 100%; margin-top: 14px; }
+    .offer-err { color: #c62828; font-weight: 600; font-size: 14px; text-align: center; margin: 8px 0 0; }
+    .offer-err:empty { display: none; }
+    .offer-done { text-align: center; font-weight: 700; color: var(--ok); margin: 0; }
+  </style>
+</head>
+<body>
+  <main class="thanks">
+    <div class="thanks-box">
+      <div class="big">🎉</div>
+      <h1>Дякуємо! Замовлення прийнято</h1>
+      <p>Менеджер зателефонує вам найближчим часом, щоб підтвердити замовлення й уточнити адресу Нової пошти.</p>
+      <div class="sumline" id="sumline" hidden>Сума: <b><span id="sum">0</span> грн</b> + доставка<br><small class="muted">Номер заявки: <span id="ref"></span></small></div>
+      <!-- ДОПРОДАЖ: назва й ціна — у js/config.js (upsellName, upsellPrice). Показуємо, якщо у формі його не взяли -->
+      <div class="offer" id="offer" hidden>
+        <div class="offer-row">
+          <img src="img/upsell.webp" alt="Чай-концентрат «Обліпиха» Monik 50 г" width="400" height="400">
+          <div>
+            <span class="offer-tag">Додайте до замовлення</span>
+            <b data-upsell-name>Чай-концентрат «Обліпиха» Monik 50 г</b>
+            <small>Пакетик + 200 мл окропу — і ягідний чай готовий. Приїде в одній посилці з чайником.</small>
+          </div>
+        </div>
+        <button class="btn" type="button" id="offerBtn">Додати за <span data-upsell-price>49</span> грн</button>
+        <p class="offer-err" id="offerErr" role="alert"></p>
+      </div>
+      <p class="muted">Тримайте телефон поруч 🙂 Дзвонимо з українського номера.</p>
+      <a class="btn" href="index.html">Повернутися на сайт</a>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var S = window.SITE || {}, q = new URLSearchParams(location.search);
+      var ref = (q.get("ref") || "").replace(/[^\w-]/g, "").slice(0, 40), sum = +q.get("sum") || 0;
+      if (ref) {
+        document.getElementById("sumline").hidden = false;
+        document.getElementById("sum").textContent = sum;
+        document.getElementById("ref").textContent = ref;
+      }
+
+      // Допродаж: один раз на заявку, і лише якщо його не взяли у формі
+      var upP = Math.max(0, +S.upsellPrice || 0), upKey = "upsell_" + ref, upDone = false;
+      try { upDone = !!localStorage.getItem(upKey); } catch (e) {}
+      var offer = document.getElementById("offer");
+      if (/^\d{6}-\d{6}-\d{2}$/.test(ref) && upP && S.upsellName && q.get("up") !== "1" && !upDone) {
+        offer.querySelectorAll("[data-upsell-price]").forEach(function (el) { el.textContent = upP; });
+        offer.querySelectorAll("[data-upsell-name]").forEach(function (el) { el.textContent = S.upsellName; });
+        offer.hidden = false;
+        var btn = document.getElementById("offerBtn"), err = document.getElementById("offerErr");
+        btn.addEventListener("click", function () {
+          err.textContent = ""; btn.disabled = true; btn.textContent = "Додаємо…";
+          fetch(S.endpoint || "api/order.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ addon: 1, ref: ref })
+          })
+            .then(function (r) { return r.json().catch(function () { return {}; }); })
+            .then(function (r) {
+              if (!r || !r.ok) throw new Error("fail");
+              try { localStorage.setItem(upKey, "1"); } catch (e) {}
+              document.getElementById("sum").textContent = sum + upP;
+              offer.innerHTML = '<p class="offer-done">✅ Додали до замовлення. Менеджер усе підтвердить при дзвінку.</p>';
+              if (window.fbq) fbq("track", "Purchase", { value: upP, currency: "UAH", content_name: S.upsellName, num_items: 1 }, { eventID: "up_" + ref });
+            })
+            .catch(function () {
+              btn.disabled = false; btn.textContent = "Додати за " + upP + " грн";
+              err.textContent = "Не вдалося додати. Спробуйте ще раз або скажіть менеджеру при дзвінку.";
+            });
+        });
+      }
+      var px = String(S.pixelId || "").replace(/\D/g, "");
+      if (!px) return;
+      !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); }; if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s); }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+      fbq("init", px); fbq("track", "PageView");
+      // Заявка (Lead) і покупка (Purchase) — один раз на заявку, навіть якщо сторінку оновили
+      var key = "px_purchase_" + ref, done = false;
+      try { done = !!localStorage.getItem(key); } catch (e) {}
+      if (ref && !done) {
+        fbq("track", "Lead", { value: sum, currency: "UAH", content_name: S.product }, { eventID: "lead_" + ref });
+        fbq("track", "Purchase", { value: sum, currency: "UAH", content_name: S.product, num_items: +q.get("qty") || 1 }, { eventID: ref });
+        try { localStorage.setItem(key, "1"); } catch (e) {}
+      }
+    })();
+  </script>
+</body>
+</html>
