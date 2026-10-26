@@ -109,7 +109,7 @@ details li::before{content:"—";position:absolute;left:0;color:var(--brown)}
 .pk{display:grid;grid-template-columns:.9fr 1.1fr;gap:50px;padding:46px 0;border-bottom:1px solid var(--ink);align-items:center}
 .pk:first-of-type{border-top:1px solid var(--ink)}
 .pk .pic{aspect-ratio:16/10;overflow:hidden}
-.pk .pic img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s}
+.pk .pic img{width:100%;height:100%;object-fit:cover;object-position:center 25%;transition:transform 1.2s}
 .pk:hover .pic img{transform:scale(1.05)}
 .pk h3{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(28px,3vw,36px);line-height:1.1;margin-bottom:6px}
 .pk .tag{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--brown);margin-bottom:16px}
@@ -303,7 +303,7 @@ var PACKS = [
     items: ["Усі 6 модулів у записі", "Конспекти з покроковими діями", "Проходите у своєму темпі"], price: "", dur: "" },
   { id: "curator", tag: "З куратором", title: "Навчання з куратором", img: "img/sea.webp", hit: true,
     items: ["Усе з пакета «Самостійно»", "Перевірка завдань куратором", "Відповіді на питання в чаті"], price: "", dur: "" },
-  { id: "mentor", tag: "Супровід з Нелею", title: "Особистий супровід", img: "img/portrait.webp",
+  { id: "mentor", tag: "Супровід з Нелею", title: "Особистий супровід", img: "img/portrait.webp", pos: "center 12%",
     items: ["Усе з пакета «З куратором»", "Особистий супровід від мене", "Розбір вашого товару, сайту й реклами"], price: "", dur: "" }
 ];
 var GIFT = { title: "Подарунок", text: "Тут буде опис подарунка — за що його отримують і що в нього входить." };
@@ -313,7 +313,7 @@ var GIFT = { title: "Подарунок", text: "Тут буде опис под
   var list=$("#packList"), sel=$("#packSel");
   sel.innerHTML='<option value="">Оберіть пакет</option>'+PACKS.map(function(p){return '<option value="'+p.id+'">'+p.tag+'</option>'}).join("");
   list.innerHTML=PACKS.map(function(p){
-    return '<article class="pk rv'+(p.hit?' hit':'')+'"><div class="pic"><img src="'+p.img+'" alt="" loading="lazy"></div><div>'+
+    return '<article class="pk rv'+(p.hit?' hit':'')+'"><div class="pic"><img src="'+p.img+'" alt="" loading="lazy"'+(p.pos?' style="object-position:'+p.pos+'"':'')+'></div><div>'+
       '<div class="tag">'+p.tag+(p.hit?' · популярний':'')+'</div><h3>'+p.title+'</h3><ul>'+p.items.map(function(i){return '<li>'+i+'</li>'}).join("")+'</ul>'+
       '<div class="row">'+(p.price?'<span class="price">'+p.price+'</span>':'<span class="price soon">ціну уточнюйте</span>')+(p.dur?'<span class="dur">'+p.dur+'</span>':'')+'</div>'+
       '<button class="line-btn" type="button" data-pack="'+p.id+'">Записатися</button></div></article>';
