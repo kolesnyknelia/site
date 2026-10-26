@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="img/nelia-laptop.webp">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=72">
 </head>
 <body>
 <div class="progress-top" id="progressTop"></div>
@@ -174,33 +174,37 @@
     <div class="section-head reveal">
       <span class="eyebrow">Живі приклади</span>
       <h2>Погортайте сайти, які <em>ви робитимете</em></h2>
-      <p>Оберіть приклад і гортайте сайт пальцем просто в телефоні. Кнопки працюють 👇</p>
+      <p>Сайти гортаються самі. Натисніть на будь-який — відкриється справжня сторінка, кнопки працюють 👇</p>
     </div>
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-niche="zavarnyk" data-sound="tab">🫖 Заварник — зроблено скілом</button>
-      <button class="tab" role="tab" data-niche="skintone" data-sound="tab">✨ LED-масажер</button>
-      <button class="tab" role="tab" data-niche="tovar" data-sound="tab">📦 Ще один товар</button>
+    <div class="ex-grid">
+      <a class="exc reveal" href="zavarnyk/" target="_blank" rel="noopener" data-sound="whoosh">
+        <div class="exc-phone"><div class="exc-screen"><img src="img/ex/zavarnyk.webp" alt="Приклад сайту: Заварник Edenberg" loading="lazy" width="520"></div></div>
+        <div class="exc-cap"><small>🫖 Товарка · зроблено скілом</small><b>Заварник Edenberg</b><span>Відкрити сайт ↗</span></div>
+      </a>
+      <a class="exc reveal" href="skintone/" target="_blank" rel="noopener" data-sound="whoosh">
+        <div class="exc-phone"><div class="exc-screen"><img src="img/ex/skintone.webp" alt="Приклад сайту: LED-масажер для обличчя" loading="lazy" width="520"></div></div>
+        <div class="exc-cap"><small>✨ Товарка · beauty-стиль</small><b>LED-масажер для обличчя</b><span>Відкрити сайт ↗</span></div>
+      </a>
+      <a class="exc reveal" href="examples/tovar.html" target="_blank" rel="noopener" data-sound="whoosh">
+        <div class="exc-phone"><div class="exc-screen"><img src="img/ex/tovar.webp" alt="Приклад сайту: Масажний пістолет" loading="lazy" width="520"></div></div>
+        <div class="exc-cap"><small>📦 Товарка · класика</small><b>Масажний пістолет</b><span>Відкрити сайт ↗</span></div>
+      </a>
+      <a class="exc reveal" href="examples/expert.html" target="_blank" rel="noopener" data-sound="whoosh">
+        <div class="exc-phone"><div class="exc-screen"><img src="img/ex/expert.webp" alt="Приклад сайту: Онлайн-курс" loading="lazy" width="520"></div></div>
+        <div class="exc-cap"><small>🎓 Курс · експерт</small><b>Онлайн-курс</b><span>Відкрити сайт ↗</span></div>
+      </a>
+      <a class="exc reveal" href="examples/psycholog.html" target="_blank" rel="noopener" data-sound="whoosh">
+        <div class="exc-phone"><div class="exc-screen"><img src="img/ex/psycholog.webp" alt="Приклад сайту: Психолог" loading="lazy" width="520"></div></div>
+        <div class="exc-cap"><small>🌿 Послуги · консультації</small><b>Психолог</b><span>Відкрити сайт ↗</span></div>
+      </a>
+      <a class="exc reveal" href="examples/sport.html" target="_blank" rel="noopener" data-sound="whoosh">
+        <div class="exc-phone"><div class="exc-screen"><img src="img/ex/sport.webp" alt="Приклад сайту: Фітнес-тренер" loading="lazy" width="520"></div></div>
+        <div class="exc-cap"><small>💪 Тренер · програми для залу</small><b>Фітнес-тренер</b><span>Відкрити сайт ↗</span></div>
+      </a>
     </div>
-    <div class="example">
-      <div class="example-info reveal">
-        <div class="card">
-          <h3 id="exTitle">—</h3>
-          <div class="example-meta" id="exChips"></div>
-          <ol id="exBlocks"></ol>
-          <p style="color:var(--ink-2)" id="exWhy"></p>
-          <a href="#pricing" class="btn btn-block" data-sound="coin">Хочу такий самий</a>
-        </div>
-      </div>
-      <div class="phone-wrap reveal d1">
-        <div class="phone" id="phone">
-          <iframe id="exampleFrame" title="Приклад сайту" loading="lazy"></iframe>
-          <div class="scroll-hint" id="scrollHint"><span class="hand">👆</span> Гортайте сайт</div>
-        </div>
-        <div class="phone-actions">
-          <button class="btn btn-light" id="autoScroll" type="button" data-sound="whoosh">▶ Прогорнути</button>
-          <a id="exampleOpen" class="btn btn-ghost" target="_blank" rel="noopener" data-sound="whoosh">↗ На весь екран</a>
-        </div>
-      </div>
+    <div class="ex-cta reveal">
+      <p>Кожен із цих сайтів зроблено з ШІ за вечір. Ваш буде таким самим — з вашим товаром чи послугою.</p>
+      <a href="#pricing" class="btn" data-sound="coin">Хочу такий самий</a>
     </div>
   </div>
 </section>
@@ -556,7 +560,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="js/config.js"></script>
-<script src="js/main.js?v=71"></script>
+<script src="js/main.js?v=72"></script>
 <script src="js/fx.js"></script>
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 </body>

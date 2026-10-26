@@ -139,45 +139,22 @@
   });
   calc();
 
-  /* ---------- Приклади сайтів за нішами ---------- */
-  var NICHES = {
-    zavarnyk: {
-      url: "zavarnyk/",
-      title: "Заварник Edenberg — сайт зі скіла «Сайт під товар»",
-      chips: ["Зроблено скілом", "Форма: ім'я + телефон", "Допродаж у формі", "Заявки в Telegram", "Піксель Meta"],
-      blocks: ["Головний екран: фото в арці, ціна зі знижкою, кнопка «Замовити»", "Переваги товару з фото", "Характеристики і комплект", "Як замовити: 3 кроки", "Форма замовлення + галочка допродажу → заявка в Telegram", "Доставка Новою поштою, оплата при отриманні", "Оферта, політика й умови повернення"],
-      why: "Такий сайт ви зробите в курсі: даєте Claude посилання на товар і ціну — скіл збирає все сам."
-    },
-    skintone: {
-      url: "skintone/",
-      title: "LED-масажер для обличчя — ніжний beauty-стиль",
-      chips: ["Світлий дизайн", "Інтерактив: 7 кольорів", "1 або 2 шт", "Форма: ім'я + телефон"],
-      blocks: ["Головний екран: фото, ціна зі знижкою, таймер до кінця дня", "Бігучий рядок з перевагами", "4 технології приладу картками", "Інтерактив: натискаєте колір — змінюється підсвітка", "Фото в житті", "Ритуал у 3 кроки", "Характеристики і комплект", "Форма замовлення: 1 або 2 шт → заявка в Telegram", "Часті питання"],
-      why: "Товар з Prom → сайт у стилі beauty-бренду: даєте Claude посилання і просите «ніжний світлий дизайн»."
-    },
-    tovar: {
-      url: "examples/tovar.html",
-      title: "Товарка: продаж одного товару",
-      chips: ["1 товар", "Кнопка «Купити»", "Форма: ім'я + телефон", "Таймер акції"],
-      blocks: ["Головний екран: фото товару + ціна + кнопка «Замовити»", "Проблема → як товар її вирішує", "3–5 переваг з іконками", "Фото/відео в житті + відгуки покупців", "Акція: стара/нова ціна, обмежена кількість", "Форма замовлення: ім'я, телефон → заявка в Telegram", "Доставка Новою поштою, оплата при отриманні"],
-      why: "Класика товарного бізнесу: реклама → лендінг → заявка → менеджер дзвонить → відправка НП."
-    }
-  };
-  var frame = $("#exampleFrame"), openFull = $("#exampleOpen");
-  function showNiche(key) {
-    var n = NICHES[key]; if (!n || !frame) return;
-    $$(".tab[data-niche]").forEach(function (t) { t.setAttribute("aria-selected", t.dataset.niche === key ? "true" : "false"); });
-    frame.src = n.url;
-    if (openFull) openFull.href = n.url;
-    $("#exTitle").textContent = n.title;
-    $("#exWhy").textContent = n.why;
-    $("#exChips").innerHTML = n.chips.map(function (c) { return '<span class="chip">' + c + "</span>"; }).join("");
-    $("#exBlocks").innerHTML = n.blocks.map(function (b) { return "<li>" + b + "</li>"; }).join("");
+  /* ---------- Приклади: сайти гортаються самі в телефонах ---------- */
+  function fitEx(img) {
+    var scr = img.parentNode, d = img.offsetHeight - scr.offsetHeight;
+    scr.style.setProperty("--dist", Math.max(0, d) + "px");
+    scr.style.setProperty("--dur", Math.max(10, d / 45) + "s");
   }
-  $$(".tab[data-niche]").forEach(function (t) {
-    t.addEventListener("click", function () { showNiche(t.dataset.niche); });
+  $$(".exc-screen img").forEach(function (img) {
+    if (img.complete) fitEx(img); else img.addEventListener("load", function () { fitEx(img); });
   });
-  showNiche("zavarnyk");
+  addEventListener("resize", function () { $$(".exc-screen img").forEach(fitEx); });
+  if ("IntersectionObserver" in window) {
+    var exIo = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle("run", e.isIntersecting); });
+    });
+    $$(".exc-screen").forEach(function (el) { exIo.observe(el); });
+  } else { $$(".exc-screen").forEach(function (el) { el.classList.add("run"); }); }
 
   /* ---------- Генератор промпту для ШІ ---------- */
   var pNiche = $("#pNiche"), pProduct = $("#pProduct"), pPrice = $("#pPrice"), pOut = $("#promptOut"), typing;
