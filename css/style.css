@@ -511,3 +511,27 @@ footer a { color: var(--ink-2); }
 .pumpkins i { position: absolute; top: -40px; font-style: normal; opacity: .85; animation: pumpkin-fall linear infinite; }
 @keyframes pumpkin-fall { 0% { transform: translateY(-40px) rotate(0); } 50% { transform: translateY(45vh) translateX(18px) rotate(160deg); } 100% { transform: translateY(95vh) rotate(320deg); opacity: 0; } }
 .hero > .container { position: relative; z-index: 1; }
+
+/* Хелловін: ціна одразу на першому екрані + декор (лише в дні акції) */
+.promo-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; background: #2b1a10; color: #fff; border-radius: 26px; padding: 16px 18px; margin: 4px 0 22px; box-shadow: 0 18px 40px -20px rgba(43,26,16,.7); position: relative; z-index: 2; }
+.promo-hero .ph-price { display: grid; line-height: 1.1; }
+.promo-hero s { opacity: .6; font-weight: 600; }
+.promo-hero b { font-family: var(--serif); font-size: 46px; color: #ffb347; }
+.promo-hero small { font-size: 13px; opacity: .85; }
+.promo-hero .btn { flex: 1 1 220px; }
+.hw-deco { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+.hw-deco i { position: absolute; font-style: normal; }
+.bat { top: 18%; left: -60px; font-size: 30px; animation: bat-fly 14s linear infinite; }
+.bat.b2 { top: 8%; font-size: 22px; animation-duration: 18s; animation-delay: -6s; }
+.bat.b3 { top: 30%; font-size: 26px; animation-duration: 16s; animation-delay: -11s; }
+@keyframes bat-fly { 0% { transform: translate(0, 0) scaleX(1); } 25% { transform: translate(30vw, -30px); } 50% { transform: translate(60vw, 20px); } 75% { transform: translate(85vw, -20px); } 100% { transform: translate(115vw, 10px); } }
+.spider { position: absolute; top: 0; right: 14%; width: 1px; height: 120px; background: rgba(43,48,42,.35); transform-origin: top; animation: spider-drop 6s ease-in-out infinite; }
+.spider i { left: -12px; bottom: -22px; font-size: 24px; }
+@keyframes spider-drop { 0%, 100% { height: 60px; } 50% { height: 170px; } }
+.ghost { right: 6%; top: 52%; font-size: 40px; opacity: .85; animation: ghost-float 5s ease-in-out infinite; }
+@keyframes ghost-float { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-22px) rotate(6deg); } }
+.web { position: absolute; top: 0; left: 0; width: 120px; height: 120px; color: rgba(43,48,42,.22); }
+.price.hot { overflow: visible; }
+.price-pumpkin { position: absolute; right: -10px; top: -22px; font-size: 44px; font-style: normal; transform: rotate(12deg); animation: ghost-float 4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .bat, .spider, .ghost, .price-pumpkin { animation: none; } .bat { display: none; } }
+.promo-hero .btn { background: #ff8a1f; color: #fff; }
