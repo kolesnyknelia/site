@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LED-масажер для обличчя та шиї SkinTone 7X — домашній ритуал сяйва | Сяйво</title>
+  <meta name="description" content="LED-масажер SkinTone 7X: 7 кольорів світла, підігрів, мікрострум і вібрація. Доставка Новою поштою, оплата при отриманні.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#f7f0ff">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="logo" href="#">сяйво<span>·</span><small>догляд вдома</small></a>
+  <a class="btn btn-sm" href="#order">Замовити</a>
+</header>
+
+<main>
+  <!-- 1. ГОЛОВНИЙ ЕКРАН -->
+  <section class="hero">
+    <div class="glow g1"></div><div class="glow g2"></div>
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <span class="eyebrow">LED-масажер для обличчя та шиї · SkinTone 7X</span>
+        <h1>Ваш домашній<br><em>ритуал сяйва</em></h1>
+        <p class="lead">Світло, тепло, мікрострум і делікатна вібрація в одному приладі. Кілька хвилин увечері — і догляд, як після кабінету косметолога, тільки вдома.</p>
+        <div class="price-row">
+          <span class="price">350 <small>грн</small></span>
+          <s class="old">450 грн</s>
+          <span class="badge">−22%</span>
+        </div>
+        <a class="btn btn-lg" href="#order">Замовити зі знижкою <span>→</span></a>
+        <p class="timer-line">Ціна діє ще <b class="js-timer">--:--:--</b></p>
+      </div>
+      <div class="hero-pic">
+        <div class="ring" id="heroRing"></div>
+        <img src="img/hero.webp" alt="LED-масажер SkinTone 7X для обличчя та шиї" width="900" height="900">
+        <span class="float f1">💡 7 кольорів LED</span>
+        <span class="float f2">🔥 Підігрів</span>
+        <span class="float f3">⚡ EMS-мікрострум</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div>
+    <span>7 режимів</span><i>✦</i><span>Підігрів</span><i>✦</i><span>EMS</span><i>✦</i><span>Вібрація</span><i>✦</i><span>USB-зарядка</span><i>✦</i><span>Обличчя · шия · декольте</span><i>✦</i>
+    <span>7 режимів</span><i>✦</i><span>Підігрів</span><i>✦</i><span>EMS</span><i>✦</i><span>Вібрація</span><i>✦</i><span>USB-зарядка</span><i>✦</i><span>Обличчя · шия · декольте</span><i>✦</i>
+  </div></div>
+
+  <!-- 2. ЩО ВМІЄ -->
+  <section class="wrap">
+    <div class="head">
+      <span class="eyebrow">4 в 1</span>
+      <h2>Чотири технології —<br><em>один рух рукою</em></h2>
+    </div>
+    <div class="cards">
+      <div class="card"><span class="ico">💡</span><b>Світлотерапія</b><p>7 кольорів LED для різних потреб шкіри.</p></div>
+      <div class="card"><span class="ico">🔥</span><b>М'яке тепло</b><p>Допомагає краще вбирати креми й сироватки.</p></div>
+      <div class="card"><span class="ico">⚡</span><b>EMS-мікрострум</b><p>Делікатна стимуляція для тонусу шкіри.</p></div>
+      <div class="card"><span class="ico">〰️</span><b>Вібрація</b><p>Розслабляє м'язи обличчя та шиї.</p></div>
+    </div>
+  </section>
+
+  <!-- 3. КОЛЬОРИ (інтерактив) -->
+  <section class="colors-sec">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Натисніть на колір</span>
+        <h2>7 кольорів світла —<br><em>під ваш настрій шкіри</em></h2>
+      </div>
+      <div class="colors">
+        <div class="lamp" id="lamp"><img src="img/hero.webp" alt="" loading="lazy" width="900" height="900"></div>
+        <div>
+          <div class="dots" role="tablist">
+            <button class="dot" style="--c:#ff4d5e" data-t="Червоне" data-d="Для пружності та еластичності шкіри." aria-label="Червоне"></button>
+            <button class="dot" style="--c:#3ccf7a" data-t="Зелене" data-d="Для заспокоєння та рівного тону." aria-label="Зелене"></button>
+            <button class="dot" style="--c:#4c7dff" data-t="Синє" data-d="Для чистої, свіжої шкіри." aria-label="Синє"></button>
+            <button class="dot" style="--c:#ffc83d" data-t="Жовте" data-d="Для природного сяйва." aria-label="Жовте"></button>
+            <button class="dot" style="--c:#a55cff" data-t="Фіолетове" data-d="Для легкості та свіжого вигляду зранку." aria-label="Фіолетове"></button>
+            <button class="dot" style="--c:#38d6e8" data-t="Блакитне" data-d="Для розслаблення після довгого дня." aria-label="Блакитне"></button>
+            <button class="dot" style="--c:#e9e4ff" data-t="Біле" data-d="Для загального догляду щодня." aria-label="Біле"></button>
+          </div>
+          <div class="color-card"><b id="cName">Фіолетове</b><p id="cDesc">Для легкості та свіжого вигляду зранку.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. ФОТО -->
+  <section class="wrap">
+    <div class="gallery">
+      <figure class="tall"><img src="img/woman2.webp" alt="Масаж шиї LED-масажером" loading="lazy" width="634" height="1150"></figure>
+      <figure><img src="img/kit.webp" alt="Масажер, коробка і кабель" loading="lazy" width="900" height="732"></figure>
+      <figure><img src="img/woman1.webp" alt="Догляд за шкірою шиї" loading="lazy" width="720" height="994"></figure>
+    </div>
+  </section>
+
+  <!-- 5. РИТУАЛ -->
+  <section class="ritual-sec">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Як користуватися</span>
+        <h2>Ритуал <em>у 3 кроки</em></h2>
+      </div>
+      <ol class="steps">
+        <li><span>01</span><b>Нанесіть засіб</b><p>Сироватку, крем чи гель — масажер підсилює доглядовий ефект.</p></li>
+        <li><span>02</span><b>Оберіть режим</b><p>Колір світла, тепло чи EMS — одною кнопкою M.</p></li>
+        <li><span>03</span><b>Масажуйте знизу вгору</b><p>Шия, підборіддя, обличчя. Повільно, без натиску.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 6. ХАРАКТЕРИСТИКИ -->
+  <section class="wrap specs-grid">
+    <img class="specs-pic" src="img/box.webp" alt="Комплект: масажер, коробка, кабель, інструкція" loading="lazy" width="900" height="739">
+    <div>
+      <span class="eyebrow">Характеристики</span>
+      <h2>Що <em>в коробці</em></h2>
+      <dl class="specs">
+        <div><dt>Тип</dt><dd>масажер для обличчя та шиї</dd></div>
+        <div><dt>Режими</dt><dd>7 кольорів LED, тепло, EMS, вібрація</dd></div>
+        <div><dt>Живлення</dt><dd>вбудований акумулятор</dd></div>
+        <div><dt>Заряджання</dt><dd>USB</dd></div>
+        <div><dt>Корпус</dt><dd>ABS-пластик і метал</dd></div>
+        <div><dt>Колір</dt><dd>білий</dd></div>
+        <div><dt>Комплект</dt><dd>масажер, кабель, інструкція</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 7. ЗАМОВЛЕННЯ -->
+  <section class="order-sec" id="order">
+    <div class="wrap order">
+      <div class="order-info">
+        <span class="eyebrow">Оформлення</span>
+        <h2>Замовте <em>сяйво</em> додому</h2>
+        <ul class="perks">
+          <li>📦 Новою поштою за 1–3 дні</li>
+          <li>💳 Оплата при отриманні</li>
+          <li>🎁 2 шт — 650 грн: собі й мамі</li>
+        </ul>
+      </div>
+      <form class="form" id="orderForm" novalidate>
+        <div class="qty">
+          <label><input type="radio" name="qty" value="1" checked><span><b>1 шт</b><i>350 грн</i></span></label>
+          <label><input type="radio" name="qty" value="2"><span><b>2 шт</b><i>650 грн</i><em>−50 грн</em></span></label>
+        </div>
+        <label class="fld"><span>Ваше ім'я</span><input name="name" autocomplete="name" placeholder="Олена" required></label>
+        <label class="fld"><span>Телефон</span><input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+380 __ ___ __ __" required></label>
+        <p class="err" id="formErr" role="alert"></p>
+        <button class="btn btn-lg btn-block" type="submit">Замовити · <span id="total">350</span> грн</button>
+        <p class="note">Менеджер зателефонує, щоб підтвердити замовлення.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- 8. ПИТАННЯ -->
+  <section class="wrap faq">
+    <h2>Часті <em>питання</em></h2>
+    <details><summary>Для яких зон підходить?</summary><p>Обличчя, лоб, підборіддя, шия і зона декольте.</p></details>
+    <details><summary>Чи можна користуватися з кремом?</summary><p>Так, масажер можна використовувати разом із сироватками, кремами та іншими засобами.</p></details>
+    <details><summary>Як оплатити?</summary><p>Оплата при отриманні на Новій пошті — спершу оглядаєте посилку.</p></details>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Сяйво · догляд вдома</p>
+  <p class="demo">Демо-приклад сайту з курсу «Сайт за 1 вечір з ШІ» · заявки з цієї сторінки нікуди не надсилаються</p>
+</footer>
+
+<a class="sticky" id="sticky" href="#order">Замовити · 350 грн</a>
+
+<script src="js/app.js"></script>
+</body>
+</html>
