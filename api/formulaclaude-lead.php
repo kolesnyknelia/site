@@ -1,5 +1,5 @@
 <?php
-/* Заявка з сайту курсу «Повна полиця» (sklad/) → Telegram */
+/* Заявка з сайту курсу «Формула Claude» (formulaclaude/) → Telegram */
 define('APP', 1);
 require __DIR__ . '/lib.php';
 header('Content-Type: application/json; charset=utf-8');
@@ -7,7 +7,7 @@ header('Content-Type: application/json; charset=utf-8');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); exit(json_encode(['ok' => false])); }
 if (trim((string)g($_POST, 'website')) !== '') exit(json_encode(['ok' => true])); // бот заповнив приховане поле
 
-$PACKS = ['self' => 'Самостійно', 'group' => 'З перевіркою', 'vip' => 'Особисто з Нелею'];
+$PACKS = ['self' => 'Самостійно', 'group' => 'З куратором', 'vip' => 'Особисто з Нелею'];
 
 $name    = trim(str_cut(strip_tags((string)g($_POST, 'name')), 80));
 $contact = trim(str_cut(strip_tags((string)g($_POST, 'contact')), 80));
@@ -23,12 +23,12 @@ $packName = isset($PACKS[$pack]) ? $PACKS[$pack] : 'не обрано';
 $nick = preg_match('/^@?([A-Za-z][A-Za-z0-9_]{4,31})$/', $contact, $m) ? $m[1] : '';
 $who = $nick ? '<a href="https://t.me/' . $nick . '">@' . $nick . '</a>' : h($contact);
 
-$ok = tg("📦 <b>Заявка «Повна полиця»</b>\n"
+$ok = tg("📦 <b>Заявка «Формула Claude»</b>\n"
     . "👤 " . h($name) . "\n"
     . "📱 " . $who . "\n"
     . "🎫 Пакет: <b>" . h($packName) . "</b>"
     . ($note !== '' ? "\n💬 " . h($note) : '')
     . "\n📊 " . h(utm_text($utm)));
-log_line('sklad-leads.log', array('name' => $name, 'contact' => $contact, 'pack' => $pack, 'tg' => $ok));
+log_line('formulaclaude-leads.log', array('name' => $name, 'contact' => $contact, 'pack' => $pack, 'tg' => $ok));
 
 echo json_encode(['ok' => true]);

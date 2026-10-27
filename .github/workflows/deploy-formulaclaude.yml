@@ -1,21 +1,21 @@
-# Сайт курсу «Повна полиця» → formulaclaude.kvn.kiev.ua (папка /kvn.kiev.ua/formulaclaude/ на хостингу)
+# Сайт курсу «Формула Claude» → formulaclaude.kvn.kiev.ua (папка /kvn.kiev.ua/formulaclaude/ на хостингу)
 # Піддомен треба створити в adm.tools: «Мої сайти» → kvn.kiev.ua → піддомен formulaclaude.
-# Заявки: sklad/index.html → api/sklad-lead.php → Telegram.
+# Заявки: formulaclaude/index.html → api/formulaclaude-lead.php → Telegram.
 # Ключ Telegram — спільний /kvn.kiev.ua/private/config.php (той самий, що для kvn.kiev.ua).
-name: Deploy sklad (formulaclaude.kvn.kiev.ua)
+name: Deploy formulaclaude (formulaclaude.kvn.kiev.ua)
 
 on:
   push:
     branches: [main]
     paths:
-      - "sklad/**"
-      - "api/sklad-lead.php"
+      - "formulaclaude/**"
+      - "api/formulaclaude-lead.php"
       - "api/lib.php"
-      - ".github/workflows/deploy-sklad.yml"
+      - ".github/workflows/deploy-formulaclaude.yml"
   workflow_dispatch:
 
 concurrency:
-  group: ftp-deploy-sklad
+  group: ftp-deploy-formulaclaude
   cancel-in-progress: false
 
 env:
@@ -31,8 +31,8 @@ jobs:
       - name: Build
         run: |
           mkdir -p _deploy/api
-          cp -r sklad/. _deploy/
-          cp api/sklad-lead.php api/lib.php api/settings.php api/.htaccess _deploy/api/
+          cp -r formulaclaude/. _deploy/
+          cp api/formulaclaude-lead.php api/lib.php api/settings.php api/.htaccess _deploy/api/
           find _deploy -type f | sort
 
       - name: Prepare sync state (first deploy)
