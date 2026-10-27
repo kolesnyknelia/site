@@ -1,8 +1,8 @@
-# Сайт курсу «Повна полиця» → sklad.kvn.kiev.ua (папка /kvn.kiev.ua/sklad/ на хостингу)
-# Піддомен треба створити в adm.tools: «Мої сайти» → kvn.kiev.ua → піддомен sklad.
+# Сайт курсу «Повна полиця» → formulaclaude.kvn.kiev.ua (папка /kvn.kiev.ua/formulaclaude/ на хостингу)
+# Піддомен треба створити в adm.tools: «Мої сайти» → kvn.kiev.ua → піддомен formulaclaude.
 # Заявки: sklad/index.html → api/sklad-lead.php → Telegram.
 # Ключ Telegram — спільний /kvn.kiev.ua/private/config.php (той самий, що для kvn.kiev.ua).
-name: Deploy sklad (sklad.kvn.kiev.ua)
+name: Deploy sklad (formulaclaude.kvn.kiev.ua)
 
 on:
   push:
@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DEPLOY_DIR: /kvn.kiev.ua/sklad/
+  DEPLOY_DIR: /kvn.kiev.ua/formulaclaude/
 
 jobs:
   deploy:
