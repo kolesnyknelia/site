@@ -1,0 +1,45 @@
+# Тільки ПЕРЕГЛЯД файлу на хостингу з номерами рядків. Нічого не змінює.
+# Ключі, токени й паролі маскуються (***), щоб не потрапили в лог.
+name: Show file
+
+on:
+  workflow_dispatch:
+    inputs:
+      path:
+        description: "Файл, напр. /noosal.shop/4asu/thanks.php"
+        required: true
+      lines:
+        description: "Рядки від-до, напр. 1-200 (порожньо = весь файл)"
+        default: ""
+
+jobs:
+  show:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FILE: ${{ inputs.path }}
+          LINES: ${{ inputs.lines }}
+        shell: python
+        run: |
+          import os, io, re, ftplib
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p(); ftp.encoding = "latin-1"
+          buf = io.BytesIO(); ftp.retrbinary(f"RETR {os.environ['FILE'].strip()}", buf.write)
+          ftp.quit()
+          lines = buf.getvalue().decode("utf-8", "replace").splitlines()
+          a, b = 1, len(lines)
+          m = re.match(r"\s*(\d+)\s*-\s*(\d+)\s*$", os.environ["LINES"])
+          if m:
+              a, b = int(m.group(1)), min(int(m.group(2)), len(lines))
+          long_tok = re.compile(r"[A-Za-z0-9:_\-]{20,}")
+          # значення змінних/полів з «секретними» назвами
+          named = re.compile(r"""((?:key|token|pass(?:word)?|secret|api)[A-Za-z_]*['"]?\s*(?:=>|=)\s*['"])([^'"]+)(['"])""", re.I)
+          print(f"== {os.environ['FILE']} ({len(lines)} рядків)")
+          for i in range(a, b + 1):
+              s = named.sub(r"\1***\3", lines[i - 1])
+              print(f"{i:4}: {long_tok.sub('***', s)}")
