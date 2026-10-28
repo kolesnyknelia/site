@@ -1,0 +1,179 @@
+# Переключити thanks.php лендингу з SalesDrive на LP-CRM (ключі беруться з іншого вашого сайту,
+# де LP-CRM уже працює, — копіюються сервер→сервер і НЕ виводяться в лог).
+# dry_run=yes — показати новий файл (ключі замасковано), нічого не змінюючи.
+name: Switch to LP-CRM
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Файл, який переключаємо, напр. /noosal.shop/4asu/thanks.php"
+        required: true
+      source:
+        description: "Файл з робочими налаштуваннями LP-CRM, напр. /noosal.shop/sriblo/upsell.php"
+        required: true
+      product_id:
+        description: "ID товару в LP-CRM, напр. 122"
+        required: true
+      dry_run:
+        description: "Лише показати (yes/no)"
+        default: "yes"
+
+jobs:
+  switch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Switch
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          TARGET: ${{ inputs.target }}
+          SOURCE: ${{ inputs.source }}
+          PID: ${{ inputs.product_id }}
+          DRY: ${{ inputs.dry_run }}
+        shell: python
+        run: |
+          import os, io, re, ftplib, time
+          TARGET, SOURCE = os.environ["TARGET"].strip(), os.environ["SOURCE"].strip()
+          PID = os.environ["PID"].strip()
+          if not PID.isdigit():
+              raise SystemExit("product_id має бути числом")
+          dry = os.environ["DRY"].strip().lower() != "no"
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"]); ftp.prot_p()
+
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          def get(p):
+              ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {p}") as c:
+                  while ch := c.recv(65536):
+                      buf.write(ch)
+                  close_tls(c)
+              ftp.voidresp()
+              return buf.getvalue().decode("utf-8")
+
+          def put(p, text):
+              ftp.voidcmd("TYPE I")
+              with ftp.transfercmd(f"STOR {p}") as c:
+                  c.sendall(text.encode("utf-8")); close_tls(c)
+              ftp.voidresp()
+
+          # ---- налаштування LP-CRM з робочого сайту
+          src = get(SOURCE)
+          cfg = {}
+          for k in ("crm_key", "crm_url", "crm_office", "crm_payment"):
+              m = re.search(r"\$" + k + r"\s*=\s*'([^']+)'", src)
+              if not m:
+                  raise SystemExit(f"У {SOURCE} не знайдено ${k}")
+              cfg[k] = m.group(1)
+          print("LP-CRM:", cfg["crm_url"], "| office", cfg["crm_office"], "| payment", cfg["crm_payment"], "| key: знайдено (не показується)")
+
+          s = get(TARGET)
+          orig = s
+
+          # 1) блок налаштувань SalesDrive → LP-CRM
+          sd_cfg = re.compile(r"/\* =+ SalesDrive =+ \*/.*?\$SD_URL[^\n]*\n", re.S)
+          if not sd_cfg.search(s):
+              raise SystemExit("Не знайдено блок налаштувань SalesDrive — файл не того формату, нічого не змінено")
+          s = sd_cfg.sub(lambda _: (
+              "/* ========= LP-CRM ========= */\n"
+              f"$crm_key     = '{cfg['crm_key']}';\n"
+              f"$crm_url     = '{cfg['crm_url']}';\n"
+              f"$crm_office  = '{cfg['crm_office']}'; // офіс (id в CRM)\n"
+              f"$crm_payment = '{cfg['crm_payment']}'; // оплата при отриманні (id в CRM)\n"), s, count=1)
+
+          # 2) ID товару
+          m = re.search(r"\$DEFAULT_PRODUCT_ID\s*=\s*'(\d+)'", s)
+          if not m:
+              raise SystemExit("Не знайдено $DEFAULT_PRODUCT_ID")
+          old = m.group(1)
+          s = re.sub(r"(\$DEFAULT_PRODUCT_ID\s*=\s*)'\d+'(;\s*//)[^\n]*", lambda mm: f"{mm.group(1)}'{PID}'{mm.group(2)} ID товару в LP-CRM", s, count=1)
+          s, n = re.subn(r"(\$allowed\s*=\s*\[\s*\n\s*)'" + old + r"'", lambda mm: f"{mm.group(1)}'{PID}'", s, count=1)
+          if n != 1:
+              raise SystemExit("Не знайдено ціну товару в $allowed")
+          s = s.replace("КЛЮЧ = ID товару в SalesDrive", "КЛЮЧ = ID товару в LP-CRM")
+
+          # 3) відправка SalesDrive → LP-CRM
+          send = re.compile(r"/\* Тіло запиту згідно з /handler/ \*/.*?(?=/\* Телеграм)", re.S)
+          if not send.search(s):
+              raise SystemExit("Не знайдено блок відправки в SalesDrive")
+          lp = (
+              "/* Відправка в LP-CRM */\n"
+              "$products_list = [0 => [\n"
+              "  'product_id' => (int)$product_id,\n"
+              "  'price'      => (int)$product_price,\n"
+              "  'count'      => 1,\n"
+              "]];\n"
+              "$crm_data = [\n"
+              "  'key'             => $crm_key,\n"
+              "  'order_id'        => number_format(round(microtime(true) * 10), 0, '.', ''),\n"
+              "  'country'         => 'UA',\n"
+              "  'office'          => $crm_office,\n"
+              "  'products'        => urlencode(serialize($products_list)),\n"
+              "  'bayer_name'      => $name,\n"
+              "  'phone'           => $phone,\n"
+              "  'email'           => $_POST['email'] ?? '',\n"
+              "  'comment'         => $product_name,\n"
+              "  'delivery'        => $_POST['delivery'] ?? '',\n"
+              "  'delivery_adress' => $_POST['delivery_adress'] ?? '',\n"
+              "  'payment'         => $crm_payment,\n"
+              "  'sender'          => urlencode(serialize($_SERVER)),\n"
+              "  'utm_source'      => $utm['source'],\n"
+              "  'utm_medium'      => $utm['medium'],\n"
+              "  'utm_term'        => $utm['term'],\n"
+              "  'utm_content'     => $utm['content'],\n"
+              "  'utm_campaign'    => $utm['campaign'],\n"
+              "];\n"
+              "$ch = curl_init();\n"
+              "curl_setopt($ch, CURLOPT_URL, $crm_url);\n"
+              "curl_setopt($ch, CURLOPT_POST, true);\n"
+              "curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n"
+              "curl_setopt($ch, CURLOPT_TIMEOUT, 20);\n"
+              "curl_setopt($ch, CURLOPT_POSTFIELDS, $crm_data);\n"
+              "$resp      = curl_exec($ch);\n"
+              "$curl_err  = curl_error($ch);\n"
+              "$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);\n"
+              "curl_close($ch);\n"
+              "\n"
+              "/* Розбір відповіді LP-CRM */\n"
+              "$data  = json_decode((string)$resp, true);\n"
+              "$sd_ok = is_array($data) && (($data['status'] ?? '') === 'ok');\n"
+              "if (!$sd_ok) error_log('[LP-CRM] HTTP '.$http_code.' | '.($curl_err ?: '-').' | '.substr((string)$resp, 0, 300));\n"
+              "\n")
+          s = send.sub(lambda _: lp, s, count=1)
+          s = s.replace('"SD статус: "', '"CRM статус: "')
+
+          if "SalesDrive" in s.split("?>", 1)[0].replace("Показувати технічний статус відповіді SalesDrive", ""):
+              print("Увага: у PHP-частині ще згадується SalesDrive (лише текст коментарів)")
+
+          long_tok = re.compile(r"[A-Za-z0-9:_\-]{20,}")
+          named = re.compile(r"""((?:key|token)[A-Za-z_]*\s*=\s*')([^']+)(')""", re.I)
+          head = s.split("<!DOCTYPE", 1)[0].splitlines()
+          print("=== Новий PHP-блок (ключі замасковано):")
+          for i, l in enumerate(head, 1):
+              masked = long_tok.sub("***", named.sub(r"\1***\3", l))
+              print(f"{i:4}: {masked}")
+
+          if dry:
+              print("== Пробний запуск: файл НЕ змінено")
+              raise SystemExit(0)
+
+          backup = f"/_backup{TARGET}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
+          cur = ""
+          for part in backup.strip("/").split("/")[:-1]:
+              cur += "/" + part
+              try:
+                  ftp.mkd(cur)
+              except ftplib.error_perm:
+                  pass
+          put(backup, orig)
+          put(TARGET, s)
+          ftp.quit()
+          print(f"== Збережено. Резервна копія: {backup}")
