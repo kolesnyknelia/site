@@ -8,7 +8,7 @@ if (!defined('APP')) { http_response_code(404); exit; }
 
 // Акція на дати (за київським часом) — та сама, що promo в js/config.js
 $today = (new DateTime('now', new DateTimeZone('Europe/Kyiv')))->format('Y-m-d');
-$promo = $today >= '2026-10-26' && $today <= '2026-10-30';
+$promo = $today >= '2026-10-26' && $today <= '2026-11-01';
 
 return [
     'site_url'      => 'https://kvn.kiev.ua',
