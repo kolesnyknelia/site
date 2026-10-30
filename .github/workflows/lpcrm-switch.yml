@@ -101,7 +101,8 @@ jobs:
           s = s.replace("КЛЮЧ = ID товару в SalesDrive", "КЛЮЧ = ID товару в LP-CRM")
 
           # 3) відправка SalesDrive → LP-CRM
-          send = re.compile(r"/\* Тіло запиту згідно з /handler/ \*/.*?(?=/\* Телеграм)", re.S)
+          # до рядка з $sd_ok включно — усе, що після нього (напр. збереження замовлення для допродажу), лишається
+          send = re.compile(r"/\* Тіло запиту згідно з /handler/ \*/.*?\$sd_ok\s*=[^\n]*\n", re.S)
           if not send.search(s):
               raise SystemExit("Не знайдено блок відправки в SalesDrive")
           lp = (
@@ -149,6 +150,8 @@ jobs:
               "\n")
           s = send.sub(lambda _: lp, s, count=1)
           s = s.replace('"SD статус: "', '"CRM статус: "')
+          # номер замовлення для допродажу — тепер наш order_id з LP-CRM
+          s = s.replace("isset($data['data']['orderId']) ? (string)(int)$data['data']['orderId'] : ''", "(string)$crm_data['order_id']")
 
           if "SalesDrive" in s.split("?>", 1)[0].replace("Показувати технічний статус відповіді SalesDrive", ""):
               print("Увага: у PHP-частині ще згадується SalesDrive (лише текст коментарів)")
