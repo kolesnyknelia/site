@@ -1,4 +1,4 @@
-# Конспект курсу «Формула Claude» — https://konspektfc.kvn.kiev.ua/‹ключ›/
+# Конспект курсу «Формула Claude» — https://formulaclaudekonspekt.kvn.kiev.ua/‹ключ›/
 
 Структура курсу (та сама в SendPulse і на сайті продажу) — `../FORMULACLAUDE_PROGRAMA.md`.
 Завдання для агента SendPulse — `../SENDPULSE_FORMULACLAUDE.md`.
@@ -17,10 +17,10 @@ id не змінюємо: за ними зберігаються галочки 
 Поля модуля: `need` (що потрібно), `why` («Чому так»), `checkpoint` + `send` (домашнє), `video` (підпис відео). Крок за бажанням — `optional: true`.
 
 ## Піддомен
-Зараз у workflow `DEPLOY_DIR: /kvn.kiev.ua/konspektfc/` (адреса konspektfc.kvn.kiev.ua). Коли Неля дасть свій піддомен — змінити `DEPLOY_DIR` і назву в коментарях workflow.
+formulaclaudekonspekt.kvn.kiev.ua → папка на хостингу `/kvn.kiev.ua/formulaclaudekonspekt/` (`DEPLOY_DIR` у workflow).
 
 ## Публікація (один раз)
-1. adm.tools → «Мої сайти» → kvn.kiev.ua → додати піддомен `konspektfc`, увімкнути SSL.
+1. adm.tools: піддомен `formulaclaudekonspekt` створено — увімкнути SSL (Let's Encrypt).
 2. GitHub → Settings → Secrets and variables → Actions → `KONSPEKT_FC_KEY` (латиниця, цифри, `-`, `_`).
 3. Після злиття в `main` — Actions → «Deploy konspekt FC» запуститься сам.
 Посилання злилося — змініть `KONSPEKT_FC_KEY` і запустіть workflow вручну; нове посилання вставте в SendPulse.

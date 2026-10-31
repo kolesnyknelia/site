@@ -1,9 +1,9 @@
-# Автодеплой конспекту курсу «Формула Claude» на https://konspektfc.kvn.kiev.ua
+# Автодеплой конспекту курсу «Формула Claude» на https://formulaclaudekonspekt.kvn.kiev.ua
 # Після змін у konspekt-fc/ в гілці main вміст konspekt-fc/
 # завантажується в папку піддомену.
 # Секрети ті самі, що й для основного сайту: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 # + KONSPEKT_FC_KEY — секретна частина посилання на конспект (лише латиниця, цифри, - і _).
-name: Deploy konspekt FC (konspektfc.kvn.kiev.ua)
+name: Deploy konspekt FC (formulaclaudekonspekt.kvn.kiev.ua)
 
 on:
   push:
@@ -20,7 +20,7 @@ concurrency:
 
 env:
   # Папка піддомену на хостингу (відносно кореня FTP-користувача)
-  DEPLOY_DIR: /kvn.kiev.ua/konspektfc/
+  DEPLOY_DIR: /kvn.kiev.ua/formulaclaudekonspekt/
 
 jobs:
   deploy:
@@ -31,7 +31,7 @@ jobs:
 
       # Збираємо сайт. Конспект лежить у секретній папці (секрет KONSPEKT_FC_KEY),
       # тож відкривається лише за повним посиланням з SendPulse:
-      #   https://konspektfc.kvn.kiev.ua/<KONSPEKT_FC_KEY>/
+      #   https://formulaclaudekonspekt.kvn.kiev.ua/<KONSPEKT_FC_KEY>/
       # У корені — заглушка «Сторінку не знайдено», robots.txt і заборона індексації.
       # Без секрету конспект кладемо в корінь і попереджаємо.
       - name: Build
@@ -43,7 +43,7 @@ jobs:
           if [ -n "$key" ]; then
             cp -r konspekt-fc/root/. _deploy/
             dest="_deploy/$key"
-            echo "Конспект: https://konspektfc.kvn.kiev.ua/<KONSPEKT_FC_KEY>/"
+            echo "Конспект: https://formulaclaudekonspekt.kvn.kiev.ua/<KONSPEKT_FC_KEY>/"
           else
             dest="_deploy"
             cp konspekt-fc/root/robots.txt konspekt-fc/root/.htaccess _deploy/
