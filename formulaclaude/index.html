@@ -146,6 +146,24 @@ details .hw b{font-weight:500;color:var(--ink)}
   .faq details p{padding:0 20px 14px}
   .btn{min-width:0;width:min(100%,260px)}
 }
+/* оформлення покупки */
+.modal{position:fixed;inset:0;z-index:20;display:none;align-items:flex-start;justify-content:center;background:rgba(20,20,20,.55);padding:24px 16px;overflow-y:auto}
+.modal.on{display:flex}
+.mbox{background:var(--page);border:1px solid var(--line);width:100%;max-width:460px;padding:28px 24px 22px;position:relative}
+.mbox h3{font:400 30px/1.1 "Cormorant Garamond",serif;margin-bottom:4px}
+.mbox .pill{font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.mbox .sum{font-size:14px;color:var(--ink2);margin-bottom:14px}
+.mbox label{display:block;font-size:12.5px;color:var(--ink2);margin-top:8px}
+.mbox input:not([type=hidden]){width:100%;background:transparent;border:0;border-bottom:1px solid var(--line);padding:9px 2px;font:300 15px Inter;color:var(--ink);outline:0;border-radius:0}
+.mbox input.bad{border-color:#b03a2e}
+.mbox .fine a{color:inherit}
+.mbox .x{position:absolute;right:10px;top:8px;background:none;border:0;font-size:22px;cursor:pointer;color:var(--ink)}
+.mbox .note{font-size:12.5px;color:var(--ink2);border:1px solid var(--soft);padding:10px 12px;margin:12px 0}
+.mbox .fine{font-size:12px;color:var(--muted);margin-top:12px}
+.mbox .btn{width:100%;margin-top:6px}
+.legal{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;padding:14px 20px 0;font-size:12px}
+.legal a{color:var(--muted);text-decoration:underline}
+.pay-note{font-size:12.5px;color:var(--muted);text-align:center;padding:0 34px 20px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
@@ -161,7 +179,7 @@ details .hw b{font-weight:500;color:var(--ink)}
   <div class="tag">Онлайн-курс<b>Формула Claude</b></div>
   <div class="gap"></div>
   <p class="lead">Мене звуть Неля. Я займаюся товарним бізнесом і роблю його разом з Claude: він шукає товар, збирає сайт, пише креативи і допомагає вести рекламу. У курсі покажу весь шлях по кроках — від першої сторінки у Facebook до ШІ-таргетолога у вашому кабінеті.</p>
-  <div class="r"><a class="btn" href="#packs">Записатися</a></div>
+  <div class="r"><a class="btn" href="#packs">Обрати пакет</a></div>
 </section>
 
 <section class="who">
@@ -200,6 +218,7 @@ details .hw b{font-weight:500;color:var(--ink)}
 <section class="packs" id="packs">
   <h2 class="rv">Прайс</h2>
   <div id="packList"></div>
+  <p class="pay-note">🔒 Оплата карткою через WayForPay · доступ до уроків приходить на пошту автоматично одразу після оплати</p>
 </section>
 
 <section class="faq" id="faq">
@@ -208,7 +227,7 @@ details .hw b{font-weight:500;color:var(--ink)}
 </section>
 
 <section class="form-sec" id="form">
-  <h2 class="rv">Записатися<br>на курс</h2>
+  <h2 class="rv">Є питання<br>перед покупкою?</h2>
   <form class="form rv" id="f" novalidate>
     <input name="name" placeholder="Ваше ім'я" autocomplete="name" required>
     <input name="contact" placeholder="Telegram (@нік) або телефон" required>
@@ -216,18 +235,41 @@ details .hw b{font-weight:500;color:var(--ink)}
     <textarea name="note" placeholder="Питання чи коментар (необов'язково)"></textarea>
     <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
     <p class="err" id="err" role="alert"></p>
-    <div class="r"><button class="btn arr" type="submit">Надіслати заявку</button></div>
+    <div class="r"><button class="btn arr" type="submit">Надіслати питання</button></div>
   </form>
-  <div class="ok" id="ok"><h3>Заявку отримала!</h3><p style="color:var(--ink2)">Напишу вам найближчим часом: розповім про старт потоку й оплату.</p></div>
+  <div class="ok" id="ok"><h3>Питання отримала!</h3><p style="color:var(--ink2)">Відповім вам найближчим часом.</p></div>
 </section>
 
 <section class="contacts" id="contacts">
   <h2>Контакти</h2>
   <a class="row" href="https://t.me/hellppbott" target="_blank" rel="noopener">Telegram</a>
   <a class="row" href="https://formula.kvn.kiev.ua/" target="_blank" rel="noopener">Курс «Формула свободи»</a>
-  <div class="foot">© Неля Колесник · «Формула Claude»</div>
+  <div class="legal"><a href="oferta.html">Договір оферти</a><a href="privacy.html">Політика конфіденційності</a><a href="oferta.html#refund">Умови повернення</a></div>
+  <div class="foot">Підтримка: Пн–Нд 09:00–21:00 · <a href="mailto:9234@ukr.net">9234@ukr.net</a><br>© Неля Колесник · «Формула Claude»</div>
 </section>
 
+</div>
+
+<div class="modal" id="buy" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
+  <div class="mbox">
+    <button class="x" type="button" data-close aria-label="Закрити">✕</button>
+    <form id="buyForm" method="post" action="api/order.php" accept-charset="utf-8" novalidate>
+      <span class="pill" id="buyPack">Пакет</span>
+      <h3 id="buyTitle">Оформлення доступу</h3>
+      <p class="sum" id="buySum"></p>
+      <input type="hidden" name="pack" id="buyPackId">
+      <label for="bName">Ваше ім'я</label><input id="bName" name="name" autocomplete="given-name" placeholder="Олена" required>
+      <label for="bEmail">Пошта Gmail — на неї прийде доступ до уроків</label><input id="bEmail" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="olena@gmail.com" required>
+      <label for="bPhone">Телефон</label><input id="bPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+380 __ ___ __ __">
+      <label for="bContact">Telegram (необов'язково)</label><input id="bContact" name="contact" placeholder="@nickname">
+      <input type="hidden" name="utm" id="buyUtm" value="{}">
+      <input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+      <div class="note">📩 Лист із доступом часто потрапляє не у «Вхідні», а в «Сповіщення», «Промоакції» або «Спам» — після оплати перевірте ці папки.</div>
+      <p class="err" id="buyErr" role="alert" style="color:#b03a2e;font-size:13px;min-height:18px"></p>
+      <button class="btn arr" type="submit">Перейти до оплати</button>
+      <p class="fine">🔒 Оплата через WayForPay. Доступ відкривається одразу після оплати, після надання доступу кошти не повертаються. Натискаючи кнопку, ви погоджуєтесь з <a href="oferta.html" target="_blank">офертою</a> і <a href="privacy.html" target="_blank">політикою конфіденційності</a>.</p>
+    </form>
+  </div>
 </div>
 
 <script>
@@ -270,12 +312,14 @@ var PACKS = [
 ];
 
 var FAQ = [
-  ["Я ніколи не працювала з ШІ. Впораюсь?", "Так. Перший урок другої частини — встановлення Claude з нуля: де натиснути, який режим обрати, як не витратити ліміти."],
+  ["Я ніколи не працювала з ШІ. Впораюсь?", "Так. Уже в першому уроці встановлюємо Claude з нуля: де натиснути, як налаштувати і як не витратити ліміти."],
   ["Скільки коштує Claude?", "Потрібна підписка Pro — близько 20 $ на місяць. На безкоштовній версії лімітів на наші задачі не вистачить."],
   ["Мені не потрібен програміст для сайту?", "Ні. Дизайн уже в скілі, Claude змінює тільки товар: фото, тексти, ціни. Правки — словами, навіть голосом."],
   ["Я ніколи не запускала рекламу.", "Курс іде з нуля: від фанпейджа і кабінету до Claude-агента, який бачить вашу рекламу."],
   ["Чи потрібен потужний комп'ютер?", "Ні. Звичайний ноутбук з Windows або Mac і телефон для перевірки сайту."],
-  ["Чи безпечно давати Claude доступи?", "Паролі, дані картки і коди з SMS Claude не даємо ніколи. Ключі для бота й кабінету — тільки у свій чат з Claude. У курсі це розібрано окремо."]
+  ["Чи безпечно давати Claude доступи?", "Паролі, дані картки і коди з SMS Claude не даємо ніколи. Ключі для бота й кабінету — тільки у свій чат з Claude. У курсі це розібрано окремо."],
+  ["Як я отримаю доступ після оплати?", "Автоматично: одразу після оплати лист із доступом до уроків приходить на вашу пошту Gmail. Якщо його немає у «Вхідних» — перевірте «Сповіщення», «Промоакції» і «Спам». Для пакетів з куратором і супроводом я ще напишу вам особисто."],
+  ["Чи можна повернути гроші?", "Курс — цифровий продукт, доступ відкривається одразу після оплати, тому після надання доступу кошти не повертаються. Якщо доступ не прийшов або оплату списали двічі — напишіть у підтримку, ми все вирішимо. Детально — в умовах повернення в оферті."]
 ];
 
 (function(){
@@ -290,18 +334,33 @@ var FAQ = [
   }).join("");
 
   var sel=$("#packSel");
-  sel.innerHTML='<option value="">Оберіть пакет</option>'+PACKS.map(function(p){return '<option value="'+p.id+'">'+esc(p.tag)+'</option>'}).join("");
+  sel.innerHTML='<option value="">Який пакет цікавить</option>'+PACKS.map(function(p){return '<option value="'+p.id+'">'+esc(p.tag)+'</option>'}).join("");
   $("#packList").innerHTML=PACKS.map(function(p){
     return '<article class="pk rv"><img src="'+p.img+'" alt="" loading="lazy"><div><h3><small>'+esc(p.tag)+'</small>'+esc(p.title)+'</h3><ul>'+li(p.items)+'</ul>'+
       '<div class="row"><b>'+(p.price?esc(p.price):'ціну уточнюйте')+'</b><span>'+esc(p.dur)+'</span></div>'+
-      '<div class="r"><button class="btn arr" type="button" data-pack="'+p.id+'">Записатися</button></div></div></article>';
+      '<div class="r"><button class="btn arr" type="button" data-buy="'+p.id+'">Купити</button></div></div></article>';
   }).join("");
 
   $("#faqList").innerHTML=FAQ.map(function(q){return '<details><summary><b>'+esc(q[0])+'</b></summary><p>'+esc(q[1])+'</p></details>'}).join("");
 
-  document.addEventListener("click",function(e){var b=e.target.closest("[data-pack]");if(!b)return;sel.value=b.dataset.pack;$("#form").scrollIntoView({behavior:"smooth"})});
-
   var utm={};try{new URLSearchParams(location.search).forEach(function(v,k){if(/^utm_|^fbclid$/.test(k))utm[k]=v.slice(0,120)})}catch(e){}
+
+  /* покупка: кнопка «Купити» → форма → api/order.php → WayForPay */
+  var buy=$("#buy"),bf=$("#buyForm"),be=$("#buyErr");
+  function openBuy(id){var p=PACKS.filter(function(x){return x.id===id})[0];if(!p)return;
+    $("#buyPack").textContent=p.tag;$("#buySum").textContent=p.title+" · "+p.price+" · "+p.dur;$("#buyPackId").value=p.id;
+    $("#buyUtm").value=JSON.stringify(utm);be.textContent="";buy.classList.add("on");document.body.style.overflow="hidden";setTimeout(function(){$("#bName").focus()},50)}
+  function closeBuy(){buy.classList.remove("on");document.body.style.overflow=""}
+  document.addEventListener("click",function(e){var b=e.target.closest("[data-buy]");if(b){openBuy(b.dataset.buy);return}
+    if(e.target===buy||e.target.closest("[data-close]"))closeBuy()});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeBuy()});
+  bf.addEventListener("submit",function(e){be.textContent="";var bad=false,em=bf.elements.email.value.trim().toLowerCase();
+    bf.elements.email.value=em;
+    var nb=bf.elements.name.value.trim().length<2;bf.elements.name.classList.toggle("bad",nb);
+    var eb=!/^[^@\s]+@gmail\.com$/.test(em);bf.elements.email.classList.toggle("bad",eb);
+    if(nb||eb){e.preventDefault();be.textContent=nb?"Вкажіть ім'я":"Потрібна пошта Gmail (…@gmail.com) — доступ до уроків працює тільки з нею";return}
+    var btn=bf.querySelector("button[type=submit]");btn.disabled=true;btn.textContent="Переходимо до оплати…"});
+  window.addEventListener("pageshow",function(){var btn=bf.querySelector("button[type=submit]");btn.disabled=false;btn.textContent="Перейти до оплати"});
   var f=$("#f"),err=$("#err");
   f.addEventListener("submit",function(e){e.preventDefault();err.textContent="";var bad=false;
     ["name","contact"].forEach(function(n){var i=f.elements[n],b=i.value.trim().length<(n=="contact"?5:2);i.classList.toggle("bad",b);bad=bad||b});
@@ -310,7 +369,7 @@ var FAQ = [
     var fd=new FormData(f);fd.append("utm",JSON.stringify(utm));
     fetch("api/formulaclaude-lead.php",{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){
       if(!r.ok)throw 0;f.style.display="none";$("#ok").style.display="block"})
-    .catch(function(){btn.disabled=false;btn.textContent="Надіслати заявку";err.textContent="Не вдалося надіслати. Напишіть, будь ласка, у Telegram."})});
+    .catch(function(){btn.disabled=false;btn.textContent="Надіслати питання";err.textContent="Не вдалося надіслати. Напишіть, будь ласка, у Telegram."})});
 
   var els=document.querySelectorAll(".rv");
   if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("on");io.unobserve(e.target)}})},{threshold:.1});

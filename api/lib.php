@@ -95,12 +95,13 @@ function sendpulse_token() {
 }
 
 /** Додає email в адресну книгу (звідти Automation 360 відкриває курс). [успіх, причина] */
-function sendpulse_add($email, $name, $phone) {
-    $book = secret('SP_BOOK_ID');
+function sendpulse_add($email, $name, $phone, $book = '', $vars = array()) {
+    // $book — інша адресна книга (напр. «Формула Claude» з її settings.php); порожньо — книга курсу kvn.kiev.ua
+    if (!$book) $book = secret('SP_BOOK_ID');
     if (!$book) return array(false, 'SendPulse не налаштовано (немає номера книги)');
     list($token, $terr) = sendpulse_token();
     if (!$token) return array(false, $terr);
-    $payload = array('emails' => array(array('email' => $email, 'variables' => array_filter(array('name' => $name, 'phone' => $phone)))));
+    $payload = array('emails' => array(array('email' => $email, 'variables' => array_filter(array('name' => $name, 'phone' => $phone) + $vars))));
     list($code, $r, $err) = sp_request(sp_base() . "/addressbooks/{$book}/emails", $payload, $token);
     if ($code === 200 && !empty($r['result'])) return array(true, 'ok');
     if ($err) return array(false, "з'єднання: {$err}");

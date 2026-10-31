@@ -49,3 +49,22 @@ https://github.com/kolesnyknelia/site/settings/secrets/actions → **New reposit
 
 ## Ціна
 Змінюється в **двох** місцях: `api/settings.php` (`price`, `currency`) — для оплати, і `js/config.js` (`plans.course.price`) — для показу на сайті.
+
+---
+
+# «Формула Claude» — formulaclaude.kvn.kiev.ua
+
+Так само, як курс kvn.kiev.ua, але окремі файли (старий сайт не змінюється):
+
+| Файл у репозиторії | На хостингу (`/kvn.kiev.ua/formulaclaude/api/`) |
+|---|---|
+| `api/fc-settings.php` | `settings.php` — пакети й ціни, домен, **`sp_book_id`** |
+| `api/fc-order.php` | `order.php` — форма «Купити» → Telegram → WayForPay |
+| `api/fc-wfp-callback.php` | `wfp-callback.php` — перевірка оплати → книга SendPulse «Покупці Формула Claude» |
+| `api/fc-return.php` | `return.php` — сторінка після оплати |
+
+- Ключі WayForPay / Telegram / SendPulse — ті самі (`/kvn.kiev.ua/private/config.php`).
+- **WayForPay:** у магазині `www_kvn_kiev_ua` додати домен `formulaclaude.kvn.kiev.ua`.
+- **SendPulse:** книга «Покупці Формула Claude» + Automation 360 «книга → записати на курс «Формула Claude»». ID книги вписати в `api/fc-settings.php` → `sp_book_id`. Поки порожньо — оплата приймається, у Telegram приходить «доступ ще не відкрито», а сайт повторює спробу, щойно ID з'явиться (WayForPay повторює до ~4 діб).
+- Ціни пакетів: `api/fc-settings.php` (`packs`) **і** `formulaclaude/index.html` (`PACKS`).
+- Тест: `python3 backend/tests/test_formulaclaude_payment.py`.
