@@ -7,15 +7,17 @@
 |---|---|
 | Сторінка (вкладки, галочки, пошук) | `index.html`, `js/app.js` |
 | Помічники розмітки (промпт, скрін, файл, Паспорт товару) | `js/course.js` |
-| Уроки модулів 0–6 і Бонус | `js/m0.js` … `js/m6.js`, `js/bonus.js` |
+| 8 модулів (1 модуль = 1 урок у SendPulse) | `js/m1.js` … `js/m8.js` |
 | Скріни | `img/` |
 | Архів скіла «Сайт під товар» | збирається при публікації з `konspekt/skill/sait-pid-tovar/` → `files/sait-pid-tovar.zip` |
 
-## Номери уроків = SendPulse
-id уроку — `fc-<модуль>-<урок>`: урок 3.2 → `#fc-3-2`, бонус Б.1 → `#fc-b-1`.
-У SendPulse під кожним відео — посилання `https://konspektfc.kvn.kiev.ua/<KONSPEKT_FC_KEY>/#fc-3-2`.
+## Номери = SendPulse
+Урок N у SendPulse = вкладка «Модуль N»: `#fc4` відкриває модуль 4, `#fc-4-2` — його крок 4.2, `#fc-4-dz` — домашнє.
 id не змінюємо: за ними зберігаються галочки учнів.
-Текстовий урок без відео — `video: false` (показується «📖 без відео»).
+Поля модуля: `need` (що потрібно), `why` («Чому так»), `checkpoint` + `send` (домашнє), `video` (підпис відео). Крок за бажанням — `optional: true`.
+
+## Піддомен
+Зараз у workflow `DEPLOY_DIR: /kvn.kiev.ua/konspektfc/` (адреса konspektfc.kvn.kiev.ua). Коли Неля дасть свій піддомен — змінити `DEPLOY_DIR` і назву в коментарях workflow.
 
 ## Публікація (один раз)
 1. adm.tools → «Мої сайти» → kvn.kiev.ua → додати піддомен `konspektfc`, увімкнути SSL.

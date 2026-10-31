@@ -14,13 +14,14 @@
     cardsBox.appendChild(c);
 
     var a = document.createElement("article");
-    a.className = "block"; a.dataset.block = m.id; a.hidden = true;
+    a.className = "block"; a.dataset.block = m.id; a.id = m.id; a.hidden = true;
     var html = '<div class="intro" data-icon="' + m.icon + '"><span class="eyebrow">' + esc(m.tab) + "</span><h1>" + esc(m.title) + '</h1><p class="lead">' + m.lead + '</p><div class="meta">' +
-      (m.time ? '<span class="chip">⏱ ' + esc(m.time) + "</span>" : "") + '<span class="chip">📌 ' + m.lessons.length + " " + plural(m.lessons.length) + "</span></div></div>";
+      (m.time ? '<span class="chip">⏱ ' + esc(m.time) + "</span>" : "") + '<span class="chip">📌 ' + m.lessons.length + " " + plural(m.lessons.length) + "</span>" +
+      (m.need ? '<span class="chip">🧰 ' + esc(m.need) + "</span>" : "") + '<span class="chip vid">🎬 ' + esc(m.video || "Відео: урок " + m.n + " у SendPulse") + "</span></div>" +
+      (m.why ? '<div class="why"><b>Чому так</b><p>' + m.why + "</p></div>" : "") + "</div>";
     m.lessons.forEach(function (l) {
       html += '<section class="step" id="' + l.id + '" data-title="' + esc(l.title) + '"><div class="step-head"><span class="step-n">' + esc(l.n) + "</span><div><h3>" + esc(l.title) + "</h3>" +
-        '<div class="lesson-chips">' + (l.time ? '<span class="chip">' + esc(l.time) + "</span>" : "") +
-        (l.video === false ? '<span class="chip">📖 без відео</span>' : '<span class="chip vid">🎬 відео: урок ' + esc(l.n) + " у SendPulse</span>") + "</div></div></div>" + l.html;
+        '<div class="lesson-chips">' + (l.time ? '<span class="chip">' + esc(l.time) + "</span>" : "") + (l.optional ? '<span class="chip">за бажанням</span>' : "") + "</div></div></div>" + l.html;
       if (l.tasks && l.tasks.length) {
         html += '<p class="tasks-title">Що зробити</p><div class="tasks">' + l.tasks.map(function (t, i) {
           return '<label class="task"><input type="checkbox" id="' + l.id + "-t" + (i + 1) + '"><span class="box"></span><span>' + t + "</span></label>";
@@ -28,14 +29,15 @@
       }
       html += "</section>";
     });
-    if (m.checkpoint) html += '<div class="checkpoint"><b>Контрольна точка модуля</b><p>Далі йдемо, коли це є у вас — і це ж ви здаєте як домашнє завдання:</p><ul>' + m.checkpoint.map(function (c) { return "<li>" + c + "</li>"; }).join("") + "</ul></div>";
+    if (m.checkpoint) html += '<div class="checkpoint" id="fc-' + m.n + '-dz"><b>Контрольна точка · домашнє завдання</b><p>Далі йдемо, коли це є у вас:</p><ul>' + m.checkpoint.map(function (c) { return "<li>" + c + "</li>"; }).join("") + "</ul>" +
+      (m.send ? '<p class="send"><b>Що надіслати:</b> ' + m.send + "</p>" : "") + "</div>";
     var next = C[mi + 1];
     if (next) html += '<div class="finish"><h3>' + esc(m.title) + ' — пройдено?</h3><p>Відмітьте галочки вище, допишіть Паспорт товару — і переходьте далі.</p><div class="row"><a class="btn" href="#" data-go="' + next.id + '">Далі: ' + esc(next.title) + " →</a></div></div>";
-    else html += '<div class="finish"><h3>Ви пройшли Формулу 🎉</h3><p>Наступний товар — з новим Паспортом товару і тим самим маршрутом: модулі 2 → 3 → 4 → 6.</p><div class="row"><a class="btn soft" href="#" data-go="' + C[0].id + '">На початок</a></div></div>';
+    else html += '<div class="finish"><h3>Ви пройшли Формулу 🎉</h3><p>Наступний товар — новий Паспорт товару і той самий маршрут: модулі 2 → 3 → 4 → 5 → 8.</p><div class="row"><a class="btn soft" href="#" data-go="' + C[0].id + '">На початок</a></div></div>';
     a.innerHTML = html;
     main.appendChild(a);
   });
-  function plural(n) { var d = n % 10, h = n % 100; return d === 1 && h !== 11 ? "урок" : d >= 2 && d <= 4 && (h < 12 || h > 14) ? "уроки" : "уроків"; }
+  function plural(n) { var d = n % 10, h = n % 100; return d === 1 && h !== 11 ? "крок" : d >= 2 && d <= 4 && (h < 12 || h > 14) ? "кроки" : "кроків"; }
 
   var blocks = [].slice.call(main.querySelectorAll("article.block"));
   var cards = [].slice.call(cardsBox.querySelectorAll(".bcard"));
