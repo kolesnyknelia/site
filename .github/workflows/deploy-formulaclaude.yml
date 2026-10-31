@@ -1,6 +1,7 @@
 # Сайт курсу «Формула Claude» → formulaclaude.kvn.kiev.ua (папка /kvn.kiev.ua/formulaclaude/ на хостингу)
 # Піддомен треба створити в adm.tools: «Мої сайти» → kvn.kiev.ua → піддомен formulaclaude.
 # Заявки: formulaclaude/index.html → api/formulaclaude-lead.php → Telegram.
+# Оплата: кнопка «Купити» → api/order.php (fc-order.php) → WayForPay → wfp-callback.php → SendPulse (книга sp_book_id з fc-settings.php).
 # Ключ Telegram — спільний /kvn.kiev.ua/private/config.php (той самий, що для kvn.kiev.ua).
 name: Deploy formulaclaude (formulaclaude.kvn.kiev.ua)
 
@@ -10,6 +11,7 @@ on:
     paths:
       - "formulaclaude/**"
       - "api/formulaclaude-lead.php"
+      - "api/fc-*.php"
       - "api/lib.php"
       - ".github/workflows/deploy-formulaclaude.yml"
   workflow_dispatch:
@@ -32,7 +34,12 @@ jobs:
         run: |
           mkdir -p _deploy/api
           cp -r formulaclaude/. _deploy/
-          cp api/formulaclaude-lead.php api/lib.php api/settings.php api/.htaccess _deploy/api/
+          cp api/formulaclaude-lead.php api/lib.php api/.htaccess _deploy/api/
+          # Оплата «Формули Claude»: окремі файли з префіксом fc- кладемо під звичними іменами
+          cp api/fc-settings.php _deploy/api/settings.php
+          cp api/fc-order.php _deploy/api/order.php
+          cp api/fc-wfp-callback.php _deploy/api/wfp-callback.php
+          cp api/fc-return.php _deploy/api/return.php
           find _deploy -type f | sort
 
       - name: Prepare sync state (first deploy)
