@@ -15,6 +15,7 @@ $h = (int)date('G');
 list($from, $to) = (array)S('work_hours', [9, 21]);
 $canSend = $h >= $from && $h < $to;
 $sent = 0; $max = (int)S('max_per_run', 20);
+$fetched = 0; $maxFetch = 15;
 $start = date('Y-m-d', strtotime('-' . (int)S('lookback_days', 2) . ' days'));
 
 foreach ((array)S('watch', []) as $name => $delay) {
@@ -29,12 +30,17 @@ foreach ((array)S('watch', []) as $name => $delay) {
         if (empty($rec['seen_at'])) { $rec['seen_at'] = time(); save('orders', $id, $rec); }
         if (time() - (int)$rec['seen_at'] < (int)$delay * 60) continue;
         if (!$canSend || $sent >= $max) continue;
+        $test = array_filter(array_map('norm_phone', (array)S('test_phones', [])));
+        // тестовий режим: номер цього замовлення вже відомий і він не тестовий — навіть не питаємо CRM
+        if ($test && !empty($rec['phone']) && !in_array($rec['phone'], $test, true)) continue;
+        if ($fetched >= $maxFetch) continue;              // не більше N запитів замовлень за запуск (ліміт LP-CRM)
+        $fetched++;
         $o = crm_order($id);
         if (!$o) continue;
+        $rec['phone'] = norm_phone($o['phone']); save('orders', $id, $rec);
         if ($o['status'] !== '' && !status_is($o['status'], $sid)) continue;   // оператор уже змінив статус
         $phone = norm_phone($o['phone']);
         if (!$phone) { $rec['sent_at'] = date('c'); $rec['error'] = 'bad phone'; save('orders', $id, $rec); continue; }
-        $test = array_filter(array_map('norm_phone', (array)S('test_phones', [])));
         if ($test && !in_array($phone, $test, true)) continue;   // тестовий режим: інших не чіпаємо і не позначаємо
         if ($dry) { echo "  [тест] надіслали б {$o['num']} → {$phone}\n"; $sent++; continue; }
         $res = send_sms($phone, $id, $o);
