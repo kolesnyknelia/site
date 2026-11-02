@@ -35,6 +35,8 @@ foreach ((array)S('watch', []) as $name => $delay) {
         if ($o['status'] !== '' && !status_is($o['status'], $sid)) continue;   // оператор уже змінив статус
         $phone = norm_phone($o['phone']);
         if (!$phone) { $rec['sent_at'] = date('c'); $rec['error'] = 'bad phone'; save('orders', $id, $rec); continue; }
+        $test = array_filter(array_map('norm_phone', (array)S('test_phones', [])));
+        if ($test && !in_array($phone, $test, true)) continue;   // тестовий режим: інших не чіпаємо і не позначаємо
         if ($dry) { echo "  [тест] надіслали б {$o['num']} → {$phone}\n"; $sent++; continue; }
         $res = send_sms($phone, $id, $o);
         $rec['sent_at'] = date('c'); $rec['send'] = $res; $rec['status_name'] = $name;
@@ -44,4 +46,5 @@ foreach ((array)S('watch', []) as $name => $delay) {
         $sent++;
     }
 }
+if (array_filter((array)S('test_phones', []))) echo "🧪 Тестовий режим: пишемо лише на " . implode(', ', (array)S('test_phones', [])) . "\n";
 echo $canSend ? "Надіслано: {$sent}\n" : "Зараз неробочий час ({$from}:00–{$to}:00) — нікому не пишемо\n";
