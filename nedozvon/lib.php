@@ -173,6 +173,17 @@ function crm_order($orderId) {
         'raw'      => $o,
     ];
 }
+/** ID замовлень у статусі за останні lookback_days днів (кінець періоду — завтра, щоб захопити й сьогоднішні) */
+function crm_ids_by_status($sid) {
+    $r = crm('getOrdersIdByStatus', ['status' => $sid, 'date_start' => date('Y-m-d', strtotime('-' . (int)S('lookback_days', 2) . ' days')), 'date_end' => date('Y-m-d', strtotime('+1 day'))]);
+    $GLOBALS['NZ_IDS_RAW'] = $r;
+    $ids = [];
+    foreach ((array)g($r, 'data', []) as $k => $v) {
+        $id = is_array($v) ? (g($v, 'order_id') ?: g($v, 'id')) : $v;
+        if (preg_match('/^\d{1,20}$/', (string)$id)) $ids[] = (string)$id;
+    }
+    return array_values(array_unique($ids));
+}
 function crm_update($orderId, $fields) {
     if (!S('lpcrm_update_method')) return false;
     $r = crm(S('lpcrm_update_method', 'updateOrder'), ['order_id' => $orderId] + $fields);
