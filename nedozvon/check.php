@@ -17,7 +17,6 @@ if (!$st) {
     $e = (array)g($GLOBALS, 'NZ_CRM_ERR', []);
     echo "❌ LP-CRM не відповіла (перевірте домен і ключ API; IP хостингу має бути дозволений у LP-CRM)\n"
        . "   Адреса: " . g($e, 'url', '—') . "\n   HTTP: " . g($e, 'http', '—') . (g($e, 'curl') ? ' · ' . $e['curl'] : '') . "\n   Відповідь: " . (g($e, 'resp') !== '' ? g($e, 'resp') : '(порожньо)') . "\n"
-       . (g($GLOBALS, 'NZ_CRM_HTTP') ? "   Спроба через " . $GLOBALS['NZ_CRM_HTTP'] . "\n" : '')
        . "   Довжина ключа: " . strlen(K('LPCRM_KEY')) . " символів\n"
        . "   IP хостингу, з якого бот звертається до LP-CRM: " . (trim((string)@file_get_contents('https://api.ipify.org')) ?: '?') . "\n";
 }
