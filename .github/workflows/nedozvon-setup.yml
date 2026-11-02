@@ -1,0 +1,145 @@
+# Налаштування бота «Недозвон»:
+# 1) записує ключі (з GitHub Secrets + LP-CRM з робочого сайту) у /kvn.kiev.ua/private/nedozvon.php — поза www,
+#    значення в лог НЕ виводяться;
+# 2) підключає webhook Telegram- і Viber-бота;
+# 3) показує перевірку: статуси LP-CRM, Нова пошта, Telegram (без персональних даних).
+# Запуск: Actions → Nedozvon bot setup → Run workflow
+name: Nedozvon bot setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      lpcrm_source:
+        description: "Файл на хостингу, де LP-CRM уже працює (звідти беремо ключ і домен), напр. /noosal.shop/sriblo/upsell.php. Порожньо = не міняти"
+        default: ""
+      site:
+        description: "Адреса, де лежить бот"
+        default: "https://kvn.kiev.ua/nedozvon"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write keys
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          SRC: ${{ inputs.lpcrm_source }}
+          SITE: ${{ inputs.site }}
+          SECRET: ${{ secrets.NZ_SECRET }}
+          TG_TOKEN: ${{ secrets.NZ_TG_TOKEN }}
+          TG_OPS_CHAT: ${{ secrets.NZ_TG_OPS_CHAT }}
+          TURBOSMS_TOKEN: ${{ secrets.NZ_TURBOSMS_TOKEN }}
+          SMS_SENDER: ${{ secrets.NZ_SMS_SENDER }}
+          VIBER_SENDER: ${{ secrets.NZ_VIBER_SENDER }}
+          NP_KEY: ${{ secrets.NZ_NP_KEY }}
+          VIBER_TOKEN: ${{ secrets.NZ_VIBER_TOKEN }}
+          VIBER_URI: ${{ secrets.NZ_VIBER_URI }}
+          LPCRM_DOMAIN: ${{ secrets.NZ_LPCRM_DOMAIN }}
+          LPCRM_KEY: ${{ secrets.NZ_LPCRM_KEY }}
+        shell: python
+        run: |
+          import os, io, re, base64, ftplib
+          KEYS = ["SECRET", "LPCRM_DOMAIN", "LPCRM_KEY", "TG_TOKEN", "TG_OPS_CHAT", "TURBOSMS_TOKEN", "SMS_SENDER",
+                  "VIBER_SENDER", "NP_KEY", "VIBER_TOKEN", "VIBER_URI", "BASE_URL"]
+          DST = "/kvn.kiev.ua/private/nedozvon.php"
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"]); ftp.prot_p()
+
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          def get(p):
+              ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {p}") as c:
+                  while ch := c.recv(65536):
+                      buf.write(ch)
+                  close_tls(c)
+              ftp.voidresp()
+              return buf.getvalue().decode("utf-8", "replace")
+
+          vals = {}
+          try:
+              for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", get(DST)):
+                  vals[k] = base64.b64decode(v).decode()
+          except ftplib.all_errors:
+              pass
+
+          # LP-CRM з робочого сайту
+          src = os.environ.get("SRC", "").strip()
+          if src:
+              s = get(src)
+              key = re.search(r"\$crm_key\s*=\s*'([^']+)'", s) or re.search(r"'key'\s*=>\s*'([^']{8,})'", s)
+              url = re.search(r"([a-z0-9\-]+\.lp-crm\.[a-z]+)", s)
+              if not key or not url:
+                  raise SystemExit(f"У {src} не знайдено ключ або домен LP-CRM")
+              vals["LPCRM_KEY"], vals["LPCRM_DOMAIN"] = key.group(1), url.group(1)
+              print("LP-CRM: домен", url.group(1), "| ключ знайдено (не показується)")
+
+          for k in KEYS:
+              v = os.environ.get(k, "").strip()
+              if v:
+                  vals[k] = v
+          vals["BASE_URL"] = os.environ["SITE"].strip().rstrip("/")
+          if not vals.get("SECRET"):
+              vals["SECRET"] = base64.urlsafe_b64encode(os.urandom(24)).decode().rstrip("=")
+
+          b64 = lambda v: base64.b64encode(v.encode()).decode()
+          php = "<?php\n// Згенеровано автоматично (Nedozvon bot setup). Не редагуйте вручну.\nreturn [\n" + \
+                "".join(f"    '{k}' => base64_decode('{b64(vals.get(k, ''))}'),\n" for k in KEYS) + "];\n"
+          try:
+              ftp.mkd("/kvn.kiev.ua/private")
+          except ftplib.error_perm:
+              pass
+          ftp.voidcmd("TYPE I")
+          with ftp.transfercmd(f"STOR {DST}") as c:
+              c.sendall(php.encode()); close_tls(c)
+          ftp.voidresp(); ftp.quit()
+          print("== Заповнено:", ", ".join(k for k in KEYS if vals.get(k)))
+          print("== Порожні:", ", ".join(k for k in KEYS if not vals.get(k)) or "—")
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write(f"NZ_RUNTIME_SECRET={vals['SECRET']}\n")
+          print(f"::add-mask::{vals['SECRET']}")
+
+      - name: Connect bots (webhooks)
+        env:
+          TG_TOKEN: ${{ secrets.NZ_TG_TOKEN }}
+          VIBER_TOKEN: ${{ secrets.NZ_VIBER_TOKEN }}
+          SITE: ${{ inputs.site }}
+        shell: python
+        run: |
+          import os, json, hashlib, urllib.request, urllib.parse
+          site = os.environ["SITE"].strip().rstrip("/")
+          token = os.environ.get("TG_TOKEN", "").strip()
+          if token:
+              data = urllib.parse.urlencode({
+                  "url": f"{site}/tg.php",
+                  "secret_token": hashlib.sha256(token.encode()).hexdigest()[:32],
+                  "allowed_updates": json.dumps(["message", "callback_query"]),
+              }).encode()
+              r = json.load(urllib.request.urlopen(f"https://api.telegram.org/bot{token}/setWebhook", data, timeout=20))
+              print("Telegram setWebhook:", r.get("description", r))
+              me = json.load(urllib.request.urlopen(f"https://api.telegram.org/bot{token}/getMe", timeout=20))
+              print("Telegram-бот: @" + me["result"]["username"])
+          else:
+              print("Telegram: немає секрету NZ_TG_TOKEN — пропускаю")
+          vt = os.environ.get("VIBER_TOKEN", "").strip()
+          if vt:
+              req = urllib.request.Request("https://chatapi.viber.com/pa/set_webhook", method="POST",
+                  data=json.dumps({"url": f"{site}/viber.php", "event_types": ["conversation_started", "message"], "send_name": True}).encode(),
+                  headers={"X-Viber-Auth-Token": vt, "Content-Type": "application/json"})
+              print("Viber set_webhook:", json.load(urllib.request.urlopen(req, timeout=20)).get("status_message"))
+          else:
+              print("Viber: немає секрету NZ_VIBER_TOKEN — пропускаю")
+
+      - name: Check
+        env:
+          SITE: ${{ inputs.site }}
+        run: |
+          sleep 2
+          curl -sS --max-time 60 "${SITE%/}/check.php?key=${NZ_RUNTIME_SECRET}" || echo "check.php недоступний — сайт ще не оновився з гілки main?"

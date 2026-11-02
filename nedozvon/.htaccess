@@ -1,0 +1,5 @@
+# Службові файли не відкриваються з браузера
+<FilesMatch "^(lib|settings)\.php$|\.md$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
