@@ -51,6 +51,7 @@ function http_post($url, $body, $headers = [], $timeout = 20) {
         CURLOPT_HTTPHEADER => $headers, CURLOPT_POSTFIELDS => $body,
     ]);
     $r = curl_exec($ch);
+    $GLOBALS['NZ_HTTP'] = ['code' => (int)curl_getinfo($ch, CURLINFO_HTTP_CODE), 'error' => curl_error($ch)];
     curl_close($ch);
     return $r === false ? '' : (string)$r;
 }
@@ -90,7 +91,11 @@ function crm($method, $params = []) {
     if (!K('LPCRM_KEY') || $base === 'https://') return [];
     $r = http_post(rtrim($base, '/') . '/api/' . $method . '.html', http_build_query(['key' => K('LPCRM_KEY')] + $params));
     $j = json_decode($r, true);
-    if (!is_array($j) || g($j, 'status') !== 'ok') nz_log('crm_error', ['method' => $method, 'resp' => cut($r, 300)]);
+    if (!is_array($j) || g($j, 'status') !== 'ok') {
+        $GLOBALS['NZ_CRM_ERR'] = ['method' => $method, 'url' => rtrim($base, '/') . '/api/' . $method . '.html', 'http' => g($GLOBALS['NZ_HTTP'], 'code'),
+                                  'curl' => g($GLOBALS['NZ_HTTP'], 'error'), 'resp' => cut(str_replace(K('LPCRM_KEY'), '***', strip_tags($r)), 300)];
+        nz_log('crm_error', $GLOBALS['NZ_CRM_ERR']);
+    }
     return is_array($j) ? $j : [];
 }
 /** Статуси CRM: id => назва (кеш на 1 годину) */
@@ -216,10 +221,16 @@ function np_warehouses($cityRef, $q) {
 function np_sender() {
     $c = load('cache', 'np-sender');
     if (g($c, 'ts', 0) > time() - 86400 && g($c, 'ref')) return $c;
-    $cp = g(g(np('Counterparty', 'getCounterparties', ['CounterpartyProperty' => 'Sender', 'Page' => '1']), 'data', []), 0, []);
-    if (!g($cp, 'Ref')) return [];
-    $contact = g(g(np('Counterparty', 'getCounterpartyContactPersons', ['Ref' => $cp['Ref'], 'Page' => '1']), 'data', []), 0, []);
-    if (trim((string)S('np_sender_city')) !== '') {
+    $t = np_template();
+    $GLOBALS['NZ_NP_SENDER_WHY'] = '';
+    $cp = g($t, 'sender') ? ['Ref' => $t['sender'], 'Description' => g($t, 'sender_name')]
+        : g(g(np('Counterparty', 'getCounterparties', ['CounterpartyProperty' => 'Sender', 'Page' => '1']), 'data', []), 0, []);
+    if (!g($cp, 'Ref')) { $GLOBALS['NZ_NP_SENDER_WHY'] = 'не знайдено контрагента-відправника'; return []; }
+    $contact = g($t, 'contact') ? ['Ref' => $t['contact'], 'Phones' => g($t, 'phone')]
+        : g(g(np('Counterparty', 'getCounterpartyContactPersons', ['Ref' => $cp['Ref'], 'Page' => '1']), 'data', []), 0, []);
+    if (trim((string)S('np_sender_city')) === '' && g($t, 'city') && g($t, 'address')) {
+        $cityRef = $t['city']; $whRef = $t['address']; $desc = trim(g($t, 'city_name') . ', ' . g($t, 'address_name'), ', ') ?: 'як в останній ТТН';
+    } elseif (trim((string)S('np_sender_city')) !== '') {
         $city = g(np_cities(S('np_sender_city')), 0, []);
         $wh = $city ? g(np_warehouses($city['ref'], (string)S('np_sender_warehouse')), 0, []) : [];
         $cityRef = g($city, 'ref'); $whRef = g($wh, 'ref'); $desc = g($city, 'name') . ', ' . g($wh, 'name');
@@ -230,7 +241,12 @@ function np_sender() {
     }
     $s = ['ts' => time(), 'ref' => $cp['Ref'], 'contact' => g($contact, 'Ref'), 'phone' => norm_phone(g($contact, 'Phones')),
           'city' => $cityRef, 'address' => $whRef, 'desc' => $desc, 'name' => g($cp, 'Description')];
-    if (!$s['contact'] || !$s['city'] || !$s['address']) { nz_log('np_sender_incomplete', $s); return []; }
+    if (!$s['phone'] && g($t, 'phone')) $s['phone'] = norm_phone($t['phone']);
+    if (!$s['contact'] || !$s['city'] || !$s['address'] || !$s['phone']) {
+        $miss = []; foreach (['contact' => 'контактна особа', 'city' => 'місто відправки', 'address' => 'відділення відправки', 'phone' => 'телефон відправника'] as $k => $n) if (!$s[$k]) $miss[] = $n;
+        $GLOBALS['NZ_NP_SENDER_WHY'] = 'не знайдено: ' . implode(', ', $miss);
+        nz_log('np_sender_incomplete', $s); return [];
+    }
     save('cache', 'np-sender', $s);
     return $s;
 }
@@ -256,6 +272,12 @@ function np_template() {
             'cod'         => (float)g($d, 'AfterpaymentOnGoodsCost', 0) > 0 ? 'afterpayment' : ($back > 0 || (int)g($d, 'Redelivery', 0) === 1 ? 'backward' : ''),
             'city'        => (string)g($d, 'CitySender'),
             'address'     => (string)g($d, 'SenderAddress'),
+            'city_name'   => (string)g($d, 'CitySenderDescription'),
+            'address_name'=> (string)g($d, 'SenderAddressDescription'),
+            'sender'      => (string)g($d, 'Sender'),
+            'sender_name' => (string)g($d, 'SenderDescription'),
+            'contact'     => (string)g($d, 'ContactSender'),
+            'phone'       => (string)g($d, 'SendersPhone'),
         ];
     }
     save('cache', 'np-template', ['ts' => time(), 'tpl' => $tpl]);
