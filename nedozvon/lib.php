@@ -174,6 +174,7 @@ function crm_order($orderId) {
     ];
 }
 function crm_update($orderId, $fields) {
+    if (!S('lpcrm_update_method')) return false;
     $r = crm(S('lpcrm_update_method', 'updateOrder'), ['order_id' => $orderId] + $fields);
     return g($r, 'status') === 'ok';
 }
@@ -486,7 +487,7 @@ function flow_input($chatKey, $data, $text, $from = '') {
             $upd = $sid ? crm_update($orderId, ['status' => $sid, 'comment' => trim(g($o, 'comment') . "\n🤖 Бот: клієнт скасував у " . channel_name($chatKey) . ' ' . date('d.m H:i'))]) : false;
             say($chatKey, "Замовлення скасовано. Якщо передумаєте — просто напишіть сюди 🙂\nЯкщо можна, напишіть, чому скасували — нам це дуже допоможе 🙏");
             ops("❌ Клієнт СКАСУВАВ замовлення №" . g($o, 'num', $orderId) . " у боті ({$from}, " . channel_name($chatKey) . ')'
-                . ($sid ? ($upd ? "\nСтатус у CRM змінено." : "\n⚠️ Статус у CRM змінити не вдалося — змініть вручну.") : ''), $chatKey);
+                . ($upd ? "\nСтатус у CRM змінено." : "\n👉 Поставте в CRM статус «" . S('status_cancel') . "»"), $chatKey);
             return;
     }
     if (preg_match('/^c:(\d)$/', $data, $m) && $step === 'city_pick') {
@@ -587,8 +588,10 @@ function finalize($chatKey, $st) {
     $crmOk = crm_update($orderId, $fields);
 
     say($chatKey, "Дякуємо! Замовлення оформлене ✅\n\n📦 ТТН Нової пошти: {$t['ttn']}\nВідстежити: https://novaposhta.ua/tracking/?cargo_number={$t['ttn']}\n\nМи повідомимо, коли посилка буде у відділенні. Гарного дня! 💛");
-    ops("✅ Бот прийняв замовлення №{$o['num']} (" . channel_name($chatKey) . ")\n👤 {$st['name']}\n📞 " . pretty_phone($st['phone']) . "\n📦 {$addr}\n💰 " . money($o['total']) . " грн\n🧾 ТТН: {$t['ttn']}"
-        . ($crmOk ? "\nLP-CRM: статус «" . S('status_accepted') . '» ✅' : "\n⚠️ LP-CRM не оновилась — поставте статус «" . S('status_accepted') . "» і ТТН вручну"), $chatKey);
+    ops("✅ Бот прийняв замовлення №{$o['num']} (" . channel_name($chatKey) . ")\n👤 {$st['name']}\n📞 " . pretty_phone($st['phone']) . "\n📦 {$addr}\n💰 " . money($o['total']) . " грн"
+        . ($crmOk ? "\n🧾 ТТН: {$t['ttn']}\nLP-CRM: статус «" . S('status_accepted') . '» ✅'
+                  : "\n\n👉 Відкрийте замовлення №{$o['num']} у CRM:\n1) вставте ТТН (вже створена, НЕ створюйте нову)\n2) статус «" . S('status_accepted') . "»\n\nТТН (натисніть, щоб скопіювати) 👇"), $chatKey);
+    if (!$crmOk) tg_api('sendMessage', ['chat_id' => K('TG_OPS_CHAT'), 'text' => '<code>' . $t['ttn'] . '</code>', 'parse_mode' => 'HTML']);
     nz_log('done', ['order' => $orderId, 'ttn' => $t['ttn'], 'crm' => $crmOk]);
 }
 
