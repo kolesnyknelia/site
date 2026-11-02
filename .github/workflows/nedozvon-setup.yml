@@ -54,7 +54,25 @@ jobs:
               except Exception:
                   pass
 
-          def get(p):
+          def connect():
+              global ftp
+              try:
+                  ftp.close()
+              except Exception:
+                  pass
+              ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+              ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"]); ftp.prot_p()
+
+          def get(p, retry=True):
+              try:
+                  return _get(p)
+              except EOFError:
+                  if not retry:
+                      raise
+                  connect()
+                  return get(p, False)
+
+          def _get(p):
               ftp.voidcmd("TYPE I"); buf = io.BytesIO()
               with ftp.transfercmd(f"RETR {p}") as c:
                   while ch := c.recv(65536):
@@ -67,10 +85,15 @@ jobs:
           try:
               for k, v in re.findall(r"'(\w+)' => base64_decode\('([A-Za-z0-9+/=]*)'\)", get(DST)):
                   vals[k] = base64.b64decode(v).decode()
-          except ftplib.all_errors:
-              pass
+          except (EOFError, *ftplib.all_errors):
+              connect()
 
-          # LP-CRM з робочого сайту
+          for k in KEYS:
+              v = os.environ.get(k, "").strip()
+              if v:
+                  vals[k] = v
+
+          # LP-CRM з робочого сайту (має пріоритет над секретами NZ_LPCRM_*)
           src = os.environ.get("SRC", "").strip()
           if src:
               s = get(src)
@@ -81,10 +104,6 @@ jobs:
               vals["LPCRM_KEY"], vals["LPCRM_DOMAIN"] = key.group(1), url.group(1)
               print("LP-CRM: домен", url.group(1), "| ключ знайдено (не показується)")
 
-          for k in KEYS:
-              v = os.environ.get(k, "").strip()
-              if v:
-                  vals[k] = v
           vals["BASE_URL"] = os.environ["SITE"].strip().rstrip("/")
           if not vals.get("SECRET"):
               vals["SECRET"] = base64.urlsafe_b64encode(os.urandom(24)).decode().rstrip("=")
