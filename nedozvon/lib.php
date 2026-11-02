@@ -91,14 +91,16 @@ function crm($method, $params = []) {
     if (!K('LPCRM_KEY') || $base === 'https://') return [];
     $r = http_post(rtrim($base, '/') . '/api/' . $method . '.html', http_build_query(['key' => K('LPCRM_KEY')] + $params));
     $j = json_decode($r, true);
+    $code1 = g($GLOBALS['NZ_HTTP'], 'code');
     // Ваші сайти звертаються до LP-CRM по http:// — якщо https не прийняв ключ, пробуємо так само
     if ((!is_array($j) || g($j, 'status') !== 'ok') && strpos($base, 'https://') === 0) {
         $r2 = http_post('http://' . substr(rtrim($base, '/'), 8) . '/api/' . $method . '.html', http_build_query(['key' => K('LPCRM_KEY')] + $params));
         $j2 = json_decode($r2, true);
         if (is_array($j2) && g($j2, 'status') === 'ok') { $r = $r2; $j = $j2; }
+        else $GLOBALS['NZ_CRM_HTTP'] = 'http://: HTTP ' . g($GLOBALS['NZ_HTTP'], 'code') . ' ' . cut(str_replace(K('LPCRM_KEY'), '***', strip_tags($r2)), 200);
     }
     if (!is_array($j) || g($j, 'status') !== 'ok') {
-        $GLOBALS['NZ_CRM_ERR'] = ['method' => $method, 'url' => rtrim($base, '/') . '/api/' . $method . '.html', 'http' => g($GLOBALS['NZ_HTTP'], 'code'),
+        $GLOBALS['NZ_CRM_ERR'] = ['method' => $method, 'url' => rtrim($base, '/') . '/api/' . $method . '.html', 'http' => $code1,
                                   'curl' => g($GLOBALS['NZ_HTTP'], 'error'), 'resp' => cut(str_replace(K('LPCRM_KEY'), '***', strip_tags($r)), 300)];
         nz_log('crm_error', $GLOBALS['NZ_CRM_ERR']);
     }
@@ -106,6 +108,12 @@ function crm($method, $params = []) {
 }
 /** Статуси CRM: id => назва (кеш на 1 годину) */
 function crm_statuses() {
+    static $memo = null;                      // в межах одного запиту питаємо LP-CRM лише раз
+    if ($memo !== null) return $memo;
+    $memo = crm_statuses_fetch();
+    return $memo;
+}
+function crm_statuses_fetch() {
     $c = load('cache', 'statuses');
     if (g($c, 'ts', 0) > time() - 3600 && g($c, 'data')) return $c['data'];
     $r = crm('getStatuses');
