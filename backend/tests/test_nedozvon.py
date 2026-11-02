@@ -61,7 +61,7 @@ def main():
     for d in (www, priv, mock): os.makedirs(d)
     shutil.copytree(os.path.join(ROOT, "nedozvon"), os.path.join(www, "nedozvon"))
     sp = os.path.join(www, "nedozvon", "settings.php")   # у тесті вимикаємо тестовий режим (номери з settings.php)
-    import re; open(sp, "w").write(re.sub(r"'test_phones'\s*=>\s*\[[^\]]*\]", "'test_phones' => []", open(sp).read()))
+    import re; txt = open(sp).read(); open(sp, "w").write(re.sub(r"'test_phones'\s*=>\s*\[[^\]]*\]", "'test_phones' => []", txt))
     open(os.path.join(mock, "index.php"), "w").write(MOCK)
     pm, ps = free_port(), free_port()
     m = f"http://127.0.0.1:{pm}"
