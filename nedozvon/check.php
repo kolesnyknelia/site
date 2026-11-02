@@ -13,7 +13,12 @@ foreach (['LPCRM_DOMAIN', 'LPCRM_KEY', 'TG_TOKEN', 'TG_OPS_CHAT', 'TURBOSMS_TOKE
 
 echo "\n== LP-CRM: статуси ==\n";
 $st = crm_statuses();
-if (!$st) echo "❌ LP-CRM не відповіла (перевірте домен і ключ API; IP хостингу має бути дозволений у LP-CRM)\n";
+if (!$st) {
+    $e = (array)g($GLOBALS, 'NZ_CRM_ERR', []);
+    echo "❌ LP-CRM не відповіла (перевірте домен і ключ API; IP хостингу має бути дозволений у LP-CRM)\n"
+       . "   Адреса: " . g($e, 'url', '—') . "\n   HTTP: " . g($e, 'http', '—') . (g($e, 'curl') ? ' · ' . $e['curl'] : '') . "\n   Відповідь: " . (g($e, 'resp') !== '' ? g($e, 'resp') : '(порожньо)') . "\n"
+       . "   IP хостингу, з якого бот звертається до LP-CRM: " . (trim((string)@file_get_contents('https://api.ipify.org')) ?: '?') . "\n";
+}
 foreach ($st as $id => $n) echo "  {$id} — {$n}\n";
 foreach (array_keys((array)S('watch', [])) as $n) echo $ok(status_id($n)) . " стежимо: «{$n}» → " . (status_id($n) ?: 'НЕ ЗНАЙДЕНО') . "\n";
 echo $ok(status_id(S('status_accepted'))) . " після ТТН ставимо: «" . S('status_accepted') . "» → " . (status_id(S('status_accepted')) ?: 'НЕ ЗНАЙДЕНО') . "\n";
@@ -33,7 +38,7 @@ if ($oid = preg_replace('/\D/', '', (string)g($_GET, 'order'))) {
 echo "\n== Нова пошта ==\n";
 if (K('NP_KEY')) {
     $s = np_sender();
-    echo $s ? "✅ Відправник: " . g($s, 'name') . "\n✅ Відправляємо з: " . g($s, 'desc') . "\n" : "❌ Не вдалося отримати відправника — див. журнал\n";
+    echo $s ? "✅ Відправник: " . g($s, 'name') . "\n✅ Відправляємо з: " . g($s, 'desc') . "\n" : "❌ Не вдалося отримати відправника: " . g($GLOBALS, 'NZ_NP_SENDER_WHY', '?') . "\n";
     $t = np_template();
     $codName = ['afterpayment' => 'Контроль оплати', 'backward' => 'Грошовий переказ', '' => '—'];
     echo $t ? "✅ ТТН робитимемо як ваша остання ({$t['from']}): опис «{$t['description']}», вага {$t['weight']} кг, доставку платить " . ($t['payer'] === 'Sender' ? 'відправник' : 'отримувач') . ", накладений платіж: " . $codName[$t['cod']] . "\n"
