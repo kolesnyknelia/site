@@ -23,7 +23,7 @@ a.b{display:block;padding:16px;border-radius:12px;color:#fff;text-decoration:non
 <?php if (!$id): ?>
 <h1>Посилання недійсне</h1><p>Перевірте, будь ласка, посилання з SMS.</p>
 <?php else: ?>
-<h1><?= e(S('shop')) ?></h1>
+<h1><?= e(shop_name()) ?></h1>
 <p>Підтвердіть ваше замовлення в 1 клік — оберіть, де вам зручніше 👇</p>
 <?php if ($tg): ?><a class="b tg" href="https://t.me/<?= e($tg) ?>?start=<?= e($tok) ?>">Підтвердити в Telegram</a><?php endif; ?>
 <?php if ($vb): ?><a class="b vb" href="viber://pa?chatURI=<?= e(rawurlencode($vb)) ?>&amp;context=<?= e($tok) ?>">Підтвердити у Viber</a><?php endif; ?>

@@ -234,6 +234,33 @@ function np_sender() {
     save('cache', 'np-sender', $s);
     return $s;
 }
+/**
+ * Параметри з вашої останньої ТТН у кабінеті НП (опис, вага, хто платить, вид накладеного платежу, адреса відправки),
+ * щоб бот робив ТТН так само, як ваші оператори. Значення з settings.php — лише запасні. Кеш на добу.
+ */
+function np_template() {
+    $c = load('cache', 'np-template');
+    if (g($c, 'ts', 0) > time() - 86400) return (array)g($c, 'tpl', []);
+    $r = np('InternetDocument', 'getDocumentList', ['DateTimeFrom' => date('d.m.Y', strtotime('-14 days')), 'DateTimeTo' => date('d.m.Y'), 'GetFullList' => '1', 'Page' => '1']);
+    $docs = array_values(array_filter((array)g($r, 'data', []), function ($d) { return is_array($d) && g($d, 'Description') !== '' && (float)g($d, 'Weight', 0) > 0; }));
+    usort($docs, function ($a, $b) { return strtotime(str_replace('.', '-', (string)g($b, 'DateTime'))) <=> strtotime(str_replace('.', '-', (string)g($a, 'DateTime'))); });
+    $tpl = [];
+    if ($d = g($docs, 0, [])) {
+        $back = 0;
+        foreach (['BackwardDeliverySum', 'BackwardDeliveryMoney', 'RedeliverySum', 'RedeliveryAmount'] as $k) $back = max($back, (float)g($d, $k, 0));
+        $tpl = [
+            'from'        => (string)g($d, 'IntDocNumber', g($d, 'Number')),
+            'description' => (string)$d['Description'],
+            'weight'      => (string)$d['Weight'],
+            'payer'       => in_array(g($d, 'PayerType'), ['Sender', 'Recipient'], true) ? $d['PayerType'] : '',
+            'cod'         => (float)g($d, 'AfterpaymentOnGoodsCost', 0) > 0 ? 'afterpayment' : ($back > 0 || (int)g($d, 'Redelivery', 0) === 1 ? 'backward' : ''),
+            'city'        => (string)g($d, 'CitySender'),
+            'address'     => (string)g($d, 'SenderAddress'),
+        ];
+    }
+    save('cache', 'np-template', ['ts' => time(), 'tpl' => $tpl]);
+    return $tpl;
+}
 /** Створити ТТН. Повертає ['ok'=>true,'ttn'=>...] або ['ok'=>false,'error'=>...] */
 function np_create_ttn($st, $o) {
     $snd = np_sender();
@@ -248,16 +275,18 @@ function np_create_ttn($st, $o) {
     if (!g($rec, 'Ref') || !$contact) return ['ok' => false, 'error' => 'НП не створила отримувача: ' . implode('; ', (array)g($rc, 'errors', []))];
     $total = money($o['total']);
     $size = (array)S('np_size', [20, 15, 5]);
+    $tpl = np_template();
+    $weight = g($tpl, 'weight') ?: (string)S('np_weight', 0.5);
     $p = [
-        'PayerType' => S('np_payer', 'Recipient'), 'PaymentMethod' => 'Cash', 'DateTime' => date('d.m.Y'),
+        'PayerType' => g($tpl, 'payer') ?: S('np_payer', 'Recipient'), 'PaymentMethod' => 'Cash', 'DateTime' => date('d.m.Y'),
         'CargoType' => 'Parcel', 'ServiceType' => 'WarehouseWarehouse', 'SeatsAmount' => '1',
-        'Weight' => (string)S('np_weight', 0.5), 'Description' => S('np_description', 'Товар'), 'Cost' => $total,
-        'OptionsSeat' => [['volumetricLength' => (string)$size[0], 'volumetricWidth' => (string)$size[1], 'volumetricHeight' => (string)$size[2], 'weight' => (string)S('np_weight', 0.5)]],
-        'CitySender' => $snd['city'], 'Sender' => $snd['ref'], 'SenderAddress' => $snd['address'], 'ContactSender' => $snd['contact'], 'SendersPhone' => $snd['phone'],
+        'Weight' => $weight, 'Description' => g($tpl, 'description') ?: S('np_description', 'Товар'), 'Cost' => $total,
+        'OptionsSeat' => [['volumetricLength' => (string)$size[0], 'volumetricWidth' => (string)$size[1], 'volumetricHeight' => (string)$size[2], 'weight' => $weight]],
+        'CitySender' => g($tpl, 'city') ?: $snd['city'], 'Sender' => $snd['ref'], 'SenderAddress' => g($tpl, 'address') ?: $snd['address'], 'ContactSender' => $snd['contact'], 'SendersPhone' => $snd['phone'],
         'CityRecipient' => $st['city_ref'], 'Recipient' => $rec['Ref'], 'RecipientAddress' => $st['wh_ref'], 'ContactRecipient' => $contact, 'RecipientsPhone' => $st['phone'],
         'InfoRegClientBarcodes' => (string)$o['num'],
     ];
-    $cod = S('np_cod', 'backward');
+    $cod = g($tpl, 'cod') ?: S('np_cod', 'backward');
     if ($cod === 'backward') $p['BackwardDeliveryData'] = [['PayerType' => 'Recipient', 'CargoType' => 'Money', 'RedeliveryString' => $total]];
     elseif ($cod === 'afterpayment') $p['AfterpaymentOnGoodsCost'] = $total;
     $r = np('InternetDocument', 'save', $p);
@@ -274,13 +303,16 @@ function tg_api($method, $params) {
     if (empty($r['ok'])) nz_log('tg_error', ['method' => $method, 'error' => g($r, 'description', 'no response')]);
     return g($r, 'result', null);
 }
-function tg_username() {
+function tg_me() {
     $c = load('cache', 'tg-me');
-    if (g($c, 'username')) return $c['username'];
-    $me = tg_api('getMe', []);
-    if (g($me, 'username')) save('cache', 'tg-me', ['username' => $me['username']]);
-    return (string)g($me, 'username');
+    if (g($c, 'username')) return $c;
+    $me = (array)tg_api('getMe', []);
+    if (g($me, 'username')) save('cache', 'tg-me', ['username' => $me['username'], 'name' => (string)g($me, 'first_name')]);
+    return $me;
 }
+function tg_username() { return (string)g(tg_me(), 'username'); }
+/** Назва магазину: з settings.php, інакше — назва вашого Telegram-бота */
+function shop_name() { return trim((string)S('shop')) ?: (K('TG_TOKEN') ? (string)g(tg_me(), 'name', g(tg_me(), 'first_name')) : '') ?: 'Підтвердження замовлення'; }
 function viber_api($method, $params) {
     if (!K('VIBER_TOKEN')) return [];
     $api = K('VIBER_API') ?: 'https://chatapi.viber.com/pa';
@@ -327,7 +359,7 @@ function say($chatKey, $text, $buttons = null, $photo = '') {
         $msg['keyboard'] = ['Type' => 'keyboard', 'DefaultHeight' => false, 'Buttons' => $btns];
     }
     if (isset($GLOBALS['NZ_OUT'])) { $GLOBALS['NZ_OUT'][] = $msg; return; }
-    viber_api('send_message', ['receiver' => $id, 'sender' => ['name' => cut(S('shop'), 28)], 'min_api_version' => 3] + $msg);
+    viber_api('send_message', ['receiver' => $id, 'sender' => ['name' => cut(shop_name(), 28)], 'min_api_version' => 3] + $msg);
 }
 
 /* ================= Сценарій розмови ================= */

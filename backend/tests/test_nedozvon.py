@@ -32,6 +32,10 @@ if (strpos($uri, '/np') === 0) {
   if ($m === 'Counterparty.getCounterparties') $d = [['Ref' => 'sender-ref']];
   if ($m === 'Counterparty.getCounterpartyContactPersons') $d = [['Ref' => 'contact-ref', 'Phones' => '380501112233']];
   if ($m === 'Counterparty.getCounterpartyAddresses') $d = [['Ref' => 'wh-1', 'CityRef' => 'city-snd', 'CityDescription' => 'Київ', 'Description' => 'Відділення №1']];
+  if ($m === 'InternetDocument.getDocumentList') $d = [
+      ['IntDocNumber' => '20450000000000', 'DateTime' => '25.10.2026 10:00:00', 'Description' => 'Старе', 'Weight' => '1', 'PayerType' => 'Sender', 'CitySender' => 'old', 'SenderAddress' => 'old'],
+      ['IntDocNumber' => '20451576856425', 'DateTime' => '01.11.2026 12:00:00', 'Description' => 'Прикраси', 'Weight' => '0.3', 'PayerType' => 'Recipient',
+       'AfterpaymentOnGoodsCost' => '827', 'CitySender' => 'city-tpl', 'SenderAddress' => 'wh-tpl']];
   if ($m === 'Counterparty.save') $d = [['Ref' => 'rec-ref', 'ContactPerson' => ['data' => [['Ref' => 'rec-contact']]]]];
   if ($m === 'InternetDocument.save') $d = [['Ref' => 'doc', 'IntDocNumber' => '20450000000001', 'CostOnSite' => 70]];
   echo json_encode(['success' => true, 'data' => $d, 'errors' => []], JSON_UNESCAPED_UNICODE); exit;
@@ -165,7 +169,9 @@ def main():
             p = doc[0]["in"]["methodProperties"]
             check("ТТН: отримувач, відділення, телефон, сума, накладений платіж",
                   p["RecipientsPhone"] == "380971234567" and p["RecipientAddress"] == "wh-12" and p["Cost"] == "299"
-                  and p["BackwardDeliveryData"][0]["RedeliveryString"] == "299" and p["SenderAddress"] == "wh-1")
+                  and "BackwardDeliveryData" not in p and p["AfterpaymentOnGoodsCost"] == "299")
+            check("ТТН як остання у кабінеті: опис, вага, адреса відправки", p["Description"] == "Прикраси" and p["Weight"] == "0.3"
+                  and p["SenderAddress"] == "wh-tpl" and p["CitySender"] == "city-tpl" and p["PayerType"] == "Recipient")
         rc = [c for c in cs if c["uri"] == "/np" and c["in"]["calledMethod"] == "save" and c["in"]["modelName"] == "Counterparty"]
         check("отримувач: прізвище Шевченко, ім'я Ірина", rc and rc[0]["in"]["methodProperties"]["LastName"] == "Шевченко" and rc[0]["in"]["methodProperties"]["FirstName"] == "Ірина")
         up = [c for c in cs if "/api/updateOrder.html" in c["uri"]]
@@ -215,6 +221,7 @@ def main():
         # --- check.php
         code, out = req(site + f"/check.php?key={SECRET}&order=17299")
         check("check.php показує статуси й замовлення", code == 200 and "Недозвон" in out and "Касяненко" in out and "✅ @shop_test_bot" in out)
+        check("check.php показує шаблон ТТН", "опис «Прикраси», вага 0.3 кг" in out and "Контроль оплати" in out)
         check("check.php без ключа → 403", req(site + "/check.php")[0] == 403)
     finally:
         for p in procs: p.terminate()

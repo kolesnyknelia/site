@@ -21,7 +21,7 @@ if ($ev === 'conversation_started') {
     if (count($out) > 1) { $texts = []; foreach ($out as $m) $texts[] = g($m, 'text'); $msg['text'] = implode("\n\n", array_filter($texts)); }
     if (g($msg, 'type') === 'picture') { $msg['type'] = 'text'; unset($msg['media']); } // у вітанні — лише текст з кнопками
     header('Content-Type: application/json');
-    echo json_encode(['sender' => ['name' => cut(S('shop'), 28)], 'min_api_version' => 3] + $msg, JSON_UNESCAPED_UNICODE);
+    echo json_encode(['sender' => ['name' => cut(shop_name(), 28)], 'min_api_version' => 3] + $msg, JSON_UNESCAPED_UNICODE);
     exit;
 }
 echo 'ok';
