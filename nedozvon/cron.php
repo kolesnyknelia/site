@@ -20,8 +20,7 @@ $start = date('Y-m-d', strtotime('-' . (int)S('lookback_days', 2) . ' days'));
 foreach ((array)S('watch', []) as $name => $delay) {
     $sid = status_id($name);
     if (!$sid) { echo "Статус «{$name}» не знайдено в LP-CRM\n"; nz_log('no_status', ['name' => $name]); continue; }
-    $r = crm('getOrdersIdByStatus', ['status' => $sid, 'date_start' => $start, 'date_end' => date('Y-m-d')]);
-    $ids = array_values(array_unique(array_map('strval', (array)g($r, 'data', []))));
+    $ids = crm_ids_by_status($sid);
     echo "«{$name}» (#{$sid}): " . count($ids) . " замовл.\n";
     foreach ($ids as $id) {
         if (!preg_match('/^\d{1,20}$/', $id)) continue;

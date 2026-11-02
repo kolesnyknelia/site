@@ -32,8 +32,8 @@ if ($oid = preg_replace('/\D/', '', (string)g($_GET, 'order'))) {
     echo $o ? json_encode(array_diff_key($o, ['raw' => 1]), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n\nСирі дані LP-CRM:\n" . json_encode($o['raw'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : '❌ не знайдено';
     echo "\n\nПосилання для клієнта: " . go_link($oid) . "\n";
 } elseif ($st && ($sid = status_id(array_keys((array)S('watch', []))[0] ?? ''))) {
-    $r = crm('getOrdersIdByStatus', ['status' => $sid, 'date_start' => date('Y-m-d', strtotime('-' . (int)S('lookback_days', 2) . ' days')), 'date_end' => date('Y-m-d')]);
-    $ids = (array)g($r, 'data', []);
+    $ids = crm_ids_by_status($sid);
+    if (!$ids) echo "Відповідь LP-CRM: " . cut(json_encode($GLOBALS['NZ_IDS_RAW'], JSON_UNESCAPED_UNICODE), 300) . "\n";
     echo "\nЗамовлень у статусі зараз: " . count($ids) . ($ids ? ' (напр. ' . implode(', ', array_slice($ids, 0, 5)) . ")\nДодайте &order=" . reset($ids) . " до адреси, щоб побачити дані замовлення" : '') . "\n";
 }
 
