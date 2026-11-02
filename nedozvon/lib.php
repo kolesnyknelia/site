@@ -219,10 +219,17 @@ function np_sender() {
     $cp = g(g(np('Counterparty', 'getCounterparties', ['CounterpartyProperty' => 'Sender', 'Page' => '1']), 'data', []), 0, []);
     if (!g($cp, 'Ref')) return [];
     $contact = g(g(np('Counterparty', 'getCounterpartyContactPersons', ['Ref' => $cp['Ref'], 'Page' => '1']), 'data', []), 0, []);
-    $city = g(np_cities(S('np_sender_city')), 0, []);
-    $wh = $city ? g(np_warehouses($city['ref'], (string)S('np_sender_warehouse')), 0, []) : [];
+    if (trim((string)S('np_sender_city')) !== '') {
+        $city = g(np_cities(S('np_sender_city')), 0, []);
+        $wh = $city ? g(np_warehouses($city['ref'], (string)S('np_sender_warehouse')), 0, []) : [];
+        $cityRef = g($city, 'ref'); $whRef = g($wh, 'ref'); $desc = g($city, 'name') . ', ' . g($wh, 'name');
+    } else {
+        // Місто й відділення не вказані — беремо адресу відправника з кабінету НП (ту, з якої вже відправляли)
+        $a = g(g(np('Counterparty', 'getCounterpartyAddresses', ['Ref' => $cp['Ref'], 'CounterpartyProperty' => 'Sender']), 'data', []), 0, []);
+        $cityRef = g($a, 'CityRef'); $whRef = g($a, 'Ref'); $desc = trim(g($a, 'CityDescription') . ', ' . g($a, 'Description'), ', ');
+    }
     $s = ['ts' => time(), 'ref' => $cp['Ref'], 'contact' => g($contact, 'Ref'), 'phone' => norm_phone(g($contact, 'Phones')),
-          'city' => g($city, 'ref'), 'address' => g($wh, 'ref')];
+          'city' => $cityRef, 'address' => $whRef, 'desc' => $desc, 'name' => g($cp, 'Description')];
     if (!$s['contact'] || !$s['city'] || !$s['address']) { nz_log('np_sender_incomplete', $s); return []; }
     save('cache', 'np-sender', $s);
     return $s;

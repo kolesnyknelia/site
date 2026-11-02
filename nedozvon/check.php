@@ -33,7 +33,7 @@ if ($oid = preg_replace('/\D/', '', (string)g($_GET, 'order'))) {
 echo "\n== Нова пошта ==\n";
 if (K('NP_KEY')) {
     $s = np_sender();
-    echo $s ? "✅ Відправник знайдений, місто й відділення відправки: " . S('np_sender_city') . ' №' . S('np_sender_warehouse') . "\n" : "❌ Не вдалося отримати відправника — див. журнал\n";
+    echo $s ? "✅ Відправник: " . g($s, 'name') . "\n✅ Відправляємо з: " . g($s, 'desc') . "\n" : "❌ Не вдалося отримати відправника — див. журнал\n";
 } else echo "❌ немає NP_KEY\n";
 
 echo "\n== Telegram ==\n";

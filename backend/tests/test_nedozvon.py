@@ -31,6 +31,7 @@ if (strpos($uri, '/np') === 0) {
   if ($m === 'Address.getWarehouses') $d = [['Ref' => 'wh-' . ($p['WarehouseId'] ?? 'x'), 'Description' => 'Відділення №' . ($p['WarehouseId'] ?? '1') . ': вул. Київська, 1']];
   if ($m === 'Counterparty.getCounterparties') $d = [['Ref' => 'sender-ref']];
   if ($m === 'Counterparty.getCounterpartyContactPersons') $d = [['Ref' => 'contact-ref', 'Phones' => '380501112233']];
+  if ($m === 'Counterparty.getCounterpartyAddresses') $d = [['Ref' => 'wh-1', 'CityRef' => 'city-snd', 'CityDescription' => 'Київ', 'Description' => 'Відділення №1']];
   if ($m === 'Counterparty.save') $d = [['Ref' => 'rec-ref', 'ContactPerson' => ['data' => [['Ref' => 'rec-contact']]]]];
   if ($m === 'InternetDocument.save') $d = [['Ref' => 'doc', 'IntDocNumber' => '20450000000001', 'CostOnSite' => 70]];
   echo json_encode(['success' => true, 'data' => $d, 'errors' => []], JSON_UNESCAPED_UNICODE); exit;
