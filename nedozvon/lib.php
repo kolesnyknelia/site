@@ -178,6 +178,8 @@ function shape($v, $depth = 0) {
 function crm_order($orderId) {
     $r = crm('getOrdersByID', ['order_id' => $orderId]);
     $data = g($r, 'data', []);
+    if (is_string($data) && ($d = json_decode($data, true))) $data = $d;
+    $GLOBALS['NZ_ORDER_RAW'] = $r;
     if (!is_array($data) || !$data) return [];
     $o = isset($data[$orderId]) ? $data[$orderId] : null;
     if ($o === null) foreach ($data as $row) if (is_array($row) && (string)g($row, 'order_id') === (string)$orderId) { $o = $row; break; }
