@@ -35,6 +35,12 @@ if ($oid = preg_replace('/\D/', '', (string)g($_GET, 'order'))) {
     if (!$ids) echo "Відповідь LP-CRM: " . cut(json_encode($GLOBALS['NZ_IDS_RAW'], JSON_UNESCAPED_UNICODE), 300) . "\n";
     if ($ids) {
         $o = crm_order(reset($ids));
+        $raw = (array)g($GLOBALS, 'NZ_ORDER_RAW', []);
+        echo "\ngetOrdersByID(order_id): status=" . g($raw, 'status', '?') . ' ' . json_encode(shape(array_diff_key($raw, ['status' => 1])), JSON_UNESCAPED_UNICODE) . "\n";
+        foreach ([['id' => reset($ids)], ['order_id' => reset($ids) . ',' . next($ids)], ['order_ids' => reset($ids)]] as $alt) {
+            $ra = crm('getOrdersByID', $alt);
+            echo 'getOrdersByID(' . implode(',', array_keys($alt)) . '): status=' . g($ra, 'status', '?') . ' ' . cut(json_encode(shape(array_diff_key((array)$ra, ['status' => 1])), JSON_UNESCAPED_UNICODE), 1500) . "\n";
+        }
         echo "\nСтруктура замовлення " . reset($ids) . " (без персональних даних):\n" . json_encode(shape(g($o, 'raw', [])), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n"
            . ($o ? ('Телефон розпізнано: ' . (norm_phone($o['phone']) ? '✅' : '❌') . ' · товарів: ' . count($o['items']) . ' · сума: ' . money($o['total']) . " грн\n") : "❌ замовлення не прочиталось\n");
     }
