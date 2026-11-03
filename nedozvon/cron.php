@@ -28,6 +28,8 @@ foreach ((array)S('watch', []) as $name => $delay) {
         $rec = load('orders', $id);
         // «bad phone» з першої версії (телефон не розпізнавався) — перевіряємо ще раз
         if (g($rec, 'error') === 'bad phone' && empty($rec['pv'])) { unset($rec['sent_at'], $rec['error'], $rec['phone']); }
+        // Відправка, що впала з помилкою авторизації TurboSMS до виправлення, — пробуємо ще раз
+        if (!empty($rec['sent_at']) && empty($rec['tries']) && isset($rec['send']['ok']) && !$rec['send']['ok']) { unset($rec['sent_at']); $rec['tries'] = 1; }
         if (!empty($rec['sent_at'])) continue;
         if (empty($rec['seen_at'])) { $rec['seen_at'] = time(); save('orders', $id, $rec); }
         if (time() - (int)$rec['seen_at'] < (int)$delay * 60) continue;
@@ -46,7 +48,9 @@ foreach ((array)S('watch', []) as $name => $delay) {
         if ($test && !in_array($phone, $test, true)) continue;   // тестовий режим: інших не чіпаємо і не позначаємо
         if ($dry) { echo "  [тест] надіслали б {$o['num']} → {$phone}\n"; $sent++; continue; }
         $res = send_sms($phone, $id, $o);
-        $rec['sent_at'] = date('c'); $rec['send'] = $res; $rec['status_name'] = $name;
+        $rec['send'] = $res; $rec['status_name'] = $name;
+        if ($res['ok'] || (int)g($rec, 'tries', 0) >= 5) $rec['sent_at'] = date('c');   // невдалу відправку повторюємо (до 5 разів)
+        else $rec['tries'] = (int)g($rec, 'tries', 0) + 1;
         save('orders', $id, $rec);
         nz_log('sms', ['order' => $id, 'num' => $o['num'], 'ok' => $res['ok'], 'code' => g($res, 'code')]);
         echo "  {$o['num']} → " . ($res['ok'] ? 'надіслано' : 'ПОМИЛКА ' . json_encode($res, JSON_UNESCAPED_UNICODE)) . "\n";
