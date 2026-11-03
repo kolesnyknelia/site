@@ -181,9 +181,18 @@ function crm_order($orderId) {
     if (is_string($data) && ($d = json_decode($data, true))) $data = $d;
     $GLOBALS['NZ_ORDER_RAW'] = $r;
     if (!is_array($data) || !$data) return [];
-    $o = isset($data[$orderId]) ? $data[$orderId] : null;
-    if ($o === null) foreach ($data as $row) if (is_array($row) && (string)g($row, 'order_id') === (string)$orderId) { $o = $row; break; }
-    if ($o === null) { $first = reset($data); $o = is_array($first) ? $first : $data; }
+    // LP-CRM: для одного замовлення data — саме замовлення; для кількох — {order_id: замовлення}
+    $o = [];
+    if (array_key_exists('order_id', $data) || array_key_exists('phone', $data) || array_key_exists('bayer_name', $data)) {
+        $o = $data;
+    } else {
+        foreach ($data as $k => $row) {
+            if (!is_array($row)) continue;
+            if ((string)$k === (string)$orderId || (string)g($row, 'order_id') === (string)$orderId) { $o = $row; break; }
+            if (!$o) $o = $row;
+        }
+    }
+    if (!$o) return [];
     $items = []; $sum = 0;
     foreach ((array)g($o, 'products', []) as $p) {
         if (!is_array($p)) continue;
