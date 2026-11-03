@@ -36,6 +36,7 @@ if ($oid = preg_replace('/\D/', '', (string)g($_GET, 'order'))) {
     if ($ids) {
         $o = crm_order(reset($ids));
         $raw = (array)g($GLOBALS, 'NZ_ORDER_RAW', []);
+        echo "\nPHP " . PHP_VERSION . " · crm_order: " . json_encode(shape(array_diff_key((array)$o, ['raw' => 1])), JSON_UNESCAPED_UNICODE) . " · raw: " . gettype(g($o, 'raw', null)) . ' ' . count((array)g($o, 'raw', [])) . "\n";
         echo "\ngetOrdersByID(order_id): status=" . g($raw, 'status', '?') . ' ' . json_encode(shape(array_diff_key($raw, ['status' => 1])), JSON_UNESCAPED_UNICODE) . "\n";
         foreach ([['id' => reset($ids)], ['order_id' => reset($ids) . ',' . next($ids)], ['order_ids' => reset($ids)]] as $alt) {
             $ra = crm('getOrdersByID', $alt);
