@@ -149,6 +149,32 @@ function status_id($name) {
     return $part;
 }
 /** Замовлення з LP-CRM у простому вигляді */
+/** Шукає поле в замовленні: спершу за точними назвами, потім за частиною назви (рекурсивно) */
+function find_field($o, $exact, $parts, $validate = null) {
+    foreach ($exact as $k) if (isset($o[$k]) && !is_array($o[$k]) && trim((string)$o[$k]) !== '' && (!$validate || $validate($o[$k]))) return (string)$o[$k];
+    $stack = [$o];
+    while ($stack) {
+        $cur = array_pop($stack);
+        foreach ((array)$cur as $k => $v) {
+            if (is_array($v)) { if ($k !== 'products') $stack[] = $v; continue; }
+            foreach ($parts as $p) if (stripos((string)$k, $p) !== false && trim((string)$v) !== '' && (!$validate || $validate($v))) return (string)$v;
+        }
+    }
+    return '';
+}
+/** Структура відповіді без персональних даних: назви полів і тип/довжина значень */
+function shape($v, $depth = 0) {
+    if (is_array($v)) {
+        if ($depth > 3) return '[…]';
+        $out = []; $i = 0;
+        foreach ($v as $k => $x) { if ($i++ >= 40) { $out['…'] = '…'; break; } $out[$k] = shape($x, $depth + 1); }
+        return $out;
+    }
+    if ($v === null || $v === '') return '(порожньо)';
+    $str = (string)$v;
+    if (norm_phone($str)) return 'телефон ✓ (' . strlen(preg_replace('/\D/', '', $str)) . ' цифр)';
+    return (is_numeric($str) ? 'число' : 'текст') . ' ' . (function_exists('mb_strlen') ? mb_strlen($str, 'UTF-8') : strlen($str)) . ' симв.';
+}
 function crm_order($orderId) {
     $r = crm('getOrdersByID', ['order_id' => $orderId]);
     $data = g($r, 'data', []);
@@ -170,8 +196,8 @@ function crm_order($orderId) {
         'order_id' => (string)$orderId,
         'num'      => (string)(g($o, 'id') ?: $orderId),
         'status'   => (string)g($o, 'status'),
-        'name'     => trim((string)g($o, 'bayer_name')),
-        'phone'    => (string)g($o, 'phone'),
+        'name'     => trim(find_field($o, ['bayer_name', 'buyer_name', 'fio', 'name', 'client_name'], ['bayer', 'buyer', 'fio', 'client'])),
+        'phone'    => find_field($o, ['phone', 'bayer_phone', 'phone_number', 'tel'], ['phone', 'tel'], 'norm_phone'),
         'comment'  => (string)g($o, 'comment'),
         'ttn'      => (string)g($o, 'ttn'),
         'items'    => $items,

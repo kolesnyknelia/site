@@ -26,6 +26,8 @@ foreach ((array)S('watch', []) as $name => $delay) {
     foreach ($ids as $id) {
         if (!preg_match('/^\d{1,20}$/', $id)) continue;
         $rec = load('orders', $id);
+        // «bad phone» з першої версії (телефон не розпізнавався) — перевіряємо ще раз
+        if (g($rec, 'error') === 'bad phone' && empty($rec['pv'])) { unset($rec['sent_at'], $rec['error'], $rec['phone']); }
         if (!empty($rec['sent_at'])) continue;
         if (empty($rec['seen_at'])) { $rec['seen_at'] = time(); save('orders', $id, $rec); }
         if (time() - (int)$rec['seen_at'] < (int)$delay * 60) continue;
@@ -40,7 +42,7 @@ foreach ((array)S('watch', []) as $name => $delay) {
         $rec['phone'] = norm_phone($o['phone']); save('orders', $id, $rec);
         if ($o['status'] !== '' && !status_is($o['status'], $sid)) continue;   // оператор уже змінив статус
         $phone = norm_phone($o['phone']);
-        if (!$phone) { $rec['sent_at'] = date('c'); $rec['error'] = 'bad phone'; save('orders', $id, $rec); continue; }
+        if (!$phone) { $rec['sent_at'] = date('c'); $rec['error'] = 'bad phone'; $rec['pv'] = 2; save('orders', $id, $rec); continue; }
         if ($test && !in_array($phone, $test, true)) continue;   // тестовий режим: інших не чіпаємо і не позначаємо
         if ($dry) { echo "  [тест] надіслали б {$o['num']} → {$phone}\n"; $sent++; continue; }
         $res = send_sms($phone, $id, $o);

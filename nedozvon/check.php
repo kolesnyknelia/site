@@ -33,6 +33,11 @@ if ($oid = preg_replace('/\D/', '', (string)g($_GET, 'order'))) {
 } elseif ($st && ($sid = status_id(array_keys((array)S('watch', []))[0] ?? ''))) {
     $ids = crm_ids_by_status($sid);
     if (!$ids) echo "Відповідь LP-CRM: " . cut(json_encode($GLOBALS['NZ_IDS_RAW'], JSON_UNESCAPED_UNICODE), 300) . "\n";
+    if ($ids) {
+        $o = crm_order(reset($ids));
+        echo "\nСтруктура замовлення " . reset($ids) . " (без персональних даних):\n" . json_encode(shape(g($o, 'raw', [])), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n"
+           . ($o ? ('Телефон розпізнано: ' . (norm_phone($o['phone']) ? '✅' : '❌') . ' · товарів: ' . count($o['items']) . ' · сума: ' . money($o['total']) . " грн\n") : "❌ замовлення не прочиталось\n");
+    }
     echo "\nЗамовлень у статусі зараз: " . count($ids) . ($ids ? ' (напр. ' . implode(', ', array_slice($ids, 0, 5)) . ")\nДодайте &order=" . reset($ids) . " до адреси, щоб побачити дані замовлення" : '') . "\n";
 }
 
