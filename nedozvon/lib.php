@@ -74,6 +74,19 @@ function base_url() {
     return 'https://' . $host . '/nedozvon';
 }
 function go_link($orderId) { return base_url() . '/go.php?o=' . token($orderId); }
+/** Коротке посилання для SMS: kvn.kiev.ua/z/?Ab3k9X (6 випадкових символів → замовлення) */
+function short_link($orderId) {
+    $rec = load('orders', $orderId);
+    $code = (string)g($rec, 'short');
+    if (!$code || !load('links', $code)) {
+        $abc = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        do { $code = ''; for ($i = 0; $i < 6; $i++) $code .= $abc[random_int(0, strlen($abc) - 1)]; } while (load('links', $code));
+        save('links', $code, ['order' => (string)$orderId, 'at' => date('c')]);
+        $rec = load('orders', $orderId); $rec['short'] = $code; save('orders', $orderId, $rec);
+    }
+    $host = preg_replace('~^https?://~', '', dirname(base_url()));
+    return $host . '/z/?' . $code;
+}
 
 /* ================= Телефон ================= */
 /** Український мобільний → 380XXXXXXXXX або '' */
@@ -256,9 +269,18 @@ function order_photo($o) {
 /* ================= SMS + Viber через TurboSMS ================= */
 function send_sms($phone, $orderId, $o) {
     $link = go_link($orderId);
-    $repl = ['{id}' => $o['num'], '{link}' => $link, '{products}' => items_text($o), '{total}' => money($o['total']), '{product}' => product_short($o)];
+    $repl = ['{id}' => $o['num'], '{link}' => $link, '{products}' => items_text($o), '{total}' => money($o['total']), '{product}' => product_short($o),
+             '{short}' => short_link($orderId)];
+    // SMS: вкорочуємо назву товару, щоб текст уміщався в sms_max_len символів (2 SMS = 134 кирилицею)
+    $smsText = strtr(S('sms_text'), $repl);
+    $max = (int)S('sms_max_len', 134);
+    $p = $repl['{product}'];
+    while (mb_strlen($smsText, 'UTF-8') > $max && mb_strlen($p, 'UTF-8') > 12) {
+        $p = rtrim(mb_substr($p, 0, mb_strlen($p, 'UTF-8') - 2, 'UTF-8'), ' «') . '…';
+        $smsText = strtr(S('sms_text'), ['{product}' => $p] + $repl);
+    }
     $body = ['recipients' => [$phone]];
-    if (K('SMS_SENDER')) $body['sms'] = ['sender' => K('SMS_SENDER'), 'text' => strtr(S('sms_text'), $repl)];
+    if (K('SMS_SENDER')) $body['sms'] = ['sender' => K('SMS_SENDER'), 'text' => $smsText];
     if (K('VIBER_SENDER')) {
         $body['viber'] = ['sender' => K('VIBER_SENDER'), 'text' => strtr(S('viber_text'), $repl), 'caption' => S('viber_button'), 'action' => $link, 'ttl' => 3600];
         if ($img = order_photo($o)) $body['viber']['image_url'] = $img;
