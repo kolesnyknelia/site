@@ -60,6 +60,7 @@ def main():
     www, priv, mock = os.path.join(tmp, "kvn", "www"), os.path.join(tmp, "kvn", "private"), os.path.join(tmp, "mock")
     for d in (www, priv, mock): os.makedirs(d)
     shutil.copytree(os.path.join(ROOT, "nedozvon"), os.path.join(www, "nedozvon"))
+    shutil.copytree(os.path.join(ROOT, "z"), os.path.join(www, "z"))
     sp = os.path.join(www, "nedozvon", "settings.php")   # у тесті вимикаємо тестовий режим (номери з settings.php)
     import re; txt = open(sp).read()
     txt = re.sub(r"'test_phones'\s*=>\s*\[[^\]]*\]", "'test_phones' => []", txt)
@@ -124,8 +125,14 @@ def main():
             if sms:
                 b = sms[0]["in"]
                 check("номер 380988091877", b["recipients"] == ["380988091877"])
-                check("у SMS зрозумілий текст: товар, сума, посилання", "Ніжні срібні сережки-кільця" in b["sms"]["text"] and "299 грн" in b["sms"]["text"] and "не додзвонилися" in b["sms"]["text"] and "/go.php?o=o17299_" in b["sms"]["text"])
-                check("у Viber товар і кнопка", "сережки" in b["viber"]["text"] and b["viber"]["action"].endswith(b["sms"]["text"].split("go.php?o=")[1]))
+                check("у SMS зрозумілий текст: товар, сума, коротке посилання, ≤134 символи", "Ніжні срібні" in b["sms"]["text"] and "299 грн" in b["sms"]["text"] and "додзвонилися" in b["sms"]["text"] and "/z/?" in b["sms"]["text"] and len(b["sms"]["text"]) <= 134)
+                short = "http://" + b["sms"]["text"].split()[-1]
+                class NR(urllib.request.HTTPRedirectHandler):
+                    def redirect_request(self, *a, **k): return None
+                try: urllib.request.build_opener(NR).open(short, timeout=20); loc = ""
+                except urllib.error.HTTPError as e: loc = e.headers.get("Location", "")
+                check("коротке посилання веде на сторінку замовлення", "/go.php?o=o17299_" in loc)
+                check("у Viber товар і кнопка", "сережки" in b["viber"]["text"] and "/go.php?o=o17299_" in b["viber"]["action"])
             reset_calls(); req(site + f"/cron.php?key={SECRET}")
             check("повторно не надсилає", not any("/message/send.json" in c["uri"] for c in calls()))
         else:
