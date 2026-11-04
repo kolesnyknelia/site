@@ -183,7 +183,7 @@ def main():
         check("LP-CRM: статус «Принят» (11), ТТН, ПІБ, адреса, «Прийняв бот»", up and up[0]["in"]["status"] == "11" and up[0]["in"]["ttn"] == "20450000000001"
               and up[0]["in"]["bayer_name"] == "Шевченко Ірина" and "Житомир" in up[0]["in"]["delivery_adress"]
               and "Прийняв бот" in up[0]["in"]["comment"] and "стара примітка" in up[0]["in"]["comment"])
-        check("клієнт отримав ТТН", any("20450000000001" in x for x in tg_texts()))
+        check("клієнт отримав підтвердження без номера ТТН", any("підтверджено" in x for x in tg_texts()) and not any("20450000000001" in x for x in tg_texts()))
         check("оператори отримали звіт", any("Бот прийняв замовлення №87939" in x and "статус «Принят» ✅" in x for x in ops_texts()))
 
         reset_calls(); tg_btn("go")
