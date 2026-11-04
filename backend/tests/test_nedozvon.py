@@ -63,7 +63,8 @@ def main():
     sp = os.path.join(www, "nedozvon", "settings.php")   # у тесті вимикаємо тестовий режим (номери з settings.php)
     import re; txt = open(sp).read()
     txt = re.sub(r"'test_phones'\s*=>\s*\[[^\]]*\]", "'test_phones' => []", txt)
-    txt = txt.replace("'lpcrm_update_method' => ''", "'lpcrm_update_method' => 'updateOrder'")   # перевіряємо й гілку з оновленням CRM
+    txt = txt.replace("'lpcrm_update_method' => ''", "'lpcrm_update_method' => 'updateOrder'")
+    txt = txt.replace("'create_ttn' => false", "'create_ttn' => true")   # у тесті перевіряємо й гілку з ТТН   # перевіряємо й гілку з оновленням CRM
     open(sp, "w").write(txt)
     open(os.path.join(mock, "index.php"), "w").write(MOCK)
     pm, ps = free_port(), free_port()
