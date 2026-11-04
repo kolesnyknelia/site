@@ -255,10 +255,23 @@ function send_sms($phone, $orderId, $o) {
         if ($img = order_photo($o)) $body['viber']['image_url'] = $img;
     }
     if (!isset($body['sms']) && !isset($body['viber'])) return ['ok' => false, 'error' => 'no sender'];
-    $api = K('TURBOSMS_API') ?: 'https://api.turbosms.ua';
-    $r = post_json(rtrim($api, '/') . '/message/send.json', $body, ['Authorization: Bearer ' . K('TURBOSMS_TOKEN')]);
-    $code = (int)g($r, 'response_code', -1);
-    return ['ok' => in_array($code, [0, 800, 801, 802, 803], true), 'code' => $code, 'status' => g($r, 'response_status')];
+    $api = rtrim(K('TURBOSMS_API') ?: 'https://api.turbosms.ua', '/') . '/message/send.json';
+    $send = function ($b) use ($api) {
+        $r = post_json($api, $b, ['Authorization: Bearer ' . K('TURBOSMS_TOKEN')]);
+        $code = (int)g($r, 'response_code', -1);
+        return ['ok' => in_array($code, [0, 800, 801, 802, 803], true), 'code' => $code, 'status' => g($r, 'response_status')];
+    };
+    $res = $send($body);
+    // Ім'я відправника не підійшло для одного з каналів — пробуємо окремо: спершу Viber, потім SMS
+    if (!$res['ok'] && isset($body['sms'], $body['viber']) && in_array($res['code'], [302, 303, 304], true)) {
+        foreach (['viber', 'sms'] as $only) {
+            $b = ['recipients' => $body['recipients'], $only => $body[$only]];
+            $r2 = $send($b);
+            nz_log('sms_fallback', ['only' => $only, 'code' => $r2['code'], 'status' => $r2['status']]);
+            if ($r2['ok']) { $r2['channel'] = $only; return $r2; }
+        }
+    }
+    return $res;
 }
 
 /* ================= Нова пошта ================= */

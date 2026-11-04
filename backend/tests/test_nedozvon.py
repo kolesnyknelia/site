@@ -108,7 +108,7 @@ def main():
         # --- cron: перший запуск лише «бачить» замовлення (затримка 2 хв), SMS ще немає
         os.environ["TZ"] = "Europe/Kyiv"
         code, out = req(site + f"/cron.php?key={SECRET}")
-        hour = int(time.strftime("%H", time.localtime()))
+        from datetime import datetime; from zoneinfo import ZoneInfo; hour = datetime.now(ZoneInfo("Europe/Kyiv")).hour
         check("cron 200", code == 200)
         check("статус «Недозвон 🏚» знайдено за назвою «Недозвон»", "(#5): 1" in out)
         check("SMS не надіслано до кінця затримки", not any("/message/send.json" in c["uri"] for c in calls()))
