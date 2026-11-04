@@ -496,7 +496,7 @@ function ask_name($chatKey, $st) {
     $o = crm_order($st['order']);
     $n = $o ? $o['name'] : '';
     $btn = count(preg_split('/\s+/u', trim($n))) >= 2 ? [[['✅ ' . cut($n, 40), 'name_ok']]] : null;
-    say($chatKey, "Напишіть, будь ласка, прізвище та ім'я отримувача (як у паспорті), наприклад: Шевченко Ірина" . ($btn ? "\n\nАбо підтвердьте 👇" : ''), $btn);
+    say($chatKey, "Напишіть, будь ласка, прізвище та ім'я отримувача, наприклад: Шевченко Ірина" . ($btn ? "\n\nАбо підтвердьте 👇" : ''), $btn);
 }
 function ask_phone($chatKey, $st) {
     $o = crm_order($st['order']);
