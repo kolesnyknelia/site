@@ -26,6 +26,10 @@ foreach ((array)S('watch', []) as $name => $delay) {
     foreach ($ids as $id) {
         if (!preg_match('/^\d{1,20}$/', $id)) continue;
         $rec = load('orders', $id);
+        if (in_array($id, array_map('strval', (array)S('resend_orders', [])), true) && empty($rec['resent'])) {
+            $rec = ['seen_at' => 0, 'resent' => 1];   // повторна відправка за запитом — заново читаємо телефон з CRM
+            save('orders', $id, $rec);
+        }
         // «bad phone» з першої версії (телефон не розпізнавався) — перевіряємо ще раз
         if (g($rec, 'error') === 'bad phone' && empty($rec['pv'])) { unset($rec['sent_at'], $rec['error'], $rec['phone']); }
         // Відправка, що впала з помилкою авторизації TurboSMS до виправлення, — пробуємо ще раз
