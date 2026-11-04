@@ -480,7 +480,7 @@ function flow_start($chatKey, $tok) {
     $rec['chat'] = $chatKey; $rec['opened_at'] = $rec['opened_at'] ?? date('c');
     save('orders', $orderId, $rec);
     if (!empty($rec['ttn'])) {
-        say($chatKey, "Ваше замовлення №{$o['num']} вже оформлене ✅\nТТН Нової пошти: {$rec['ttn']}\nВідстежити: https://novaposhta.ua/tracking/?cargo_number={$rec['ttn']}");
+        say($chatKey, "Ваше замовлення №{$o['num']} вже підтверджене ✅ Відправимо найближчим часом. Якщо є питання — пишіть сюди.");
         save('chats', $chatKey, ['step' => 'free', 'order' => $orderId]);
         return;
     }
@@ -496,7 +496,7 @@ function ask_name($chatKey, $st) {
     $o = crm_order($st['order']);
     $n = $o ? $o['name'] : '';
     $btn = count(preg_split('/\s+/u', trim($n))) >= 2 ? [[['✅ ' . cut($n, 40), 'name_ok']]] : null;
-    say($chatKey, "Напишіть, будь ласка, прізвище та ім'я отримувача (як у паспорті), наприклад: Шевченко Ірина" . ($btn ? "\n\nАбо підтвердьте 👇" : ''), $btn);
+    say($chatKey, "Напишіть, будь ласка, прізвище та ім'я отримувача, наприклад: Шевченко Ірина" . ($btn ? "\n\nАбо підтвердьте 👇" : ''), $btn);
 }
 function ask_phone($chatKey, $st) {
     $o = crm_order($st['order']);
@@ -617,7 +617,7 @@ function finalize($chatKey, $st) {
     $lock = lock('order-' . $orderId);
     if (!$lock) { say($chatKey, 'Оформлюємо ваше замовлення… ⏳'); return; }
     $rec = load('orders', $orderId);
-    if (!empty($rec['ttn'])) { say($chatKey, "Замовлення вже оформлене ✅\nТТН: {$rec['ttn']}"); return; }
+    if (!empty($rec['ttn'])) { say($chatKey, 'Замовлення вже підтверджене ✅ Відправимо найближчим часом.'); return; }
     $o = crm_order($orderId);
     if (!$o) { say($chatKey, 'Не вдалося отримати замовлення 😔 Спробуйте ще раз за хвилину.', [[['🔁 Спробувати ще раз', 'go']]]); return; }
 
@@ -654,7 +654,7 @@ function finalize($chatKey, $st) {
     if ($sid = status_id(S('status_accepted'))) $fields['status'] = $sid;
     $crmOk = crm_update($orderId, $fields);
 
-    say($chatKey, "Дякуємо! Замовлення оформлене ✅\n\n📦 ТТН Нової пошти: {$t['ttn']}\nВідстежити: https://novaposhta.ua/tracking/?cargo_number={$t['ttn']}\n\nМи повідомимо, коли посилка буде у відділенні. Гарного дня! 💛");
+    say($chatKey, "Дякуємо! Замовлення підтверджено ✅\n\n📦 Відправимо найближчим часом Новою поштою:\n{$addr}\n\nЯкщо будуть питання — пишіть сюди. Гарного дня! 💛");
     ops("✅ Бот прийняв замовлення №{$o['num']} (" . channel_name($chatKey) . ")\n👤 {$st['name']}\n📞 " . pretty_phone($st['phone']) . "\n📦 {$addr}\n💰 " . money($o['total']) . " грн"
         . ($crmOk ? "\n🧾 ТТН: {$t['ttn']}\nLP-CRM: статус «" . S('status_accepted') . '» ✅'
                   : "\n\n👉 Відкрийте замовлення №{$o['num']} у CRM:\n1) вставте ТТН (вже створена, НЕ створюйте нову)\n2) статус «" . S('status_accepted') . "»\n\nТТН (натисніть, щоб скопіювати) 👇"), $chatKey);
