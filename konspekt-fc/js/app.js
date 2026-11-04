@@ -23,10 +23,11 @@
       html += '<section class="step" id="' + l.id + '" data-title="' + esc(l.title) + '"><div class="step-head"><span class="step-n">' + esc(l.n) + "</span><div><h3>" + esc(l.title) + "</h3>" +
         '<div class="lesson-chips">' + (l.time ? '<span class="chip">' + esc(l.time) + "</span>" : "") + (l.optional ? '<span class="chip">за бажанням</span>' : "") + (l.video === false ? '<span class="chip">📖 без відео</span>' : '<span class="chip vid">🎬 урок ' + esc(l.n) + " у SendPulse</span>") + "</div></div></div>" + l.html;
       if (l.tasks && l.tasks.length) {
-        html += '<p class="tasks-title">Що зробити</p><div class="tasks">' + l.tasks.map(function (t, i) {
+        html += '<p class="tasks-title">Практична дія</p><div class="tasks">' + l.tasks.map(function (t, i) {
           return '<label class="task"><input type="checkbox" id="' + l.id + "-t" + (i + 1) + '"><span class="box"></span><span>' + t + "</span></label>";
         }).join("") + "</div>";
       }
+      if (l.result) html += '<div class="result"><b>Результат</b><p>' + l.result + "</p></div>";
       html += "</section>";
     });
     if (m.checkpoint) html += '<div class="checkpoint" id="fc-' + m.n + '-dz"><b>Контрольна точка · домашнє завдання</b><p>Далі йдемо, коли це є у вас:</p><ul>' + m.checkpoint.map(function (c) { return "<li>" + c + "</li>"; }).join("") + "</ul>" +
