@@ -259,7 +259,10 @@ function send_sms($phone, $orderId, $o) {
     $send = function ($b) use ($api) {
         $r = post_json($api, $b, ['Authorization: Bearer ' . K('TURBOSMS_TOKEN')]);
         $code = (int)g($r, 'response_code', -1);
-        return ['ok' => in_array($code, [0, 800, 801, 802, 803], true), 'code' => $code, 'status' => g($r, 'response_status')];
+        $ids = [];
+        foreach ((array)g($r, 'response_result', []) as $x) if (is_array($x) && g($x, 'message_id')) $ids[] = (string)$x['message_id'];
+        return ['ok' => in_array($code, [0, 800, 801, 802, 803], true), 'code' => $code, 'status' => g($r, 'response_status'), 'ids' => $ids,
+                'result' => cut(json_encode(g($r, 'response_result', null), JSON_UNESCAPED_UNICODE), 300)];
     };
     $res = $send($body);
     // Ім'я відправника не підійшло для одного з каналів — пробуємо окремо: спершу Viber, потім SMS
@@ -272,6 +275,16 @@ function send_sms($phone, $orderId, $o) {
         }
     }
     return $res;
+}
+
+/** Статус доставки SMS/Viber у TurboSMS за message_id */
+function sms_status($ids) {
+    if (!$ids) return [];
+    $api = rtrim(K('TURBOSMS_API') ?: 'https://api.turbosms.ua', '/') . '/message/status.json';
+    $r = post_json($api, ['messages' => array_values($ids)], ['Authorization: Bearer ' . K('TURBOSMS_TOKEN')]);
+    $out = [];
+    foreach ((array)g($r, 'response_result', []) as $x) if (is_array($x)) $out[] = array_intersect_key($x, array_flip(['message_id', 'status', 'type', 'sent', 'updated', 'rate', 'reason', 'response_status']));
+    return $out ?: ['raw' => cut(json_encode($r, JSON_UNESCAPED_UNICODE), 300)];
 }
 
 /* ================= Нова пошта ================= */

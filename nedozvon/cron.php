@@ -26,8 +26,8 @@ foreach ((array)S('watch', []) as $name => $delay) {
     foreach ($ids as $id) {
         if (!preg_match('/^\d{1,20}$/', $id)) continue;
         $rec = load('orders', $id);
-        if (in_array($id, array_map('strval', (array)S('resend_orders', [])), true) && empty($rec['resent'])) {
-            $rec = ['seen_at' => 0, 'resent' => 1];   // повторна відправка за запитом — заново читаємо телефон з CRM
+        if (in_array($id, array_map('strval', (array)S('resend_orders', [])), true) && (string)g($rec, 'resent') !== (string)S('resend_tag', 1)) {
+            $rec = ['seen_at' => 0, 'resent' => (string)S('resend_tag', 1)];   // повторна відправка за запитом — заново читаємо телефон з CRM
             save('orders', $id, $rec);
         }
         // «bad phone» з першої версії (телефон не розпізнавався) — перевіряємо ще раз
@@ -56,10 +56,24 @@ foreach ((array)S('watch', []) as $name => $delay) {
         if ($res['ok'] || (int)g($rec, 'tries', 0) >= 5) $rec['sent_at'] = date('c');   // невдалу відправку повторюємо (до 5 разів)
         else $rec['tries'] = (int)g($rec, 'tries', 0) + 1;
         save('orders', $id, $rec);
-        nz_log('sms', ['order' => $id, 'num' => $o['num'], 'ok' => $res['ok'], 'code' => g($res, 'code')]);
+        nz_log('sms', ['order' => $id, 'num' => $o['num'], 'ok' => $res['ok'], 'code' => g($res, 'code'), 'ids' => g($res, 'ids', []), 'result' => g($res, 'result')]);
         echo "  {$o['num']} → " . ($res['ok'] ? 'надіслано' : 'ПОМИЛКА ' . json_encode($res, JSON_UNESCAPED_UNICODE)) . "\n";
         $sent++;
     }
+}
+// Статус доставки нещодавно відправлених повідомлень — у журнал (раз на ~5 хв для кожного, до 2 год)
+foreach (glob(store_file('orders', 'x') ? dirname(store_file('orders', 'x')) . '/*.json' : '') ?: [] as $f) {
+    $rec = (array)json_decode((string)file_get_contents($f), true);
+    $ids = (array)g(g($rec, 'send', []), 'ids', []);
+    $at = strtotime((string)g($rec, 'sent_at'));
+    if (!$ids || !$at || time() - $at > 7200 || !empty($rec['dlr_final']) || time() - (int)g($rec, 'dlr_at', 0) < 240) continue;
+    $stt = sms_status($ids);
+    $rec['dlr'] = $stt; $rec['dlr_at'] = time();
+    $txt = json_encode($stt, JSON_UNESCAPED_UNICODE);
+    if (preg_match('/delivered|доставлен|undeliver|rejected|expired|failed|не доставлен|отклон/iu', $txt)) $rec['dlr_final'] = 1;
+    file_put_contents($f, json_encode($rec, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    nz_log('dlr', ['order' => basename($f, '.json'), 'status' => $stt]);
+    echo "  статус доставки " . basename($f, '.json') . ": " . cut($txt, 200) . "\n";
 }
 if (array_filter((array)S('test_phones', []))) echo "🧪 Тестовий режим: пишемо лише на " . implode(', ', (array)S('test_phones', [])) . "\n";
 echo $canSend ? "Надіслано: {$sent}\n" : "Зараз неробочий час ({$from}:00–{$to}:00) — нікому не пишемо\n";
