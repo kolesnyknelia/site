@@ -238,6 +238,15 @@ function items_text($o) {
     foreach ($o['items'] as $i) $out[] = '• ' . $i['title'] . ($i['count'] > 1 ? ' × ' . $i['count'] : '') . ' — ' . money($i['price'] * $i['count']) . ' грн';
     return implode("\n", $out);
 }
+/** Коротка назва замовлення для SMS: «Сережки-кільця «Лапки»» або «… та ще 2 товари» */
+function product_short($o) {
+    $items = array_values(array_filter($o['items'], function ($i) { return mb_stripos($i['title'], 'пакуван') === false; })) ?: $o['items'];
+    if (!$items) return 'товар';
+    $t = preg_replace('/\s*\(.*$/u', '', $items[0]['title']);
+    $t = mb_strlen($t, 'UTF-8') > 40 ? rtrim(mb_substr($t, 0, 38, 'UTF-8')) . '…' : $t;
+    $more = count($items) - 1;
+    return $t . ($more > 0 ? ' та ще ' . $more . ($more === 1 ? ' товар' : ($more < 5 ? ' товари' : ' товарів')) : '');
+}
 function order_photo($o) {
     $ph = (array)S('product_photos', []);
     foreach ($o['items'] as $i) if (!empty($ph[$i['id']])) return $ph[$i['id']];
@@ -247,7 +256,7 @@ function order_photo($o) {
 /* ================= SMS + Viber через TurboSMS ================= */
 function send_sms($phone, $orderId, $o) {
     $link = go_link($orderId);
-    $repl = ['{id}' => $o['num'], '{link}' => $link, '{products}' => items_text($o), '{total}' => money($o['total'])];
+    $repl = ['{id}' => $o['num'], '{link}' => $link, '{products}' => items_text($o), '{total}' => money($o['total']), '{product}' => product_short($o)];
     $body = ['recipients' => [$phone]];
     if (K('SMS_SENDER')) $body['sms'] = ['sender' => K('SMS_SENDER'), 'text' => strtr(S('sms_text'), $repl)];
     if (K('VIBER_SENDER')) {

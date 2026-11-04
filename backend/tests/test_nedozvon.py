@@ -124,7 +124,7 @@ def main():
             if sms:
                 b = sms[0]["in"]
                 check("номер 380988091877", b["recipients"] == ["380988091877"])
-                check("у SMS є номер замовлення 87939 і посилання", "87939" in b["sms"]["text"] and "/go.php?o=o17299_" in b["sms"]["text"])
+                check("у SMS зрозумілий текст: товар, сума, посилання", "Ніжні срібні сережки-кільця" in b["sms"]["text"] and "299 грн" in b["sms"]["text"] and "не додзвонилися" in b["sms"]["text"] and "/go.php?o=o17299_" in b["sms"]["text"])
                 check("у Viber товар і кнопка", "сережки" in b["viber"]["text"] and b["viber"]["action"].endswith(b["sms"]["text"].split("go.php?o=")[1]))
             reset_calls(); req(site + f"/cron.php?key={SECRET}")
             check("повторно не надсилає", not any("/message/send.json" in c["uri"] for c in calls()))
@@ -135,6 +135,9 @@ def main():
         tok = "o17299_" + hmac.new(SECRET.encode(), b"17299", hashlib.sha256).hexdigest()[:10]
         code, html = req(site + "/go.php?o=" + tok)
         check("go.php: кнопка Telegram з токеном", code == 200 and f"https://t.me/shop_test_bot?start={tok}" in html)
+        check("go.php: товар, сума і кнопка «передзвоніть»", "Ніжні срібні сережки-кільця" in html and "299 грн" in html and "передзвоніть мені" in html)
+        reset_calls(); req(site + "/go.php?o=" + tok + "&call=1")
+        check("«Передзвоніть мені» → повідомлення операторам", any("ПЕРЕДЗВОНИТИ" in x for x in ops_texts()))
         check("go.php: підроблений токен не приймається", "недійсне" in req(site + "/go.php?o=o17299_0000000000")[1])
 
         # --- Telegram: чужий запит без секрету
