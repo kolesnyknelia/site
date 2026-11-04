@@ -633,9 +633,23 @@ function finalize($chatKey, $st) {
         return;
     }
 
+    $addr = "{$st['city_name']}, {$st['wh_name']}";
+
+    // ТТН створює оператор у LP-CRM (API LP-CRM не дозволяє це боту) — бот передає готові дані
+    if (!S('create_ttn', false)) {
+        if (!empty($rec['confirmed'])) { say($chatKey, 'Замовлення вже підтверджене ✅ Відправимо найближчим часом.'); return; }
+        $rec['confirmed'] = date('c'); save('orders', $orderId, $rec);
+        $st['step'] = 'done'; save('chats', $chatKey, $st);
+        say($chatKey, "Дякуємо! Замовлення підтверджено ✅\n\n📦 Відправимо найближчим часом Новою поштою:\n{$addr}\n\nЯкщо будуть питання — пишіть сюди. Гарного дня! 💛");
+        ops("✅ Клієнт ПІДТВЕРДИВ замовлення №{$o['num']} у боті (" . channel_name($chatKey) . ")\n\n"
+            . "👤 {$st['name']}\n📞 " . pretty_phone($st['phone']) . "\n🏙 {$st['city_name']}\n📦 {$st['wh_name']}\n💰 " . money($o['total']) . " грн\n\n"
+            . "👉 У LP-CRM: відкрийте замовлення №{$o['num']}, перевірте ПІБ і телефон, оберіть місто й відділення, створіть ТТН і поставте статус «" . S('status_accepted') . "».", $chatKey);
+        nz_log('confirmed', ['order' => $orderId, 'num' => $o['num']]);
+        return;
+    }
+
     say($chatKey, 'Оформлюємо ваше замовлення… ⏳');
     $t = np_create_ttn($st, $o);
-    $addr = "{$st['city_name']}, {$st['wh_name']}";
     if (!$t['ok']) {
         $st['step'] = 'done'; save('chats', $chatKey, $st);
         $rec['confirmed'] = date('c'); save('orders', $orderId, $rec);
