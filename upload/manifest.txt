@@ -1,7 +1,8 @@
 # Що завантажити на хостинг. Формат: upload/файл -> /шлях/на/хостингу
 # Рядок з «?» лише показує розмір наявного фото.
-? /vsinashi.shop/optovuk/images/128.jpg
-? /vsinashi.shop/optovuk/images/128-2.jpg
-? /ukrshoping.shop/torbatovariv/images/upsell-headband.jpg
-? /noosal.shop/sriblo/images/upsell-headband.jpg
-? /noosal.shop/pusset/images/upsell-headband.jpg
+# Пов’язка для волосся (ID 128) — лише чорна, фото без бежевої.
+upload/headband-black-1000.jpg -> /vsinashi.shop/optovuk/images/128.jpg
+upload/headband-black-778.jpg -> /vsinashi.shop/optovuk/images/128-2.jpg
+upload/headband-black-778.jpg -> /ukrshoping.shop/torbatovariv/images/upsell-headband.jpg
+upload/headband-black-1000.jpg -> /noosal.shop/sriblo/images/upsell-headband.jpg
+upload/headband-black-1000.jpg -> /noosal.shop/pusset/images/upsell-headband.jpg
