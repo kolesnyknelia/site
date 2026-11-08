@@ -1,0 +1,118 @@
+# Завантаження файлів (фото тощо) з папки upload/ репозиторію на хостинг.
+# Список — у upload/manifest.txt, по рядку на файл:
+#   upload/headband-black.jpg -> /noosal.shop/pusset/images/upsell-headband.jpg
+#   ? /noosal.shop/pusset/images/upsell-headband.jpg      (лише показати розмір фото, нічого не змінює)
+# Перед заміною стара версія зберігається в закриту папку /_backup.
+# Запускається сам після зміни upload/** у гілці claude/…, або вручну: Actions → Upload files → Run workflow.
+name: Upload files
+
+on:
+  push:
+    branches: ["claude/**"]
+    paths:
+      - "upload/**"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Лише показати, що буде замінено (yes/no)"
+        default: "no"
+
+concurrency:
+  group: ftp-upload-files
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+
+      - name: Install Pillow
+        run: pip install --quiet pillow
+
+      - name: Upload via FTPS
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          DRY: ${{ inputs.dry_run || 'no' }}
+          PYTHONUNBUFFERED: "1"
+        shell: python
+        run: |
+          import os, io, ftplib, time
+          from PIL import Image
+
+          DRY = os.environ["DRY"].strip().lower() != "no"
+          ftp = ftplib.FTP_TLS(os.environ["FTP_SERVER"].strip(), timeout=60)
+          ftp.login(os.environ["FTP_USERNAME"].strip(), os.environ["FTP_PASSWORD"])
+          ftp.prot_p(); ftp.encoding = "latin-1"
+
+          # Хостинг не завжди відповідає на TLS close_notify — закриваємо, але чекаємо недовго.
+          def close_tls(c):
+              c.settimeout(10)
+              try:
+                  c.unwrap()
+              except Exception:
+                  pass
+
+          def get(p):
+              ftp.voidcmd("TYPE I"); buf = io.BytesIO()
+              with ftp.transfercmd(f"RETR {p}") as c:
+                  while ch := c.recv(65536):
+                      buf.write(ch)
+                  close_tls(c)
+              ftp.voidresp()
+              return buf.getvalue()
+
+          def put(p, data):
+              ftp.voidcmd("TYPE I")
+              with ftp.transfercmd(f"STOR {p}") as c:
+                  c.sendall(data); close_tls(c)
+              ftp.voidresp()
+
+          def mkdirs(path):
+              cur = ""
+              for part in path.strip("/").split("/")[:-1]:
+                  cur += "/" + part
+                  try:
+                      ftp.mkd(cur)
+                  except ftplib.error_perm:
+                      pass
+
+          def describe(data):
+              try:
+                  im = Image.open(io.BytesIO(data))
+                  return f"{im.format} {im.size[0]}x{im.size[1]}, {len(data) // 1024} KB"
+              except Exception:
+                  return f"{len(data) // 1024} KB"
+
+          stamp = time.strftime("%Y%m%d-%H%M%S")
+          for raw in open("upload/manifest.txt", encoding="utf-8"):
+              line = raw.strip()
+              if not line or line.startswith("#"):
+                  continue
+              if line.startswith("?"):
+                  remote = line[1:].strip()
+                  try:
+                      print(f"[є] {remote}: {describe(get(remote))}")
+                  except Exception as e:
+                      print(f"[є] {remote}: немає ({e})")
+                  continue
+              local, remote = [s.strip() for s in line.split("->", 1)]
+              new = open(local, "rb").read()
+              try:
+                  old = get(remote)
+              except Exception:
+                  old = None
+              print(f"{remote}: було {describe(old) if old else 'немає'} → стане {describe(new)}")
+              if DRY:
+                  continue
+              if old:
+                  backup = f"/_backup{remote}.bak-{stamp}"
+                  mkdirs(backup); put(backup, old)
+                  print(f"   резервна копія: {backup}")
+              put(remote, new)
+              print("   ✅ завантажено")
+          ftp.quit()
+          print("== Пробний запуск: нічого не змінено" if DRY else "== Готово")

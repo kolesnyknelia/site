@@ -1,0 +1,7 @@
+# Що завантажити на хостинг. Формат: upload/файл -> /шлях/на/хостингу
+# Рядок з «?» лише показує розмір наявного фото.
+? /vsinashi.shop/optovuk/images/128.jpg
+? /vsinashi.shop/optovuk/images/128-2.jpg
+? /ukrshoping.shop/torbatovariv/images/upsell-headband.jpg
+? /noosal.shop/sriblo/images/upsell-headband.jpg
+? /noosal.shop/pusset/images/upsell-headband.jpg
