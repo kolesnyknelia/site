@@ -3,7 +3,7 @@
   var R = h.R, UL = h.UL, OL = h.OL, N = h.N, H = h.H, P = h.P, LINK = h.LINK, PROMPT = h.PROMPT, QA = h.QA, TABLE = h.TABLE, FLOW = h.FLOW;
   window.FS_COURSE.push({
     id: "fc1", n: "1", icon: "✳️", tab: "Модуль 1", title: "Знайомство з Claude",
-    lead: "Що таке Claude, як створити акаунт, який тариф обрати і як працювати в чаті. Потім налаштовуємо Claude Desktop під товарку.",
+    lead: "Claude — нове дихання для товарки: він шукає товар, збирає сайт, пише креативи й запускає рекламу разом з вами. Тут — перший крок: акаунт, тариф, робота в чаті й Claude на комп'ютері.",
     time: "≈ 40 хвилин", need: "комп'ютер, телефон, картка для підписки",
     checkpoint: ["акаунт Claude з тарифом Pro і увімкненим «Code execution and file creation»;", "Claude Desktop з папкою «Товарка»;", "Claude описав фото товару і зберіг файл."],
     send: "скрін файлу з описом товару в папці «Товарка».",
