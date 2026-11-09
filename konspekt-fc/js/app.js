@@ -10,7 +10,7 @@
     var c = document.createElement("button");
     c.className = "bcard" + (m.tab === "Бонус" ? " bonus" : "");
     c.setAttribute("role", "tab"); c.dataset.block = m.id;
-    c.innerHTML = "<small>" + m.icon + " " + esc(m.tab) + "</small><b>" + esc(m.title) + '</b><span class="mini"><i></i></span>';
+    c.innerHTML = "<small>" + m.icon + " " + esc(m.tab) + (m.badge ? " · " + esc(m.badge) : "") + "</small><b>" + esc(m.title) + '</b><span class="mini"><i></i></span>';
     cardsBox.appendChild(c);
 
     var a = document.createElement("article");
@@ -18,10 +18,11 @@
     var html = '<div class="intro" data-icon="' + m.icon + '"><span class="eyebrow">' + esc(m.tab) + "</span><h1>" + esc(m.title) + '</h1><p class="lead">' + m.lead + '</p><div class="meta">' +
       (m.time ? '<span class="chip">⏱ ' + esc(m.time) + "</span>" : "") + '<span class="chip">📌 ' + m.lessons.length + " " + plural(m.lessons.length) + "</span>" +
       (m.need ? '<span class="chip">🧰 ' + esc(m.need) + "</span>" : "") + (m.video ? '<span class="chip vid">🎬 ' + esc(m.video) + "</span>" : "") + "</div>" +
+      (m.skip ? '<div class="skip-box"><b>' + esc(m.badge || "") + '</b><p>' + m.skip + "</p></div>" : "") +
       (m.why ? '<div class="why"><b>Чому так</b><p>' + m.why + "</p></div>" : "") + "</div>";
     m.lessons.forEach(function (l) {
       html += '<section class="step" id="' + l.id + '" data-title="' + esc(l.title) + '"><div class="step-head"><span class="step-n">' + esc(l.n) + "</span><div><h3>" + esc(l.title) + "</h3>" +
-        '<div class="lesson-chips">' + (l.time ? '<span class="chip">' + esc(l.time) + "</span>" : "") + (l.optional ? '<span class="chip">за бажанням</span>' : "") + (l.video === false ? '<span class="chip">📖 без відео</span>' : '<span class="chip vid">🎬 урок ' + esc(l.n) + " у SendPulse</span>") + "</div></div></div>" + l.html;
+        '<div class="lesson-chips">' + (l.time ? '<span class="chip">' + esc(l.time) + "</span>" : "") + (l.optional ? '<span class="chip">за бажанням</span>' : "") + (l.newbie ? '<span class="chip newbie">🌱 для новачків</span>' : "") + (l.video === false ? '<span class="chip">📖 без відео</span>' : '<span class="chip vid">🎬 урок ' + esc(l.n) + " у SendPulse</span>") + "</div></div></div>" + l.html;
       if (l.tasks && l.tasks.length) {
         html += '<p class="tasks-title">Практична дія</p><div class="tasks">' + l.tasks.map(function (t, i) {
           return '<label class="task"><input type="checkbox" id="' + l.id + "-t" + (i + 1) + '"><span class="box"></span><span>' + t + "</span></label>";
