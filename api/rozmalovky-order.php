@@ -68,16 +68,17 @@ $payload = rtrim(strtr(base64_encode(json_encode(['r' => $ref, 'n' => $name, 'p'
 $host = preg_replace('/[^a-z0-9.\-]/i', '', (string)g($_SERVER, 'HTTP_HOST', 'rozmalovky.noosal.shop'));
 $scriptUrl = 'https://' . $host . '/operator.html?o=' . $payload;
 
-// LP-CRM (необов'язково): вмикається, коли в private/config.php є LPCRM_DOMAIN і LPCRM_KEY.
-// Усі розмальовки йдуть одним товаром LPCRM_PRODUCT_ID, склад замовлення — у коментарі.
+// LP-CRM (необов'язково): лише на сайті, куди деплой поклав api/crm.php з ID товару (зараз — rozmalovkitop.noosal.shop).
+// Ключі LPCRM_DOMAIN / LPCRM_KEY / LPCRM_OFFICE / LPCRM_PAYMENT — у private/config.php. Склад замовлення — у коментарі.
 $crm = '';
-if (secret('LPCRM_DOMAIN') !== '' && secret('LPCRM_KEY') !== '') {
+$crmSite = is_file(__DIR__ . '/crm.php') ? (require __DIR__ . '/crm.php') : array();
+if (g($crmSite, 'product_id') !== '' && secret('LPCRM_DOMAIN') !== '' && secret('LPCRM_KEY') !== '') {
     $data = [
         'key'        => secret('LPCRM_KEY'),
         'order_id'   => number_format(round(microtime(true) * 10), 0, '.', ''),
         'country'    => 'UA',
         'products'   => urlencode(serialize([[
-            'product_id' => secret('LPCRM_PRODUCT_ID'),
+            'product_id' => (string)$crmSite['product_id'],
             'price'      => (string)round($total / $count, 2),
             'count'      => (string)$count,
         ]])),
@@ -88,6 +89,7 @@ if (secret('LPCRM_DOMAIN') !== '' && secret('LPCRM_KEY') !== '') {
         'ip'         => (string)g($_SERVER, 'REMOTE_ADDR'),
     ];
     if (secret('LPCRM_OFFICE') !== '') $data['office'] = secret('LPCRM_OFFICE');
+    if (secret('LPCRM_PAYMENT') !== '') $data['payment'] = secret('LPCRM_PAYMENT');
     foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $k) {
         if (isset($utm[$k])) $data[$k] = str_cut($utm[$k], 100);
     }
