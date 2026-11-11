@@ -18,3 +18,9 @@
 ## Публікація
 `.github/workflows/deploy-rozmalovky.yml`: після змін у `rozmalovky/` в гілці `main` сайт завантажується в `/noosal.shop/rozmalovky/`.
 Один раз: у панелі хостингу створіть піддомен `rozmalovky` для `noosal.shop` і ввімкніть SSL (Let's Encrypt).
+
+
+## rozmalovkitop.noosal.shop
+Лендінг «Зима міленіалів» (`milenialy/`) ще й на піддомені rozmalovkitop — `.github/workflows/deploy-rozmalovkitop.yml`.
+Заявки звідти йдуть у той самий Telegram і ще в LP-CRM (товар ID 147). ID товару — `LPCRM_PRODUCT_ID` у workflow.
+LP-CRM вмикається лише там, де деплой поклав `api/crm.php`, тож каталог і nazad у CRM не пишуть.
