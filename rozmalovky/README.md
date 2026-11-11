@@ -18,3 +18,9 @@
 ## Публікація
 `.github/workflows/deploy-rozmalovky.yml`: після змін у `rozmalovky/` в гілці `main` сайт завантажується в `/noosal.shop/rozmalovky/`.
 Один раз: у панелі хостингу створіть піддомен `rozmalovky` для `noosal.shop` і ввімкніть SSL (Let's Encrypt).
+
+## Другий домен: https://rozmalovki.top
+Той самий каталог публікує `.github/workflows/deploy-rozmalovki-top.yml` у `/rozmalovki.top/www/` — зі своїми ключами
+(секрети `RT_PIXEL_ID`, `RT_TG_BOT_TOKEN`, `RT_TG_CHAT_ID`, `RT_LPCRM_DOMAIN`, `RT_LPCRM_KEY`, `RT_LPCRM_PRODUCT_ID`, `RT_LPCRM_OFFICE`).
+Поки свого Telegram немає, заявки йдуть у той самий чат, що з noosal.shop. Піксель без `RT_PIXEL_ID` вимкнений.
+LP-CRM у `api/rozmalovky-order.php` вмикається лише там, де в private/config.php є `LPCRM_DOMAIN` і `LPCRM_KEY` (на noosal.shop їх немає — там нічого не змінилося).
