@@ -1,10 +1,9 @@
-# Лендінг розмальовки «Зима міленіалів» → https://rozmalovkitop.noosal.shop (папка /noosal.shop/rozmalovkitop/ на хостингу)
-# Власний лендінг з rozmalovky/milenialy/ (не копія чужого сайту). Заявки: api/rozmalovky-order.php →
-#   • Telegram — спільний ключ noosal.shop (/noosal.shop/private/config.php), той самий бот і чат, що для інших розмальовок;
-#   • LP-CRM — товар ID 147 (api/crm.php кладеться лише на цей піддомен, тож інші сайти в CRM не пишуть).
-#     Ключ, домен, офіс і тип оплати LP-CRM копіюються сервер→сервер з вашого робочого сайту (input lpcrm_source)
-#     у /noosal.shop/private/config.php — у репозиторії й логах їх немає.
-#   • Meta Pixel — той самий, що в каталозі (products.js → pixelId).
+# Копія сайту rozmalovki.top (сайт власниці) → https://rozmalovkitop.noosal.shop (папка /noosal.shop/rozmalovkitop/)
+# Файли — у папці rozmalovkitop/. Заявки: rozmalovkitop/api/order.php →
+#   • Telegram — спільний ключ noosal.shop (/noosal.shop/private/config.php);
+#   • LP-CRM — товар ID 147. Ключ, домен, офіс і тип оплати LP-CRM копіюються сервер→сервер з вашого робочого сайту
+#     (input lpcrm_source) у /noosal.shop/private/config.php — у репозиторії й логах їх немає.
+#   • Meta Pixel — rozmalovkitop/js/config.js → pixelId.
 # Піддомен один раз: adm.tools → «Мої сайти» → noosal.shop → «Додати піддомен» → rozmalovkitop, + SSL (Let's Encrypt).
 name: Deploy rozmalovkitop (rozmalovkitop.noosal.shop)
 
@@ -12,16 +11,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "rozmalovky/milenialy/**"
-      - "rozmalovky/products.js"
-      - "rozmalovky/thanks.html"
-      - "rozmalovky/style.css"
-      - "rozmalovky/img/milenialy*"
-      - "rozmalovky/img/selo-*"
-      - "rozmalovky/img/christmas-*"
-      - "rozmalovky/img/zhyttya-*"
-      - "rozmalovky/img/tg/bot-milenialy*"
-      - "api/rozmalovky-order.php"
+      - "rozmalovkitop/**"
       - "api/lib.php"
       - ".github/workflows/deploy-rozmalovkitop.yml"
   workflow_dispatch:
@@ -36,7 +26,6 @@ concurrency:
 
 env:
   DEPLOY_DIR: /noosal.shop/rozmalovkitop/
-  LPCRM_PRODUCT_ID: "147"
 
 jobs:
   deploy:
@@ -45,29 +34,13 @@ jobs:
       - name: Get code
         uses: actions/checkout@v4
 
-      # Лендінг стає головною сторінкою піддомену; поруч — лише потрібні йому файли
+      # Сайт = вміст rozmalovkitop/ + спільний api/lib.php (Telegram, ключі з private/config.php)
       - name: Build
-        env:
-          TG_SALES_BOT_TOKEN: ${{ secrets.TG_SALES_BOT_TOKEN }}
         run: |
-          mkdir -p _deploy/api _deploy/img/tg
-          sed -e 's|\.\./img/|img/|g' rozmalovky/milenialy/index.html > _deploy/index.html
-          cp rozmalovky/products.js rozmalovky/thanks.html rozmalovky/style.css _deploy/
-          cp rozmalovky/img/milenialy* _deploy/img/
-          cp rozmalovky/img/selo-cover.webp rozmalovky/img/selo-1.webp rozmalovky/img/christmas-cover.webp rozmalovky/img/christmas-1.webp rozmalovky/img/zhyttya-cover.webp rozmalovky/img/zhyttya-1.webp _deploy/img/
-          cp rozmalovky/img/tg/bot-milenialy* _deploy/img/tg/
-          cp api/rozmalovky-order.php api/lib.php api/settings.php api/.htaccess _deploy/api/
-          printf "<?php\nif (!defined('APP')) { http_response_code(404); exit; }\nreturn ['product_id' => '%s'];\n" "$LPCRM_PRODUCT_ID" > _deploy/api/crm.php
-          # Бот-продавець — як на nazad.noosal.shop
-          if [ -n "$TG_SALES_BOT_TOKEN" ]; then
-            bot=$(curl -sS "https://api.telegram.org/bot${TG_SALES_BOT_TOKEN}/getMe" | jq -r '.result.username // empty')
-            if [ -n "$bot" ]; then
-              sed -i "s/var SALES_BOT = \"\";/var SALES_BOT = \"${bot}\";/" _deploy/thanks.html
-              sed -i "s/supportBot: \"\"/supportBot: \"${bot}\"/" _deploy/products.js
-              echo "Sales bot: @${bot}"
-            fi
-          fi
-          grep -c 'img/milenialy' _deploy/index.html
+          mkdir -p _deploy
+          cp -r rozmalovkitop/. _deploy/
+          cp api/lib.php _deploy/api/
+          rm -f _deploy/README.md
           ls -R _deploy
 
       - name: Prepare sync state (first deploy)

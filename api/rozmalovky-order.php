@@ -68,38 +68,6 @@ $payload = rtrim(strtr(base64_encode(json_encode(['r' => $ref, 'n' => $name, 'p'
 $host = preg_replace('/[^a-z0-9.\-]/i', '', (string)g($_SERVER, 'HTTP_HOST', 'rozmalovky.noosal.shop'));
 $scriptUrl = 'https://' . $host . '/operator.html?o=' . $payload;
 
-// LP-CRM (необов'язково): лише на сайті, куди деплой поклав api/crm.php з ID товару (зараз — rozmalovkitop.noosal.shop).
-// Ключі LPCRM_DOMAIN / LPCRM_KEY / LPCRM_OFFICE / LPCRM_PAYMENT — у private/config.php. Склад замовлення — у коментарі.
-$crm = '';
-$crmSite = is_file(__DIR__ . '/crm.php') ? (require __DIR__ . '/crm.php') : array();
-if (g($crmSite, 'product_id') !== '' && secret('LPCRM_DOMAIN') !== '' && secret('LPCRM_KEY') !== '') {
-    $data = [
-        'key'        => secret('LPCRM_KEY'),
-        'order_id'   => number_format(round(microtime(true) * 10), 0, '.', ''),
-        'country'    => 'UA',
-        'products'   => urlencode(serialize([[
-            'product_id' => (string)$crmSite['product_id'],
-            'price'      => (string)round($total / $count, 2),
-            'count'      => (string)$count,
-        ]])),
-        'bayer_name' => $name,
-        'phone'      => $phone,
-        'comment'    => strip_tags(implode('; ', $lines)) . " · {$total} грн · {$ref}" . ($tgUser !== '' ? " · TG: {$tgUser}" : ''),
-        'site'       => $host,
-        'ip'         => (string)g($_SERVER, 'REMOTE_ADDR'),
-    ];
-    if (secret('LPCRM_OFFICE') !== '') $data['office'] = secret('LPCRM_OFFICE');
-    if (secret('LPCRM_PAYMENT') !== '') $data['payment'] = secret('LPCRM_PAYMENT');
-    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as $k) {
-        if (isset($utm[$k])) $data[$k] = str_cut($utm[$k], 100);
-    }
-    $ch = curl_init('https://' . preg_replace('~^https?://|/.*$~', '', secret('LPCRM_DOMAIN')) . '/api/addNewOrder.html');
-    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12, CURLOPT_POSTFIELDS => http_build_query($data)]);
-    $r = json_decode((string)curl_exec($ch), true);
-    curl_close($ch);
-    $crm = (is_array($r) && g($r, 'status') === 'ok') ? '✅ передано в LP-CRM' : '⚠️ LP-CRM не прийняла заявку — внесіть вручну';
-}
-
 tg("🖍️ <b>РОЗМАЛЬОВКИ — нове замовлення</b>\n"
  . implode("\n", $lines)
  . "\n\n📦 Разом: {$count} шт." . ($full > $total ? " (економія " . ($full - $total) . " грн)" : '')
@@ -108,6 +76,6 @@ tg("🖍️ <b>РОЗМАЛЬОВКИ — нове замовлення</b>\n"
  . "\n✈️ Telegram: " . ($tgNick ? '<a href="https://t.me/' . $tgNick . '">@' . h($tgNick) . '</a>' : ($tgUser !== '' ? h($tgUser) : 'не вказано'))
  . "\n🚚 Доставку й оплату уточнити в Telegram або дзвінком"
  . ($src !== '' ? "\n🌐 Сторінка: " . h($src) : '')
- . "\n\n📋 <a href=\"" . h($scriptUrl) . "\">Відкрити скрипт продажу</a>" . "\n📊 " . h(utm_text($utm)) . "\n🌐 " . h($host) . " · 🧾 {$ref}" . ($crm ? "\n" . $crm : ''));
+ . "\n\n📋 <a href=\"" . h($scriptUrl) . "\">Відкрити скрипт продажу</a>" . "\n📊 " . h(utm_text($utm)) . "\n🧾 {$ref}");
 
 echo json_encode(['ok' => true, 'ref' => $ref, 'total' => $total], JSON_UNESCAPED_UNICODE);
