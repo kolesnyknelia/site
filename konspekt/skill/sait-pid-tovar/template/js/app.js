@@ -16,6 +16,9 @@
   set("data-discount2", d2);
   if (S.shop) set("data-shop", S.shop);
   var y = document.getElementById("year"); if (y) y.textContent = new Date().getFullYear();
+  var upP = Math.max(0, +S.upsellPrice || 0);
+  if (upP && S.upsellName) { set("data-upsell-price", upP); set("data-upsell-name", S.upsellName); }
+  else { ["upsell", "upsellCard"].forEach(function (id) { var el = document.getElementById(id); if (el) el.remove(); }); }
   if (!d2) {
     var deal = document.getElementById("deal2"); if (deal) deal.hidden = true;
     var tag = document.querySelector("#qty2 .qty-tag"); if (tag) tag.remove();
@@ -73,6 +76,12 @@
       if (r) { r.checked = true; r.dispatchEvent(new Event("change", { bubbles: true })); }
     });
   });
+  document.querySelectorAll("[data-check]").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var c = document.querySelector('input[name="' + a.getAttribute("data-check") + '"]');
+      if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event("change", { bubbles: true })); }
+    });
+  });
   var sticky = document.getElementById("sticky"), order = document.getElementById("order");
   if (sticky && order) {
     var onScroll = function () {
@@ -87,7 +96,9 @@
   if (!form) return;
   var totalEl = document.getElementById("total"), err = document.getElementById("formErr"), btn = document.getElementById("submitBtn");
   var qty = function () { var r = form.querySelector('input[name="qty"]:checked'); return r ? +r.value : 1; };
-  var upd = function () { totalEl.textContent = sum(qty()); };
+  var withUp = function () { var c = form.elements.upsell; return !!(c && c.checked); };
+  var total = function () { return sum(qty()) + (withUp() ? upP : 0); };
+  var upd = function () { totalEl.textContent = total(); };
   form.addEventListener("change", upd); upd();
 
   var phoneInput = form.elements.phone;
@@ -102,7 +113,7 @@
   var started = false;
   form.addEventListener("focusin", function () {
     if (started) return; started = true;
-    track("InitiateCheckout", { value: sum(qty()), currency: "UAH", content_name: S.product });
+    track("InitiateCheckout", { value: total(), currency: "UAH", content_name: S.product });
   });
 
   form.addEventListener("submit", function (e) {
@@ -121,12 +132,12 @@
     fetch(S.endpoint || "api/order.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name, phone: "+" + phone, qty: q, utm: utm, website: form.elements.website.value })
+      body: JSON.stringify({ name: name, phone: "+" + phone, qty: q, upsell: withUp() ? 1 : 0, utm: utm, website: form.elements.website.value })
     })
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (r) {
         if (!r || !r.ok) throw new Error(r && r.error || "fail");
-        location.href = "thanks.html?ref=" + encodeURIComponent(r.ref) + "&sum=" + r.total + "&qty=" + q;
+        location.href = "thanks.html?ref=" + encodeURIComponent(r.ref) + "&sum=" + r.total + "&qty=" + q + (withUp() ? "&up=1" : "");
       })
       .catch(function () {
         btn.disabled = false; btn.textContent = "Оформити замовлення";

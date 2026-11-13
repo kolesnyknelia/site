@@ -4,23 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <!-- ✏️ ТОВАР: назва вкладки й опис для соцмереж -->
-  <title>Назва товару — купити зі знижкою | Посуд</title>
-  <meta name="description" content="Короткий опис товару одним реченням. Доставка Новою поштою, оплата при отриманні.">
+  <title>Назва товару — купити зі знижкою | Магазин</title>
+  <meta name="description" content="Назва товару: головна вигода. Доставка Новою поштою, оплата при отриманні.">
   <meta property="og:title" content="Назва товару — зі знижкою -50%">
   <meta property="og:description" content="Доставка Новою поштою 1–3 дні, оплата при отриманні.">
-  <meta property="og:image" content="img/placeholder.svg">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+  <meta property="og:image" content="img/1.webp">
+  <meta name="theme-color" content="#f6ebdd">
+  <!-- ✏️ емодзі вкладки під товар -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <!-- колір акценту й ціни — у js/config.js -->
   <script src="js/config.js"></script>
 </head>
 <body>
 
-<!-- ============ ІКОНКИ (не видно на сторінці; вставляємо так: <svg class="i"><use href="#i-truck"/></svg>) ============ -->
+<!-- ============ ІКОНКИ (вставляємо так: <svg class="i"><use href="#i-truck"/></svg>) ============
+     Є: truck wallet return eye shield sparkle leaf drop gift heart home box clock phone check ruler flame lock users bolt tag arrow plus -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
@@ -45,170 +47,207 @@
     <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
     <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.5"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   </defs>
 </svg>
 
-<!-- ============ 1. ПЛАШКА АКЦІЇ ============ -->
-<div class="promo"><svg class="i"><use href="#i-flame"/></svg> Акція до кінця дня: <b><span data-percent>-50%</span></b> · залишилось <b class="js-timer-inline">--:--:--</b></div>
-
-<!-- ============ 2. ШАПКА ============ -->
-<nav class="top">
+<!-- ============ ШАПКА ============ -->
+<header class="top">
   <div class="wrap top-row">
-    <a class="logo" href="#"><span class="logo-dot"></span><span data-shop>Посуд</span></a>
-    <a class="btn btn-sm" href="#order">Замовити</a>
-  </div>
-</nav>
-
-<!-- ============ 3. ПЕРШИЙ ЕКРАН ============ -->
-<header class="hero">
-  <div class="blob b1"></div><div class="blob b2"></div>
-  <div class="wrap hero-grid">
-    <div class="gallery" aria-label="Фото товару">
-      <span class="sale-badge float" data-percent>-50%</span>
-      <div class="slides" id="slides">
-        <!-- ✏️ ФОТО: 4–8 фото товару, перше — найкраще, на світлому тлі -->
-        <img src="img/placeholder.svg" alt="Назва товару — фото 1" width="800" height="800">
-        <img src="img/placeholder.svg" alt="Назва товару — фото 2" width="800" height="800" loading="lazy">
-        <img src="img/placeholder.svg" alt="Назва товару — фото 3" width="800" height="800" loading="lazy">
-        <img src="img/placeholder.svg" alt="Назва товару — фото 4" width="800" height="800" loading="lazy">
-      </div>
-      <div class="dots" id="dots"></div>
-      <div class="chip chip-a float d2"><span class="chip-ico"><svg class="i"><use href="#i-truck"/></svg></span><span><b>1–3 дні</b><small>Нова пошта</small></span></div>
-      <div class="chip chip-b float d3"><span class="chip-ico"><svg class="i"><use href="#i-wallet"/></svg></span><span><b>Без передоплати</b><small>Оплата при отриманні</small></span></div>
-    </div>
-
-    <div class="hero-text">
-      <p class="eyebrow"><svg class="i"><use href="#i-sparkle"/></svg> Хіт продажів</p>
-      <!-- ✏️ ТЕКСТ: заголовок = товар + головна вигода, до 8 слів -->
-      <h1>Назва товару: <span class="hl">головна вигода</span> для покупця</h1>
-      <p class="lead">Одне-два речення: яку проблему вирішує товар і чому він зручний.</p>
-      <ul class="ticks">
-        <li><svg class="i"><use href="#i-check"/></svg>Перша перевага коротко</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Друга перевага коротко</li>
-        <li><svg class="i"><use href="#i-check"/></svg>Третя перевага коротко</li>
-      </ul>
-
-      <div class="price-box">
-        <div class="price-row">
-          <span class="new"><span data-price>499</span> грн</span>
-          <span class="old"><span data-old>998</span> грн</span>
-          <span class="save">−<span data-save>499</span> грн</span>
-        </div>
-        <a href="#order" class="btn btn-big">Замовити зі знижкою <svg class="i"><use href="#i-arrow"/></svg></a>
-        <p class="btn-note"><svg class="i"><use href="#i-clock"/></svg> Ціна діє ще <b class="js-timer-inline">--:--:--</b></p>
-      </div>
+    <nav class="nav nav-l" aria-label="Розділи">
+      <!-- ✏️ перший пункт — коротка назва товару (Чайник, Ножиці, Лампа) -->
+      <a href="#collection">Товар</a><a href="#why">Переваги</a><a href="#specs">Характеристики</a><a href="#faq">Питання</a>
+    </nav>
+    <a class="logo" href="#" aria-label="На початок">
+      <!-- ✏️ назва магазину підставляється з js/config.js; підпис — 2–3 слова про магазин -->
+      <span class="logo-name"><span data-shop>Магазин</span><i class="bub b-1"></i><i class="bub b-2"></i></span>
+      <span class="logo-sub">товари для дому</span>
+    </a>
+    <div class="nav nav-r">
+      <span class="nav-sale">Акція <b data-percent>-50%</b></span>
+      <a class="btn btn-sm" href="#order">Замовити</a>
     </div>
   </div>
 </header>
 
-<!-- ============ 4. ГАРАНТІЇ (смуга довіри) ============ -->
-<section class="trust-strip">
-  <div class="wrap trust-grid">
-    <div class="trust-item"><span class="t-ico"><svg class="i"><use href="#i-truck"/></svg></span><span><b>Нова пошта</b><small>1–3 дні по Україні</small></span></div>
-    <div class="trust-item"><span class="t-ico"><svg class="i"><use href="#i-eye"/></svg></span><span><b>Огляд на пошті</b><small>Спершу дивитесь, потім платите</small></span></div>
-    <div class="trust-item"><span class="t-ico"><svg class="i"><use href="#i-wallet"/></svg></span><span><b>Без передоплати</b><small>Оплата при отриманні</small></span></div>
-    <div class="trust-item"><span class="t-ico"><svg class="i"><use href="#i-return"/></svg></span><span><b>14 днів</b><small>Обмін і повернення</small></span></div>
+<!-- ============ ПЕРШИЙ ЕКРАН ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <!-- ✏️ kicker — повна назва товару; h1 — головна вигода, 2–5 слів, з крапкою; lead — 1–2 речення з фактами -->
+      <p class="kicker">Назва товару</p>
+      <h1>Головна вигода.</h1>
+      <span class="squiggle" aria-hidden="true"></span>
+      <p class="lead">Що це і чим зручне. Головні факти: розмір, матеріал, для кого — коротко.</p>
+      <div class="price-row">
+        <span class="new"><span data-price>499</span> грн</span>
+        <span class="old"><span data-old>998</span> грн</span>
+        <span class="save" data-percent>-50%</span>
+      </div>
+      <a href="#order" class="btn btn-hero">Замовити зі знижкою <svg class="i"><use href="#i-arrow"/></svg></a>
+      <p class="btn-note">Ціна діє ще <b class="js-timer-inline">--:--:--</b></p>
+    </div>
+
+    <div class="gallery" aria-label="Фото товару">
+      <div class="arch">
+        <div class="slides" id="slides">
+          <!-- ✏️ ФОТО товару 1.webp, 2.webp… перше — найкраще, товар цілком на світлому тлі -->
+          <img src="img/placeholder.svg" alt="Назва товару — головне фото" width="1000" height="1000">
+          <img src="img/placeholder.svg" alt="Назва товару — фото 2" width="1000" height="1000" loading="lazy">
+          <img src="img/placeholder.svg" alt="Назва товару — фото 3" width="1000" height="1000" loading="lazy">
+        </div>
+      </div>
+      <div class="dots" id="dots"></div>
+      <div class="badge" aria-hidden="true">
+        <!-- ✏️ текст по колу: 2–3 короткі факти великими літерами через • (до ~35 знаків) -->
+        <svg class="badge-ring" viewBox="0 0 120 120"><defs><path id="ring1" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs><text><textPath href="#ring1">ФАКТ 1 • ФАКТ 2 • ЗНИЖКА •</textPath></text></svg>
+        <span class="badge-mid" data-percent>-50%</span>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- ============ 5. ПЕРЕВАГИ ============ -->
-<section class="sec">
+<!-- ============ СМУГА ДОВІРИ (міняти лише якщо умови магазину інші) ============ -->
+<section class="strip">
+  <div class="wrap strip-grid">
+    <div class="strip-item"><span class="ring c1"><svg class="i"><use href="#i-truck"/></svg></span><span>Нова пошта<br>1–3 дні</span></div>
+    <div class="strip-item"><span class="ring c2"><svg class="i"><use href="#i-eye"/></svg></span><span>Огляд<br>на пошті</span></div>
+    <div class="strip-item"><span class="ring c3"><svg class="i"><use href="#i-wallet"/></svg></span><span>Без<br>передоплати</span></div>
+    <div class="strip-item"><span class="ring c4"><svg class="i"><use href="#i-return"/></svg></span><span>14 днів<br>на повернення</span></div>
+  </div>
+</section>
+
+<!-- ============ ПРОПОЗИЦІЯ: 1 шт · 2 шт · допродаж ============ -->
+<section class="sec" id="collection">
+  <div class="wrap coll-grid">
+    <div class="coll-intro">
+      <p class="kicker">Наша пропозиція</p>
+      <!-- ✏️ h2 — 2–4 слова; текст — 1 речення: з чого зроблено, для чого -->
+      <h2>Коротка обіцянка.</h2>
+      <span class="squiggle sq-terra" aria-hidden="true"></span>
+      <p>Одне речення: з чого зроблено і для чого підходить.</p>
+      <a class="link" href="#order">Оформити замовлення</a>
+    </div>
+    <article class="pcard">
+      <div class="pcard-pic bg-sage"><img src="img/placeholder.svg" alt="Назва товару" width="800" height="800" loading="lazy"></div>
+      <div class="pcard-body">
+        <!-- ✏️ коротка назва + 2–4 слова -->
+        <h3>Назва товару</h3>
+        <p>Коротко, що це</p>
+        <div class="pcard-foot"><b><span data-price>499</span> грн</b><a class="plus" href="#order" data-pick="1" aria-label="Замовити 1 шт"><svg class="i"><use href="#i-plus"/></svg></a></div>
+      </div>
+    </article>
+    <article class="pcard">
+      <div class="pcard-pic bg-mustard"><img src="img/placeholder.svg" alt="Назва товару — 2 шт" width="800" height="800" loading="lazy"></div>
+      <div class="pcard-body">
+        <h3>Два товари</h3>
+        <p>Собі й у подарунок</p>
+        <div class="pcard-foot"><b><span data-sum2>998</span> грн</b><a class="plus" href="#order" data-pick="2" aria-label="Замовити 2 шт"><svg class="i"><use href="#i-plus"/></svg></a></div>
+      </div>
+    </article>
+    <!-- ДОПРОДАЖ (картка): ховається сам, якщо upsellName порожній у js/config.js -->
+    <article class="pcard" id="upsellCard">
+      <div class="pcard-pic bg-rose contain"><img src="img/upsell.webp" alt="Допродаж" width="400" height="400" loading="lazy"></div>
+      <div class="pcard-body">
+        <h3 data-upsell-name>Допродаж</h3>
+        <p>Додаток до товару</p>
+        <div class="pcard-foot"><b>+<span data-upsell-price>49</span> грн</b><a class="plus" href="#order" data-check="upsell" aria-label="Додати до замовлення"><svg class="i"><use href="#i-plus"/></svg></a></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ ПЕРЕВАГИ (4–6 карток) ============ -->
+<section class="sec sec-tint" id="why">
   <div class="wrap">
-    <div class="head center"><span class="kicker">Переваги</span><h2>Чому його обирають</h2></div>
+    <div class="head center"><p class="kicker">Переваги</p><h2>Чому його обирають</h2><span class="squiggle" aria-hidden="true"></span></div>
+    <!-- ✏️ іконка — назва в #i-…, заголовок 2–4 слова, текст 1 речення. Кольори кружечків c1–c4 по черзі -->
     <div class="cards">
-      <!-- ✏️ ТЕКСТ: 4–6 переваг, тільки правдиві (з характеристик товару). Іконку беремо зі списку вгорі: #i-shield, #i-leaf, #i-drop, #i-heart… -->
-      <div class="card"><span class="ico float"><svg class="i"><use href="#i-shield"/></svg></span><b>Перевага 1</b><p>Пояснення одним реченням.</p></div>
-      <div class="card"><span class="ico float d2"><svg class="i"><use href="#i-sparkle"/></svg></span><b>Перевага 2</b><p>Пояснення одним реченням.</p></div>
-      <div class="card"><span class="ico float d3"><svg class="i"><use href="#i-drop"/></svg></span><b>Перевага 3</b><p>Пояснення одним реченням.</p></div>
-      <div class="card"><span class="ico float d4"><svg class="i"><use href="#i-gift"/></svg></span><b>Перевага 4</b><p>Пояснення одним реченням.</p></div>
+      <div class="card"><span class="ico c1"><svg class="i"><use href="#i-sparkle"/></svg></span><b>Перевага 1</b><p>Одне речення, чим це корисно покупцю.</p></div>
+      <div class="card"><span class="ico c2"><svg class="i"><use href="#i-shield"/></svg></span><b>Перевага 2</b><p>Одне речення, чим це корисно покупцю.</p></div>
+      <div class="card"><span class="ico c3"><svg class="i"><use href="#i-drop"/></svg></span><b>Перевага 3</b><p>Одне речення, чим це корисно покупцю.</p></div>
+      <div class="card"><span class="ico c4"><svg class="i"><use href="#i-heart"/></svg></span><b>Перевага 4</b><p>Одне речення, чим це корисно покупцю.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ============ 6. ЯК ЦЕ ПРАЦЮЄ / ДЛЯ КОГО ============ -->
-<section class="sec soft">
+<!-- ============ ЯК ЦЕ ПРАЦЮЄ / ДЛЯ КОГО ============ -->
+<section class="ritual">
+  <div class="ritual-a">
+    <p class="kicker kicker-light">Як це працює</p>
+    <!-- ✏️ h2 — 3–5 слів; 3 кроки використання товару -->
+    <h2>Просто щодня.</h2>
+    <span class="squiggle sq-light" aria-hidden="true"></span>
+    <ol class="ritual-steps">
+      <li><b>01</b>Перший крок</li>
+      <li><b>02</b>Другий крок</li>
+      <li><b>03</b>Результат</li>
+    </ol>
+    <a class="link link-light" href="#order">Замовити</a>
+  </div>
+  <!-- ✏️ фото товару в роботі -->
+  <div class="ritual-b"><img src="img/placeholder.svg" alt="Назва товару — у використанні" width="1000" height="1000" loading="lazy"></div>
+  <div class="ritual-c">
+    <div class="stamp" aria-hidden="true">
+      <!-- ✏️ коротке гасло по колу, двічі через • -->
+      <svg class="stamp-ring" viewBox="0 0 120 120"><defs><path id="ring2" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs><text><textPath href="#ring2">ГАСЛО ТОВАРУ • ГАСЛО ТОВАРУ •</textPath></text></svg>
+      <svg class="i stamp-ico"><use href="#i-heart"/></svg>
+    </div>
+    <p class="kicker">Кому підійде</p>
+    <ul class="who">
+      <li>Хто і для чого — 1</li>
+      <li>Хто і для чого — 2</li>
+      <li>У подарунок — кому і на яке свято</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ ХАРАКТЕРИСТИКИ ============ -->
+<section class="sec" id="specs">
+  <div class="wrap specs-grid">
+    <div class="specs-pic"><img src="img/placeholder.svg" alt="Назва товару — деталі" width="800" height="800" loading="lazy"></div>
+    <div>
+      <p class="kicker">Деталі</p>
+      <h2>Характеристики</h2>
+      <span class="squiggle sq-terra" aria-hidden="true"></span>
+      <!-- ✏️ ТЕКСТ: лише з картки товару / від постачальника. Невідоме — прибрати рядок -->
+      <table class="specs">
+        <tr><th>Розміри</th><td>—</td></tr>
+        <tr><th>Матеріал</th><td>—</td></tr>
+        <tr><th>Колір</th><td>—</td></tr>
+        <tr><th>Вага</th><td>—</td></tr>
+      </table>
+      <div class="kit"><span class="ring c3"><svg class="i"><use href="#i-box"/></svg></span><div><b>У комплекті</b><p>Що реально в коробці.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ВІДГУКИ — вмикати (прибрати hidden) лише зі справжніми відгуками ============ -->
+<section class="sec sec-tint" id="reviews" hidden>
   <div class="wrap">
-    <div class="split">
-      <div class="pic"><img src="img/placeholder.svg" alt="Назва товару у використанні" width="800" height="800" loading="lazy"></div>
-      <div>
-        <span class="kicker"><svg class="i"><use href="#i-bolt"/></svg> Як це працює</span>
-        <h2>Просто й зручно щодня</h2>
-        <p>2–3 речення про те, як користуватися товаром і що отримує покупець.</p>
-        <ul class="ticks"><li><svg class="i"><use href="#i-check"/></svg>Деталь 1</li><li><svg class="i"><use href="#i-check"/></svg>Деталь 2</li><li><svg class="i"><use href="#i-check"/></svg>Деталь 3</li></ul>
-      </div>
-    </div>
-    <div class="split rev">
-      <div class="pic"><img src="img/placeholder.svg" alt="Назва товару крупним планом" width="800" height="800" loading="lazy"></div>
-      <div>
-        <span class="kicker"><svg class="i"><use href="#i-users"/></svg> Для кого</span>
-        <h2>Кому підійде</h2>
-        <p>Кому підійде товар і в яких ситуаціях він знадобиться.</p>
-        <ul class="ticks"><li><svg class="i"><use href="#i-check"/></svg>Ситуація 1</li><li><svg class="i"><use href="#i-check"/></svg>Ситуація 2</li><li><svg class="i"><use href="#i-check"/></svg>Ситуація 3</li></ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ 7. ХАРАКТЕРИСТИКИ ============ -->
-<section class="sec">
-  <div class="wrap narrow">
-    <div class="head center"><span class="kicker"><svg class="i"><use href="#i-ruler"/></svg> Деталі</span><h2>Характеристики</h2></div>
-    <!-- ✏️ ТЕКСТ: лише з картки товару / від постачальника. Чого не знаємо — не пишемо -->
-    <table class="specs">
-      <tr><th>Матеріал</th><td>—</td></tr>
-      <tr><th>Розмір</th><td>—</td></tr>
-      <tr><th>Вага</th><td>—</td></tr>
-      <tr><th>Колір</th><td>—</td></tr>
-    </table>
-    <div class="kit">
-      <span class="t-ico"><svg class="i"><use href="#i-box"/></svg></span>
-      <div><b>У комплекті</b><p>Товар — 1 шт, упаковка.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ 8. АКЦІЯ 2 ШТ (ховається сама, якщо discount2 = 0) ============ -->
-<section class="sec slim" id="deal2">
-  <div class="wrap narrow">
-    <div class="deal">
-      <span class="deal-ico float"><svg class="i"><use href="#i-gift"/></svg></span>
-      <div>
-        <h2>Беріть 2 — економте ще <span data-discount2>0</span> грн</h2>
-        <p>2 шт за <b><span data-sum2>998</span> грн</b> замість <s><span data-old2>1996</span> грн</s>. Собі й у подарунок.</p>
-      </div>
-      <a href="#order" class="btn btn-light" data-pick="2">Хочу 2 шт</a>
-    </div>
-  </div>
-</section>
-
-<!-- ============ 9. ВІДГУКИ ============ -->
-<!-- ⚠️ Вмикаємо (прибираємо hidden) ТІЛЬКИ коли є справжні відгуки: скріни, фото від покупців. Не вигадуємо. -->
-<section class="sec" id="reviews" hidden>
-  <div class="wrap">
-    <div class="head center"><span class="kicker"><svg class="i"><use href="#i-heart"/></svg> Відгуки</span><h2>Що кажуть покупці</h2></div>
+    <div class="head center"><p class="kicker">Відгуки</p><h2>Що кажуть покупці</h2><span class="squiggle" aria-hidden="true"></span></div>
     <div class="cards">
-      <div class="review"><img src="img/placeholder.svg" alt="Відгук покупця" loading="lazy"><b>Ім'я</b><p>Текст відгуку.</p></div>
+      <div class="card review"><img src="img/placeholder.svg" alt="Відгук покупця" loading="lazy"><b>Ім'я</b><p>Текст відгуку.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ============ 10. ЯК ЗАМОВИТИ ============ -->
-<section class="sec soft">
+<!-- ============ ЯК ЗАМОВИТИ ============ -->
+<section class="sec sec-tint">
   <div class="wrap">
-    <div class="head center"><span class="kicker">3 кроки</span><h2>Як замовити</h2></div>
+    <div class="head center"><p class="kicker">3 кроки</p><h2>Як замовити</h2><span class="squiggle" aria-hidden="true"></span></div>
     <ol class="steps">
-      <li><span class="step-ico"><svg class="i"><use href="#i-tag"/></svg></span><b>Заявка</b><span>Ім'я і телефон у формі нижче — 30 секунд</span></li>
-      <li><span class="step-ico"><svg class="i"><use href="#i-phone"/></svg></span><b>Дзвінок</b><span>Менеджер передзвонить і уточнить доставку</span></li>
-      <li><span class="step-ico"><svg class="i"><use href="#i-box"/></svg></span><b>Отримання</b><span>Оглядаєте на Новій пошті й оплачуєте</span></li>
+      <li><b class="num c1">01</b><strong>Заявка</strong><span>Ім'я і телефон у формі нижче — 30 секунд</span></li>
+      <li><b class="num c2">02</b><strong>Дзвінок</strong><span>Менеджер передзвонить і уточнить доставку</span></li>
+      <li><b class="num c3">03</b><strong>Отримання</strong><span>Оглядаєте на Новій пошті й оплачуєте</span></li>
     </ol>
   </div>
 </section>
 
-<!-- ============ 11. ФОРМА ЗАМОВЛЕННЯ ============ -->
+<!-- ============ ФОРМА ЗАМОВЛЕННЯ ============ -->
 <section class="sec order" id="order">
-  <div class="blob b3"></div>
   <div class="wrap narrow">
-    <div class="head center"><span class="kicker"><svg class="i"><use href="#i-flame"/></svg> Знижка <span data-percent>-50%</span></span><h2>Встигніть за акційною ціною</h2></div>
+    <div class="head center"><p class="kicker">Знижка <span data-percent>-50%</span> до кінця дня</p><h2>Встигніть за акційною ціною</h2><span class="squiggle sq-terra" aria-hidden="true"></span></div>
     <div class="timer" id="timer" aria-label="До кінця акції">
       <div><b>00</b><small>год</small></div><div><b>00</b><small>хв</small></div><div><b>00</b><small>сек</small></div>
     </div>
@@ -225,6 +264,21 @@
         </label>
       </div>
 
+      <!-- ДОПРОДАЖ (галочка): назва й ціна — у js/config.js (upsellName, upsellPrice). Порожньо — блок зникне -->
+      <label class="upsell" id="upsell">
+        <input type="checkbox" name="upsell" value="1">
+        <span class="upsell-body">
+          <img src="img/upsell.webp" alt="Допродаж" width="400" height="400" loading="lazy">
+          <span class="upsell-text">
+            <span class="upsell-tag">Додати до замовлення</span>
+            <b data-upsell-name>Допродаж</b>
+            <!-- ✏️ одне речення, чим допродаж корисний разом з товаром -->
+            <small>Одне речення, навіщо це разом з товаром</small>
+            <span class="upsell-price">+<span data-upsell-price>49</span> грн</span>
+          </span>
+        </span>
+      </label>
+
       <label class="field"><span>Ваше ім'я</span>
         <input name="name" autocomplete="name" placeholder="Олена" required minlength="2" maxlength="60"></label>
       <label class="field"><span>Телефон</span>
@@ -240,25 +294,32 @@
   </div>
 </section>
 
-<!-- ============ 12. ПИТАННЯ ============ -->
-<section class="sec">
+<!-- ============ ПИТАННЯ ============ -->
+<section class="sec sec-tint" id="faq">
   <div class="wrap narrow">
-    <div class="head center"><span class="kicker">FAQ</span><h2>Часті питання</h2></div>
+    <div class="head center"><p class="kicker">Питання</p><h2>Часті питання</h2><span class="squiggle" aria-hidden="true"></span></div>
     <details><summary>Як оплатити?</summary><p>Оплата при отриманні на Новій пошті: спочатку оглядаєте товар, потім платите.</p></details>
     <details><summary>Скільки йде доставка?</summary><p>Відправляємо Новою поштою, доставка 1–3 дні по Україні.</p></details>
     <details><summary>Що як не підійде?</summary><p>Обмін або повернення протягом 14 днів згідно із законом про захист прав споживачів.</p></details>
+    <!-- ✏️ 1–2 питання саме про цей товар (розмір, догляд, як користуватися) -->
+    <details><summary>Питання про товар?</summary><p>Відповідь — лише з фактів картки товару.</p></details>
     <details><summary>Можна замовити більше 2 шт?</summary><p>Так, напишіть кількість менеджеру, коли він зателефонує.</p></details>
   </div>
 </section>
 
-<!-- ============ 13. НИЗ ============ -->
+<!-- ============ НИЗ ============ -->
 <footer class="foot">
-  <div class="wrap">
-    <a class="logo" href="#"><span class="logo-dot"></span><span data-shop>Посуд</span></a>
-    <p class="foot-links"><a href="politics.html">Політика конфіденційності</a> · <a href="ugoda.html">Публічна оферта</a> · <a href="povernennya.html">Обмін і повернення</a></p>
-    <!-- ✏️ ЮРИДИЧНІ ДАНІ: ФОП і контакти магазину -->
-    <p>© <span id="year">2026</span> · [ФОП Прізвище І. П.] · [телефон]</p>
+  <div class="wrap foot-grid">
+    <div>
+      <a class="logo logo-foot" href="#"><span class="logo-name"><span data-shop>Магазин</span><i class="bub b-1"></i><i class="bub b-2"></i></span><span class="logo-sub">товари для дому</span></a>
+      <p>Доставка Новою поштою по всій Україні. Оплата при отриманні.</p>
+    </div>
+    <nav class="foot-links" aria-label="Документи">
+      <a href="politics.html">Політика конфіденційності</a><a href="ugoda.html">Публічна оферта</a><a href="povernennya.html">Обмін і повернення</a>
+    </nav>
   </div>
+  <!-- ✏️ ЮРИДИЧНІ ДАНІ: ФОП і контакти магазину -->
+  <p class="wrap foot-copy">© <span id="year">2026</span> · [ФОП Прізвище Ім'я По батькові] · тел. [телефон] · [email]</p>
 </footer>
 
 <div class="sticky" id="sticky"><a href="#order" class="btn btn-big">Замовити за <span data-price>499</span> грн <svg class="i"><use href="#i-arrow"/></svg></a></div>
