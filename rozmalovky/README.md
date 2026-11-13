@@ -18,3 +18,5 @@
 ## Публікація
 `.github/workflows/deploy-rozmalovky.yml`: після змін у `rozmalovky/` в гілці `main` сайт завантажується в `/noosal.shop/rozmalovky/`.
 Один раз: у панелі хостингу створіть піддомен `rozmalovky` для `noosal.shop` і ввімкніть SSL (Let's Encrypt).
+
+
